@@ -17,10 +17,10 @@ npm install electron-osx-sign -g
 ### From the Command Line
 
 ```sh
-electron-sign <app> [optional flags...]
+electron-osx-sign <app> [optional flags...]
 ```
 
-For details on the optional flags, run `electron-sign --help` or see [usage.txt](https://github.com/sethlu/electron-sign/blob/master/usage.txt).
+For details on the optional flags, run `electron-osx-sign --help` or see [usage.txt](https://github.com/sethlu/electron-sign/blob/master/usage.txt).
 
 ### Programmatic API
 
