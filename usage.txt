@@ -1,0 +1,11 @@
+Usage: electron-sign <app>
+
+Optional options
+
+entitlements          Path to entitlements file for signing Mac App Store application.
+entitlements-inherit  Path to child entitlements file for signing frameworks and bundles of Mac App Store application.
+helper-path           Path to `Electron Helper.app`, which may be renamed.
+helper-eh-path        Path to `Electron Helper EH.app`, which may be renamed.
+helper-np-path        Path to `Electron Helper NP.app`, which may be renamed.
+identity              Name of certificate to use when signing. Default to retrieve from `login.keychain`.
+platform              Build platform of Electron. Allowed values: darwin, mas. Default darwin.

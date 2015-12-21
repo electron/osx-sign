@@ -12,10 +12,10 @@ function generateAppFrameworksPath (opts) {
   return path.join(opts.app, 'Contents', 'Frameworks')
 }
 
-function generateHelperAppPath (opts, suffix, callback) {
+function generateHelperAppPath (opts, opt, suffix, callback) {
   var appFrameworksPath = generateAppFrameworksPath(opts)
   var appBasename = generateAppBasename(opts)
-  if (opts['helper-path']) {
+  if (opts[opt]) {
     // Use helper path if specified
     if (fs.existsSync(opts['helper-path'])) return opts['helper-path']
     else return callback(new Error('Specified Electron Helper not found.'))
@@ -66,21 +66,21 @@ function signDarwinApplication (opts, callback) {
     path.join(appFrameworksPath, 'Squirrel.framework')
   ]
 
-  var helperPath = generateHelperAppPath(opts, null, callback)
+  var helperPath = generateHelperAppPath(opts, 'helper-path', null, callback)
   if (helperPath) {
     var helperExecutablePath = generateHelperAppExecutablePath(opts, helperPath, null, callback)
     if (helperExecutablePath) childPaths.unshift(helperExecutablePath, helperPath)
     else return callback(new Error('Missing Electron Helper, stopped.'))
   }
 
-  var helperEHPath = generateHelperAppPath(opts, ' EH', callback)
+  var helperEHPath = generateHelperAppPath(opts, 'helper-eh-path', ' EH', callback)
   if (helperEHPath) {
     var helperEHExecutablePath = generateHelperAppExecutablePath(opts, helperEHPath, ' EH', callback)
     if (helperEHExecutablePath) childPaths.unshift(helperEHExecutablePath, helperEHPath)
     else return callback(new Error('Missing Electron Helper EH, stopped.'))
   }
 
-  var helperNPPath = generateHelperAppPath(opts, ' NP', callback)
+  var helperNPPath = generateHelperAppPath(opts, 'helper-np-path', ' NP', callback)
   if (helperNPPath) {
     var helperNPExecutablePath = generateHelperAppExecutablePath(opts, helperNPPath, ' NP', callback)
     if (helperNPExecutablePath) childPaths.unshift(helperNPExecutablePath, helperNPPath)
@@ -125,21 +125,21 @@ function signMASApplication (opts, callback) {
     path.join(appFrameworksPath, 'Electron Framework.framework')
   ]
 
-  var helperPath = generateHelperAppPath(opts, null, callback)
+  var helperPath = generateHelperAppPath(opts, 'helper-path', null, callback)
   if (helperPath) {
     var helperExecutablePath = generateHelperAppExecutablePath(opts, helperPath, null, callback)
     if (helperExecutablePath) childPaths.unshift(helperExecutablePath, helperPath)
     else return callback(new Error('Missing Electron Helper, stopped.'))
   }
 
-  var helperEHPath = generateHelperAppPath(opts, ' EH', callback)
+  var helperEHPath = generateHelperAppPath(opts, 'helper-eh-path', ' EH', callback)
   if (helperEHPath) {
     var helperEHExecutablePath = generateHelperAppExecutablePath(opts, helperEHPath, ' EH', callback)
     if (helperEHExecutablePath) childPaths.unshift(helperEHExecutablePath, helperEHPath)
     else return callback(new Error('Missing Electron Helper EH, stopped.'))
   }
 
-  var helperNPPath = generateHelperAppPath(opts, ' NP', callback)
+  var helperNPPath = generateHelperAppPath(opts, 'helper-np-path', ' NP', callback)
   if (helperNPPath) {
     var helperNPExecutablePath = generateHelperAppExecutablePath(opts, helperNPPath, ' NP', callback)
     if (helperNPExecutablePath) childPaths.unshift(helperNPExecutablePath, helperNPPath)
@@ -183,28 +183,28 @@ function signMASApplication (opts, callback) {
   })
 }
 
-module.exports = function sign (opts, cb) {
-  if (!opts.app) return cb(new Error('Path to aplication must be specified.'))
+module.exports = function sign (app, opts, cb) {
+  if (!opts) opts = {}
+  if (!cb) cb = function () {}
+  if (!app) return cb(new Error('Path to aplication must be specified.'))
+  opts.app = app
   if (!opts.platform || opts.platform === 'darwin') {
     opts.platform = 'darwin' // fallback to darwin if no platform specified
   } else if (opts.platform === 'mas') {
     // To sign apps for Mac App Store, an entitlements file is required,
     // especially for app sandboxing (as well some other services).
-    if (!opts.entitlements) {
-      // Fallback entitlements for sandboxing by default:
-      // Note this may cause troubles while running an signed app due to
-      // missing keys special to the project.
-      // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
-      opts.entitlements = path.join(__dirname, 'mas.default.plist')
-      if (!opts['entitlements-inherit']) opts['entitlements-inherit'] = path.join(__dirname, 'mas.inherit.default.plist')
-    }
+    // Fallback entitlements for sandboxing by default:
+    // Note this may cause troubles while running an signed app due to
+    // missing keys special to the project.
+    // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
+    if (!opts.entitlements) opts.entitlements = path.join(__dirname, 'mas.default.plist')
+    if (!opts['entitlements-inherit']) opts['entitlements-inherit'] = path.join(__dirname, 'mas.inherit.default.plist')
   } else {
     return cb(new Error('Only platform darwin and mas are supported.'))
   }
   series([
     function (cb) {
       if (!opts.identity) {
-        console.log('Finding identity for signing...')
         child.exec('security find-identity', function (err, stdout, stderr) {
           if (err) return cb(new Error('Error in finding an identity.'))
           var lines = stdout.split('\n')
@@ -225,8 +225,7 @@ module.exports = function sign (opts, cb) {
               }
             }
           }
-          if (opts.identity) console.log('Identity found:', opts.identity)
-          else cb(new Error('No identity found for signing.'))
+          if (!opts.identity) cb(new Error('No identity found for signing.'))
           cb()
         })
       }
