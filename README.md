@@ -90,6 +90,59 @@ from the dev directory, and tell us if all tests should pass.
 
 When this command is fun for the first time: `electron-download` will download all major releases of Electron available for OS X from 0.24.0, and save to `~/.electron/`, which might take up less than 1GB of disk space.
 
+A successful testing should look something like:
+
+```
+$ npm test
+
+> electron-sign@0.1.0 test /Users/zhuolu/Development/electron-osx-sign
+> standard && tape test
+
+Calling electron-download before running tests...
+Running tests...
+TAP version 13
+# setup
+# defaults-test:v0.24.0-darwin-x64
+ok 1 app signed
+# defaults-test:v0.25.0-darwin-x64
+ok 2 app signed
+# defaults-test:v0.26.0-darwin-x64
+ok 3 app signed
+# defaults-test:v0.27.0-darwin-x64
+ok 4 app signed
+# defaults-test:v0.28.0-darwin-x64
+ok 5 app signed
+# defaults-test:v0.29.0-darwin-x64
+ok 6 app signed
+# defaults-test:v0.30.0-darwin-x64
+ok 7 app signed
+# defaults-test:v0.31.0-darwin-x64
+ok 8 app signed
+# defaults-test:v0.32.0-darwin-x64
+ok 9 app signed
+# defaults-test:v0.33.0-darwin-x64
+ok 10 app signed
+# defaults-test:v0.34.0-darwin-x64
+ok 11 app signed
+# defaults-test:v0.34.0-mas-x64
+ok 12 app signed
+# defaults-test:v0.35.0-darwin-x64
+ok 13 app signed
+# defaults-test:v0.35.0-mas-x64
+ok 14 app signed
+# defaults-test:v0.36.0-darwin-x64
+ok 15 app signed
+# defaults-test:v0.36.0-mas-x64
+ok 16 app signed
+# teardown
+
+1..16
+# tests 16
+# pass  16
+
+# ok
+```
+
 ## Related
 
 - [electron-packager](https://github.com/maxogden/electron-packager) - package your electron app in OS executables (.app, .exe, etc) via JS or CLI
