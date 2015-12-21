@@ -11,6 +11,7 @@ if (!args._[0] || args.help) {
 
 sign(args._[0], args, function done (err) {
   if (err) {
+    console.error('Sign failed.')
     if (err.message) console.error(err.message)
     else console.error(err, err.stack)
     process.exit(1)

@@ -1,3 +1,4 @@
+
 Usage: electron-sign <app>
 
 Optional options

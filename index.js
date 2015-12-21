@@ -185,9 +185,10 @@ function signMASApplication (opts, callback) {
 
 module.exports = function sign (app, opts, cb) {
   if (!opts) opts = {}
-  if (!cb) cb = function () {}
-  if (!app) return cb(new Error('Path to aplication must be specified.'))
   opts.app = app
+  if (!cb) cb = function () {}
+  if (!opts.app) return cb(new Error('Path to aplication must be specified.'))
+  if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
   if (!opts.platform || opts.platform === 'darwin') {
     opts.platform = 'darwin' // fallback to darwin if no platform specified
   } else if (opts.platform === 'mas') {
