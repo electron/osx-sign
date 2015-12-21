@@ -4,11 +4,11 @@ var args = require('minimist')(process.argv.slice(2))
 var usage = fs.readFileSync(__dirname + '/usage.txt').toString()
 var sign = require('./')
 
-args.app = args._[1]
+args.app = args._[0]
 
-if (!args.identity) {
-  console.error(usage)
-  process.exit(1)
+if (args.help) {
+  console.log(usage)
+  process.exit(0)
 }
 
 sign(args, function done (err) {
