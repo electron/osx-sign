@@ -25,7 +25,7 @@ For details on the optional flags, run `electron-sign --help` or see [usage.txt]
 ### Programmatic API
 
 ```javascript
-var sign = require('electron-sign')
+var sign = require('electron-osx-sign')
 sign(app[, opts[, function done (err) { }]])
 ```
 
