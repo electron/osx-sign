@@ -1,5 +1,5 @@
 
-Usage: electron-sign <app>
+Usage: electron-osx-sign <app>
 
 Optional options
 

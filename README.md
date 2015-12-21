@@ -1,15 +1,15 @@
-# electron-sign
+# electron-osx-sign
 
-Codesign for Electron-packed apps
+Code signing for Electron-packed OS X apps
 
 ## Installation
 
 ```sh
 # for use in npm scripts
-npm install electron-sign --save-dev
+npm install electron-osx-sign --save-dev
 
 # for use from cli
-npm install electron-sign -g
+npm install electron-osx-sign -g
 ```
 
 ## Usage
