@@ -5,10 +5,12 @@ Code signing for Electron-packed OS X apps
 ## Installation
 
 ```sh
-# for use in npm scripts
+# For use in npm scripts
 npm install electron-osx-sign --save-dev
+```
 
-# for use from cli
+```sh
+# For use from cli
 npm install electron-osx-sign -g
 ```
 
@@ -46,20 +48,23 @@ See [mas.default.plist](https://github.com/sethlu/electron-sign/blob/master/mas.
 
 `entitlements-inherit` - *String*
 
-Path to child entitlements file for signing frameworks and bundles of Mac App Store application.
+Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with `entitlements` provided, or for a `mas` platform version.*
 See [mas.inherit.default.plist](https://github.com/sethlu/electron-sign/blob/master/mas.inherit.default.plist) for default.
 
 `helper-path` - *String*
 
 Path to `Electron Helper.app`, which may be renamed.
+Default to detect from application package.
 
 `helper-eh-path` - *String*
 
 Path to `Electron Helper EH.app`, which may be renamed.
+Default to detect from application package.
 
 `helper-np-path` - *String*
 
 Path to `Electron Helper NP.app`, which may be renamed.
+Default to detect from application package.
 
 *Note: `helper-path`, `helper-eh-path`, `helper-np-path` needn't provided unless error thrown for not able to find any of them automatically.*
 
@@ -68,11 +73,13 @@ Path to `Electron Helper NP.app`, which may be renamed.
 Name of certificate to use when signing.
 Default to retrieve from `login.keychain`.
 
+Signing platform `mas` will look for `3rd Party Mac Developer Application: * <*>`, and platform `darwin` will look for `Developer ID Application: * <*>` by default.
+
 `platform` - *String*
 
 Build platform of Electron.
-Allowed values: *darwin, mas*
-Default: *darwin*
+Allowed values: `darwin`, `mas`.
+Default to auto detect from presence of `Mantle.framework`, `ReactiveCocoa.framework`, and `Squirrel.framework` within the application package.
 
 ##### callback
 
@@ -95,7 +102,7 @@ A successful testing should look something like:
 ```
 $ npm test
 
-> electron-sign@0.1.0 test /Users/zhuolu/Development/electron-osx-sign
+> electron-sign@0.1.0 test electron-osx-sign
 > standard && tape test
 
 Calling electron-download before running tests...

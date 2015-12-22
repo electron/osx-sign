@@ -9,4 +9,4 @@ helper-path           Path to `Electron Helper.app`, which may be renamed.
 helper-eh-path        Path to `Electron Helper EH.app`, which may be renamed.
 helper-np-path        Path to `Electron Helper NP.app`, which may be renamed.
 identity              Name of certificate to use when signing. Default to retrieve from `login.keychain`.
-platform              Build platform of Electron. Allowed values: darwin, mas. Default darwin.
+platform              Build platform of Electron. Allowed values: darwin, mas. Default to auto detect from application package.
