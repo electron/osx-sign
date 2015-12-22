@@ -10,7 +10,7 @@ function createDefaultsTest (release) {
     t.timeoutAfter(config.timeout)
 
     var app = util.generateAppPath(release)
-    var opts = Object.create(release)
+    var opts = null // test with no options
 
     waterfall([
       function (cb) {
