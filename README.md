@@ -1,6 +1,6 @@
 # electron-osx-sign
 
-Code signing for Electron-packed OS X apps
+Code signing for Electron-packed OS X apps [![npm][npm_img]][npm_url]
 
 ## Installation
 
@@ -102,7 +102,7 @@ A successful testing should look something like:
 ```
 $ npm test
 
-> electron-sign@0.1.0 test electron-osx-sign
+> electron-sign@0.1.1 test electron-osx-sign
 > standard && tape test
 
 Calling electron-download before running tests...
@@ -153,3 +153,6 @@ ok 16 app signed
 ## Related
 
 - [electron-packager](https://github.com/maxogden/electron-packager) - package your electron app in OS executables (.app, .exe, etc) via JS or CLI
+
+[npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
+[npm_url]: https://npmjs.org/package/electron-osx-sign
