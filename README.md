@@ -1,6 +1,6 @@
-# electron-osx-sign
+# electron-osx-sign [![npm][npm_img]][npm_url]
 
-Code signing for Electron-packed OS X apps [![npm][npm_img]][npm_url]
+Code signing for Electron-packed OS X apps
 
 ## Installation
 
