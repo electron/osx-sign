@@ -157,8 +157,9 @@ function signApplication (opts, callback) {
 }
 
 module.exports = function sign (app, opts, cb) {
-  if (!opts) opts = {app: app}
+  if (!opts) opts = {}
   if (!cb) cb = function () {}
+  opts.app = app
   if (!opts.app) return cb(new Error('Path to aplication must be specified.'))
   if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
 
