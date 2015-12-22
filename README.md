@@ -85,6 +85,10 @@ Default to auto detect from presence of `Mantle.framework`, `ReactiveCocoa.frame
 
 `err` - *Error*
 
+## Frequently Raised Issues
+
+If error persists with `A timestamp was expected but was not found.` or `The timestamp service is not available.`, please try code sign the application later. The intermittent nature of the failures is a networking issue in communicating with the timestamp server.
+
 ## Test
 
 As developer certificates are required for `codesign` in OS X, this module may not be tested via online build services. If you wish to test out this module, enter:
@@ -102,7 +106,7 @@ A successful testing should look something like:
 ```
 $ npm test
 
-> electron-sign@0.1.1 test electron-osx-sign
+> electron-sign@0.1.3 test electron-osx-sign
 > standard && tape test
 
 Calling electron-download before running tests...
