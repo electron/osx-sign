@@ -4,12 +4,14 @@ var args = require('minimist')(process.argv.slice(2), {boolean: ['help']})
 var usage = fs.readFileSync(__dirname + '/usage.txt').toString()
 var sign = require('./')
 
-if (!args._[0] || args.help) {
+args.app = args._[0]
+
+if (!args.app || args.help) {
   console.log(usage)
   process.exit(0)
 }
 
-sign(args._[0], args, function done (err) {
+sign(args, function done (err) {
   if (err) {
     console.error('Sign failed.')
     if (err.message) console.error(err.message)

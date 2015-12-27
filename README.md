@@ -22,22 +22,45 @@ npm install electron-osx-sign -g
 electron-osx-sign <app> [optional flags...]
 ```
 
+Example:
+
+```sh
+electron-osx-sign path/to/my.app
+```
+
 For details on the optional flags, run `electron-osx-sign --help` or see [usage.txt](https://github.com/sethlu/electron-sign/blob/master/usage.txt).
 
-### Programmatic API
+### From the API
 
 ```javascript
 var sign = require('electron-osx-sign')
-sign(app[, opts[, function done (err) { }]])
+sign(opts[, function done (err) { }])
 ```
 
-#### sign(app, opts, callback)
+Example:
 
-##### app
+```javascript
+var sign = require('electron-osx-sign')
+sign({
+  app: 'path/to/my.app'
+}, function done (err) {
+  if (err) {
+    // Handle the error
+    return;
+  }
+  // Regular callback
+})
+```
 
-Path to the application
+#### sign(opts, callback)
 
 ##### opts
+
+**Required**
+
+`app` - *String*
+
+Path to the application package.
 
 **Optional**
 
@@ -106,7 +129,7 @@ A successful testing should look something like:
 ```
 $ npm test
 
-> electron-sign@0.1.3 test electron-osx-sign
+> electron-sign@0.1.4 test electron-osx-sign
 > standard && tape test
 
 Calling electron-download before running tests...
