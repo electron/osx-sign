@@ -59,11 +59,13 @@ function signApplication (opts, callback) {
   var childPaths
   if (opts.platform === 'mas') {
     childPaths = [
+      path.join(appFrameworksPath, 'Electron Framework.framework', 'Libraries', 'libnode.dylib'),
       path.join(appFrameworksPath, 'Electron Framework.framework', 'Versions', 'A', 'Electron Framework'),
       path.join(appFrameworksPath, 'Electron Framework.framework')
     ]
   } else if (opts.platform === 'darwin') {
     childPaths = [
+      path.join(appFrameworksPath, 'Electron Framework.framework', 'Libraries', 'libnode.dylib'),
       path.join(appFrameworksPath, 'Electron Framework.framework', 'Versions', 'A', 'Electron Framework'),
       path.join(appFrameworksPath, 'Electron Framework.framework'),
       path.join(appFrameworksPath, 'Mantle.framework', 'Versions', 'A', 'Mantle'),
@@ -160,7 +162,7 @@ module.exports = function sign (opts, cb) {
   if (!opts.app) return cb(new Error('Path to aplication must be specified.'))
   if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
   if (!cb) cb = function () {}
-  
+
   // Match platform if none is provided
   if (!opts.platform) {
     var appFrameworksPath = generateAppFrameworksPath(opts)
