@@ -177,6 +177,10 @@ ok 16 app signed
 # ok
 ```
 
+## Collaborators
+
+Thanks to [seanchas116](https://github.com/seanchas116) for improving the usability of this project implementation.
+
 ## Related
 
 - [electron-packager](https://github.com/maxogden/electron-packager) - package your electron app in OS executables (.app, .exe, etc) via JS or CLI
