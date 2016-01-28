@@ -9,12 +9,13 @@ function createDefaultsTest (release) {
   return function (t) {
     t.timeoutAfter(config.timeout)
 
-    var app = util.generateAppPath(release)
-    var opts = null // test with no options
+    var opts = {
+        app: util.generateAppPath(release)
+    } // test with no options
 
     waterfall([
       function (cb) {
-        sign(app, opts, cb)
+        sign(opts, cb)
       }, function (cb) {
         t.pass('app signed')
         cb()
