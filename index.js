@@ -59,11 +59,13 @@ function signApplication (opts, callback) {
   var childPaths
   if (opts.platform === 'mas') {
     childPaths = [
+      path.join(appFrameworksPath, 'Electron Framework.framework', 'Libraries', 'libnode.dylib'),
       path.join(appFrameworksPath, 'Electron Framework.framework', 'Versions', 'A', 'Electron Framework'),
       path.join(appFrameworksPath, 'Electron Framework.framework')
     ]
   } else if (opts.platform === 'darwin') {
     childPaths = [
+      path.join(appFrameworksPath, 'Electron Framework.framework', 'Libraries', 'libnode.dylib'),
       path.join(appFrameworksPath, 'Electron Framework.framework', 'Versions', 'A', 'Electron Framework'),
       path.join(appFrameworksPath, 'Electron Framework.framework'),
       path.join(appFrameworksPath, 'Mantle.framework', 'Versions', 'A', 'Mantle'),
