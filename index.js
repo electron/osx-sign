@@ -159,10 +159,9 @@ function signApplication (opts, callback) {
 }
 
 module.exports = function sign (opts, cb) {
+  if (!cb) cb = function () {}
   if (!opts.app) return cb(new Error('Path to aplication must be specified.'))
   if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
-  if (!cb) cb = function () {}
-
   // Match platform if none is provided
   if (!opts.platform) {
     var appFrameworksPath = generateAppFrameworksPath(opts)
