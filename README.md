@@ -28,7 +28,7 @@ Example:
 electron-osx-sign path/to/my.app
 ```
 
-For details on the optional flags, run `electron-osx-sign --help` or see [usage.txt](https://github.com/sethlu/electron-sign/blob/master/usage.txt).
+For details on the optional flags, run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/sethlu/electron-sign/blob/master/bin/electron-osx-sign-usage.txt).
 
 ### From the API
 

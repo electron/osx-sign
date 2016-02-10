@@ -4,7 +4,7 @@
   "description": "Codesign for Electron-packed apps",
   "main": "index.js",
   "bin": {
-    "electron-osx-sign": "cli.js"
+    "electron-osx-sign": "bin/electron-osx-sign.js"
   },
   "repository": {
     "type": "git",
