@@ -165,10 +165,9 @@ module.exports = function sign (opts, cb) {
   // Match platform if none is provided
   if (!opts.platform) {
     var appFrameworksPath = generateAppFrameworksPath(opts)
-    if (!fs.existsSync(path.join(appFrameworksPath, 'Mantle.framework'))
-        && !fs.existsSync(path.join(appFrameworksPath, 'ReactiveCocoa.framework'))
-        && !fs.existsSync(path.join(appFrameworksPath, 'Squirrel.framework'))) {
-      // These frameworks do not exist in an Mac App Store version
+    if (!fs.existsSync(path.join(appFrameworksPath, 'Squirrel.framework'))) {
+      // The presence of Squirrel.framework identifies a Mac App Store build as
+      // used in https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md
       opts.platform = 'mas'
     } else {
       opts.platform = 'darwin'
