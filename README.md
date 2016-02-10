@@ -135,7 +135,7 @@ A successful testing should look something like:
 ```
 $ npm test
 
-> electron-sign@0.1.4 test electron-osx-sign
+> electron-sign@0.1.5 test electron-osx-sign
 > standard && tape test
 
 Calling electron-download before running tests...
