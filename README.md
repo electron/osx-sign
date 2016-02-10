@@ -112,11 +112,15 @@ Default to auto detect from presence of `Mantle.framework`, `ReactiveCocoa.frame
 
 If error persists with `A timestamp was expected but was not found.` or `The timestamp service is not available.`, please try code sign the application later. The intermittent nature of the failures is a networking issue in communicating with the timestamp server.
 
-## Electron
+## Notes
 
-Note: The Mac App Store builds of Electron started from v0.34.0.
+- As `productbuild` is not yet incorporated into this code-signing module, please refer to [#5](https://github.com/sethlu/electron-osx-sign/issues/5) for packing signed applications for iTunes Connect submission.
 
-Note: From v0.36.0 there was a bug preventing GPU process to start after the app being sandboxed, so it is recommended to use v0.35.x before this bug gets fixed. You can find more about this in issue [atom/electron#3871](https://github.com/atom/electron/issues/3871), referred here at https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md.
+- In current version, binaries except built in within Electron will not be signed automatically. Please manually sign those before running this code-sign module. This issue may be resolved in future development, refer to [#6](https://github.com/sethlu/electron-osx-sign/issues/6).
+
+- The Mac App Store builds of Electron started from v0.34.0.
+
+- From v0.36.0 there was a bug preventing GPU process to start after the app being sandboxed, so it is recommended to use v0.35.x before this bug gets fixed. You can find more about this in issue [atom/electron#3871](https://github.com/atom/electron/issues/3871), referred here at https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md.
 
 ## Test
 
@@ -185,7 +189,7 @@ ok 16 app signed
 
 ## Collaborators
 
-Thanks to [seanchas116](https://github.com/seanchas116) for improving the usability of this project implementation.
+Thanks to [seanchas116](https://github.com/seanchas116), and [jasonhinkle](https://github.com/jasonhinkle) for improving the usability of this project implementation.
 
 ## Related
 
