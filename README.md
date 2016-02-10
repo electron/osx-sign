@@ -112,6 +112,12 @@ Default to auto detect from presence of `Mantle.framework`, `ReactiveCocoa.frame
 
 If error persists with `A timestamp was expected but was not found.` or `The timestamp service is not available.`, please try code sign the application later. The intermittent nature of the failures is a networking issue in communicating with the timestamp server.
 
+## Electron
+
+Note: The Mac App Store builds of Electron started from v0.24.0.
+
+Note: From v0.36.0 there was a bug preventing GPU process to start after the app being sandboxed, so it is recommended to use v0.35.x before this bug gets fixed. You can find more about this in issue [atom/electron#3871](https://github.com/atom/electron/issues/3871), referred here at https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md.
+
 ## Test
 
 As developer certificates are required for `codesign` in OS X, this module may not be tested via online build services. If you wish to test out this module, enter:
