@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sethlu/electron-sign.git"
+    "url": "git+https://github.com/sethlu/electron-osx-sign.git"
   },
   "author": "sethlu",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sethlu/electron-sign/issues"
+    "url": "https://github.com/sethlu/electron-osx-sign/issues"
   },
-  "homepage": "https://github.com/sethlu/electron-sign",
+  "homepage": "https://github.com/sethlu/electron-osx-sign",
   "dependencies": {
     "minimist": "^1.1.1",
     "run-series": "^1.1.1"
