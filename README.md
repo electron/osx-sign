@@ -114,7 +114,7 @@ If error persists with `A timestamp was expected but was not found.` or `The tim
 
 ## Electron
 
-Note: The Mac App Store builds of Electron started from v0.24.0.
+Note: The Mac App Store builds of Electron started from v0.34.0.
 
 Note: From v0.36.0 there was a bug preventing GPU process to start after the app being sandboxed, so it is recommended to use v0.35.x before this bug gets fixed. You can find more about this in issue [atom/electron#3871](https://github.com/atom/electron/issues/3871), referred here at https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md.
 
