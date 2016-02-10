@@ -1,6 +1,6 @@
 # electron-osx-sign [![npm][npm_img]][npm_url]
 
-Code signing for Electron-packed OS X apps
+Code-signing for Electron-packed OS X apps
 
 ## Installation
 
@@ -110,7 +110,7 @@ Default to auto detect from presence of `Mantle.framework`, `ReactiveCocoa.frame
 
 ## Frequently Raised Issues
 
-If error persists with `A timestamp was expected but was not found.` or `The timestamp service is not available.`, please try code sign the application later. The intermittent nature of the failures is a networking issue in communicating with the timestamp server.
+If error persists with `A timestamp was expected but was not found.` or `The timestamp service is not available.`, please try code-sign the application later. The intermittent nature of the failures is a networking issue in communicating with the timestamp server.
 
 ## Notes
 
