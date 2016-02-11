@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 var fs = require('fs')
-var args = require('minimist')(process.argv.slice(2), {boolean: ['help']})
+var args = require('minimist')(process.argv.slice(2), {boolean: ['help', 'verbose']})
 var usage = fs.readFileSync(__dirname + '/electron-osx-sign-usage.txt').toString()
 var sign = require('../')
 
-args.app = args._[0]
+args.app = args._.shift()
 
 if (!args.app || args.help) {
   console.log(usage)
