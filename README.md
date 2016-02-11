@@ -2,6 +2,8 @@
 
 Code-signing for Electron-packed OS X apps
 
+The signing procedure follows what described in https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md.
+
 ## Installation
 
 ```sh
@@ -113,6 +115,8 @@ Default to auto detect from presence of `Mantle.framework`, `ReactiveCocoa.frame
 If error persists with `A timestamp was expected but was not found.` or `The timestamp service is not available.`, please try code-sign the application later. The intermittent nature of the failures is a networking issue in communicating with the timestamp server.
 
 ## Notes
+
+- Accidental halt of `codesign` may result in files with `.cstemp` extension created within the application. Please manually remove those files to avoid any issues that may occur during signing.
 
 - As `productbuild` is not yet incorporated into this code-signing module, please refer to [#5](https://github.com/sethlu/electron-osx-sign/issues/5) for packing signed applications for iTunes Connect submission.
 
