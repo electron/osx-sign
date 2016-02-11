@@ -113,6 +113,7 @@ function signApplication (opts, callback) {
             + '--entitlements "' + opts['entitlements-inherit'] + '" \ '
             + '"' + path + '"'
           , cb)
+          if (opts.verbose) console.log('Signing... ' + path)
         })
       })
       operations.push(function (cb) {
@@ -120,6 +121,7 @@ function signApplication (opts, callback) {
           + '--entitlements "' + opts.entitlements + '" \ '
           + '"' + opts.app + '"'
         , cb)
+        if (opts.verbose) console.log('Signing... ' + opts.app)
       })
     } else if (opts.platform === 'darwin') {
       // TODO: Signing darwin builds with entitlements
@@ -131,12 +133,14 @@ function signApplication (opts, callback) {
         child.exec('codesign -f -s "' + opts.identity + '" -fv \ '
           + '"' + path + '"'
         , cb)
+        if (opts.verbose) console.log('Signing... ' + path)
       })
     })
     operations.push(function (cb) {
       child.exec('codesign -f -s "' + opts.identity + '" -fv \ '
         + '"' + opts.app + '"'
       , cb)
+      if (opts.verbose) console.log('Signing... ' + opts.app)
     })
   }
 
@@ -145,6 +149,7 @@ function signApplication (opts, callback) {
     child.exec('codesign -v --verbose=4 \ '
       + '"' + opts.app + '"'
     , cb)
+    if (opts.verbose) console.log('Verifying sign...')
   })
   if (opts.entitlements) {
     // Check entitlements
@@ -156,6 +161,7 @@ function signApplication (opts, callback) {
         if (!stdout) return cb(new Error('Entitlements failed to be signed.'))
         cb()
       })
+      if (opts.verbose) console.log('Verifying entitlements...')
     })
   }
   series(operations, function (err) {
