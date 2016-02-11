@@ -13,13 +13,13 @@ function generateAppFrameworksPath (opts) {
 }
 
 function generateHelperAppPath (opts, opt, suffix, callback) {
-  var appFrameworksPath = generateAppFrameworksPath(opts)
-  var appBasename = generateAppBasename(opts)
   if (opts[opt]) {
     // Use helper path if specified
-    if (fs.existsSync(opts['helper-path'])) return opts['helper-path']
+    if (fs.existsSync(opts[opt])) return opts[opt]
     else return callback(new Error('Specified Electron Helper not found.'))
   } else {
+    var appFrameworksPath = generateAppFrameworksPath(opts)
+    var appBasename = generateAppBasename(opts)
     var helperPath
     if (fs.existsSync(helperPath = path.join(appFrameworksPath, appBasename + ' Helper' + (suffix || '') + '.app'))) {
       // Try to look for helper named after app (assume renamed)
@@ -36,19 +36,25 @@ function generateHelperAppPath (opts, opt, suffix, callback) {
   }
 }
 
-function generateHelperAppExecutablePath (opts, helperPath, suffix, callback) {
-  var appBasename = generateAppBasename(opts)
-  var helperExecutablePath
-  if (fs.existsSync(helperExecutablePath = path.join(helperPath, 'Contents', 'MacOS', appBasename + ' Helper' + (suffix || '')))) {
-    // Try to look for helper named after app (assume renamed)
-    return helperExecutablePath
-  } else if (fs.existsSync(helperExecutablePath = path.join(helperPath, 'Contents', 'MacOS', 'Electron Helper' + (suffix || '')))) {
-    // Try to look for helper by default
-    return helperExecutablePath
+function generateHelperAppExecutablePath (opts, opt, helperPath, suffix, callback) {
+  if (opts[opt]) {
+    // Use helper executable path if specified
+    if (fs.existsSync(opts[opt])) return opts[opt]
+    else return callback(new Error('Specified Electron Helper executable not found.'))
   } else {
-    // Helper not found
-    callback(new Error('Electron Helper' + (suffix || '') + ' executable not found.'))
-    return null
+    var appBasename = generateAppBasename(opts)
+    var helperExecutablePath
+    if (fs.existsSync(helperExecutablePath = path.join(helperPath, 'Contents', 'MacOS', appBasename + ' Helper' + (suffix || '')))) {
+      // Try to look for helper named after app (assume renamed)
+      return helperExecutablePath
+    } else if (fs.existsSync(helperExecutablePath = path.join(helperPath, 'Contents', 'MacOS', 'Electron Helper' + (suffix || '')))) {
+      // Try to look for helper by default
+      return helperExecutablePath
+    } else {
+      // Helper not found
+      callback(new Error('Electron Helper' + (suffix || '') + ' executable not found.'))
+      return null
+    }
   }
 }
 
@@ -79,21 +85,21 @@ function signApplication (opts, callback) {
 
   var helperPath = generateHelperAppPath(opts, 'helper-path', null, callback)
   if (helperPath) {
-    var helperExecutablePath = generateHelperAppExecutablePath(opts, helperPath, null, callback)
+    var helperExecutablePath = generateHelperAppExecutablePath(opts, 'helper-executable-path', helperPath, null, callback)
     if (helperExecutablePath) childPaths.unshift(helperExecutablePath, helperPath)
     else return callback(new Error('Missing Electron Helper, stopped.'))
   }
 
   var helperEHPath = generateHelperAppPath(opts, 'helper-eh-path', ' EH', callback)
   if (helperEHPath) {
-    var helperEHExecutablePath = generateHelperAppExecutablePath(opts, helperEHPath, ' EH', callback)
+    var helperEHExecutablePath = generateHelperAppExecutablePath(opts, 'helper-eh-executable-path', helperEHPath, ' EH', callback)
     if (helperEHExecutablePath) childPaths.unshift(helperEHExecutablePath, helperEHPath)
     else return callback(new Error('Missing Electron Helper EH, stopped.'))
   }
 
   var helperNPPath = generateHelperAppPath(opts, 'helper-np-path', ' NP', callback)
   if (helperNPPath) {
-    var helperNPExecutablePath = generateHelperAppExecutablePath(opts, helperNPPath, ' NP', callback)
+    var helperNPExecutablePath = generateHelperAppExecutablePath(opts, 'helper-np-executable-path', helperNPPath, ' NP', callback)
     if (helperNPExecutablePath) childPaths.unshift(helperNPExecutablePath, helperNPPath)
     else return callback(new Error('Missing Electron Helper NP, stopped.'))
   }
