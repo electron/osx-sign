@@ -21,7 +21,7 @@ npm install electron-osx-sign -g
 ### From the Command Line
 
 ```sh
-electron-osx-sign <app> [optional flags...]
+electron-osx-sign <app> [--options...]
 ```
 
 Example:
@@ -36,7 +36,7 @@ For details on the optional flags, run `electron-osx-sign --help` or see [electr
 
 ```javascript
 var sign = require('electron-osx-sign')
-sign(opts[, function done (err) { }])
+sign(opts[, function done (err) {}])
 ```
 
 Example:
@@ -81,14 +81,29 @@ See [mas.inherit.default.plist](https://github.com/sethlu/electron-sign/blob/mas
 Path to `Electron Helper.app`, which may be renamed.
 Default to detect from application package.
 
+`helper-executable-path` - *String*
+
+Path to `Electron Helper`, which may be renamed, in `Electron Helper.app`.
+Default to detect from application package.
+
 `helper-eh-path` - *String*
 
 Path to `Electron Helper EH.app`, which may be renamed.
 Default to detect from application package.
 
+`helper-eh-executable-path` - *String*
+
+Path to `Electron Helper EH`, which may be renamed, in `Electron Helper EH.app`.
+Default to detect from application package.
+
 `helper-np-path` - *String*
 
 Path to `Electron Helper NP.app`, which may be renamed.
+Default to detect from application package.
+
+`helper-np-executable-path` - *String*
+
+Path to `Electron Helper NP`, which may be renamed, in `Electron Helper NP.app`.
 Default to detect from application package.
 
 *Note: `helper-path`, `helper-eh-path`, `helper-np-path` needn't provided unless error thrown for not able to find any of them automatically.*
@@ -105,6 +120,11 @@ Signing platform `mas` will look for `3rd Party Mac Developer Application: * <*>
 Build platform of Electron.
 Allowed values: `darwin`, `mas`.
 Default to auto detect from presence of `Mantle.framework`, `ReactiveCocoa.framework`, and `Squirrel.framework` within the application package.
+
+`verbose` - *Boolean*
+
+Verbose flag, to display every action through `console.log()`.
+Allowed values: `true`, `false`.
 
 ##### callback
 
