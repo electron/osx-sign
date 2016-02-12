@@ -19,4 +19,5 @@ sign(args, function done (err) {
     process.exit(1)
   }
   console.log('Application signed:', args.app)
+  process.exit(0)
 })
