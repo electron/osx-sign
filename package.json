@@ -4,6 +4,7 @@
   "description": "Code-signing for Electron-packed OS X apps.",
   "main": "index.js",
   "bin": {
+    "electron-osx-flat": "bin/electron-osx-flat.js",
     "electron-osx-sign": "bin/electron-osx-sign.js"
   },
   "repository": {

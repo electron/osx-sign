@@ -33,6 +33,29 @@ function findIdentity (opts, identity, cb) {
   })
 }
 
+function flatApplication (opts, callback) {
+  var operations = []
+
+  // Call productbuild
+  operations.push(function (cb) {
+    child.exec([
+      'productbuild',
+      '--component', '"' + opts.app.replace(/"/g, '\\"') + '"', '"' + opts.install.replace(/"/g, '\\"') + '"',
+      '--sign', '"' + opts.identity + '"',
+      '"' + opts.pkg.replace(/"/g, '\\"') + '"'
+    ].join(' '), function (err, stdout, stderr) {
+      if (err) return cb(err)
+      cb()
+    })
+    if (opts.verbose) console.log('Flattening with productbuild...')
+  })
+
+  series(operations, function (err) {
+    if (err) return callback(err)
+    callback()
+  })
+}
+
 function generateAppBasename (opts) {
   return path.basename(opts.app, '.app')
 }
@@ -291,5 +314,63 @@ module.exports = function sign (opts, cb) {
       console.log('> identity           ', opts.identity)
     }
     return signApplication(opts, cb)
+  })
+}
+
+module.exports.flat = function flat (opts, cb) {
+  // Default callback function if none provided
+  if (!cb) {
+    cb = function (err) {
+      if (err) {
+        if (opts.verbose) {
+          console.error('Flat failed.')
+          if (err.message) console.error(err.message)
+          else console.error(err, err.stack)
+        }
+        return
+      }
+      if (opts.verbose) console.log('Application flattened:', opts.pkg)
+    }
+  }
+  if (!opts.app) return cb(new Error('Path to aplication must be specified.'))
+  if (path.extname(opts.app) !== '.app') return cb(new Error('Extension of application must be `.app`.'))
+  if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
+  // Match platform if none is provided
+  if (!opts.pkg) {
+    if (opts.verbose) console.warn('No `--pkg` passed in arguments, will fallback to default, inferred from the given application.')
+    opts.pkg = path.join(path.dirname(opts.app), path.basename(opts.app, '.app') + '.pkg')
+  } else if (path.extname(opts.pkg) !== '.pkg') return cb(new Error('Extension of output package must be `.pkg`.'))
+  if (!opts.install) {
+    if (opts.verbose) console.warn('No `--install` passed in arguments, will fallback to default `/Applications`.')
+    opts.install = '/Applications'
+  }
+  series([
+    function (cb) {
+      // Checking identity with series for async execution of child process
+      if (!opts.identity) {
+        if (opts.verbose) console.warn('No `--identity` passed in arguments, matching identities...')
+        if (!opts.platform) {
+          if (opts.verbose) console.warn('No `--platform` passed in arguments, cheking Electron platform...')
+          detectElectronPlatform(opts)
+        } else if (opts.platform !== 'mas' && opts.platform !== 'darwin') {
+          return cb(new Error('Only platform `darwin` and `mas` are supported.'))
+        }
+        if (opts.platform === 'mas') {
+          findIdentity(opts, '3rd Party Mac Developer Installer', cb)
+        } else if (opts.platform === 'darwin') {
+          findIdentity(opts, 'Developer ID Installer', cb)
+        }
+      } else cb()
+    }
+  ], function (err) {
+    if (err) return cb(err)
+    if (opts.verbose) {
+      console.log('Flattening application...')
+      console.log('> application       ', opts.app)
+      console.log('> package-output    ', opts.pkg)
+      console.log('> install-path      ', opts.install)
+      console.log('> identity          ', opts.identity)
+    }
+    return flatApplication(opts, cb)
   })
 }
