@@ -2,7 +2,7 @@
 var fs = require('fs')
 var args = require('minimist')(process.argv.slice(2), {boolean: ['help', 'verbose']})
 var usage = fs.readFileSync(__dirname + '/electron-osx-flat-usage.txt').toString()
-var sign = require('../')
+var flat = require('../').flat
 
 args.app = args._.shift()
 
@@ -11,7 +11,7 @@ if (!args.app || args.help) {
   process.exit(0)
 }
 
-sign(args, function done (err) {
+flat(args, function done (err) {
   if (err) {
     console.error('Flat failed.')
     if (err.message) console.error(err.message)
