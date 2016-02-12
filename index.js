@@ -203,7 +203,7 @@ function signApplication (opts, callback) {
       child.exec([
         'codesign',
         '-d',
-        '--entitlements',
+        '--entitlements', '-',
         '"' + opts.app.replace(/"/g, '\\"') + '"'
       ].join(' '), function (err, stdout, stderr) {
         if (err) return cb(err)
