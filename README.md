@@ -1,8 +1,8 @@
 # electron-osx-sign [![npm][npm_img]][npm_url]
 
-Code-signing for Electron-packed OS X apps
+Code-signing for Electron-packed OS X apps.
 
-The signing procedure follows what described in https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md.
+The signing procedure follows what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).
 
 ## Installation
 
