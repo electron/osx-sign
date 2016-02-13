@@ -148,7 +148,7 @@ If error persists with `A timestamp was expected but was not found.` or `The tim
 
 - To verify Gatekeeper acceptance of signed application package, currently not included in the automation, for distribution outside the Mac App Store (`darwin` only), enter the following command in Terminal:
 ```
-spctl --ignore-cache --no-cache --assess --type execute --verbose=4 "path/to/my/app.app"
+spctl --ignore-cache --no-cache -a -vvvv --type execute "path/to/my/app.app"
 ```
 For more details, please refer to [Distributing Apps Outside the Mac App Store]( https://developer.apple.com/library/mac/documentation/IDEs/Conceptual/AppDistributionGuide/DistributingApplicationsOutside/DistributingApplicationsOutside.html).
 
