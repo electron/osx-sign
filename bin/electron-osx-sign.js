@@ -13,6 +13,10 @@ if (!args.app || args.help) {
   process.exit(0)
 }
 
+// Remove excess arguments
+delete args._
+delete args.help
+
 sign(args, function done (err) {
   if (err) {
     console.error('Sign failed.')

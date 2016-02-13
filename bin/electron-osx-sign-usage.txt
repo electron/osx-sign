@@ -13,5 +13,5 @@ helper-eh-executable-path   Path to `Electron Helper EH`, which may be renamed, 
 helper-np-path              Path to `Electron Helper NP.app`, which may be renamed.
 helper-np-executable-path   Path to `Electron Helper NP`, which may be renamed, in `Electron Helper NP.app`.
 identity                    Name of certificate to use when signing. Default to retrieve from `login.keychain`.
-platform                    Build platform of Electron. Allowed values: darwin, mas. Default to auto detect from application package.
+platform                    Build platform of Electron. Allowed values: `darwin`, `mas`. Default to auto detect from application package.
 verbose                     Verbose flag, to display every action.
