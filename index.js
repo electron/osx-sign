@@ -242,7 +242,8 @@ module.exports = function sign (opts, cb) {
   if (!opts.platform) {
     if (opts.verbose) console.warn('No `--platform` passed in arguments, cheking Electron platform...')
     detectElectronPlatform(opts)
-  } else if (opts.platform === 'mas') {
+  }
+  if (opts.platform === 'mas') {
     // To sign apps for Mac App Store, an entitlements file is required,
     // especially for app sandboxing (as well some other services).
     // Fallback entitlements for sandboxing by default:
