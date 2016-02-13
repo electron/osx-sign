@@ -111,6 +111,7 @@ function signApplication (opts, callback) {
       path.join(appFrameworksPath, 'Squirrel.framework')
     ]
   }
+  if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
 
   var helperPath = generateHelperAppPath(opts, 'helper-path', null, callback)
   if (helperPath) {
@@ -263,6 +264,9 @@ module.exports = function sign (opts, cb) {
   } else {
     return cb(new Error('Only platform `darwin` and `mas` are supported.'))
   }
+  if (opts.binaries) {
+    if (!Array.isArray(opts.binaries)) return cb(new Error('Additional binaries should be an Array.'))
+  }
   series([
     function (cb) {
       // Checking identity with series for async execution of child process
@@ -279,11 +283,12 @@ module.exports = function sign (opts, cb) {
     if (err) return cb(err)
     if (opts.verbose) {
       console.log('Signing application...')
-      console.log('> application       ', opts.app)
-      console.log('> platform          ', opts.platform)
-      console.log('> entitlements      ', opts.entitlements || false)
-      console.log('> child-entitlements', opts['entitlements-inherit'] || false)
-      console.log('> identity          ', opts.identity)
+      console.log('> application        ', opts.app)
+      console.log('> platform           ', opts.platform)
+      console.log('> entitlements       ', opts.entitlements || false)
+      console.log('> child-entitlements ', opts['entitlements-inherit'] || false)
+      console.log('> additional-binaries', opts.binaries)
+      console.log('> identity           ', opts.identity)
     }
     return signApplication(opts, cb)
   })

@@ -21,7 +21,7 @@ npm install electron-osx-sign -g
 ### From the Command Line
 
 ```sh
-electron-osx-sign <app> [--options...]
+electron-osx-sign <app> [additional-binaries...] [--options...]
 ```
 
 Example:
@@ -65,6 +65,11 @@ sign({
 Path to the application package.
 
 **Optional**
+
+`binaries` - *Array*
+
+Path to additional binaries that will be signed along with built-ins of Electron.
+Default to `null`.
 
 `entitlements` - *String*
 

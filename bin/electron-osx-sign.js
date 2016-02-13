@@ -5,6 +5,7 @@ var usage = fs.readFileSync(__dirname + '/electron-osx-sign-usage.txt').toString
 var sign = require('../')
 
 args.app = args._.shift()
+args.binaries = args._
 
 if (!args.app || args.help) {
   console.log(usage)
