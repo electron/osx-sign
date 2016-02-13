@@ -6,7 +6,6 @@ var sign = require('../')
 
 args.app = args._.shift()
 args.binaries = args._
-delete args._
 
 if (!args.app || args.help) {
   console.log(usage)
