@@ -212,7 +212,7 @@ function signApplication (opts, callback) {
       if (opts.verbose) console.log('Verifying entitlements...')
     })
   }
-  
+
   series(operations, function (err) {
     if (err) return callback(err)
     callback()
