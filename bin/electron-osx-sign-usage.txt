@@ -1,8 +1,9 @@
 
-Usage: electron-osx-sign <app> [--options...]
+Usage: electron-osx-sign <app> [additional-binaries...] [--options...]
 
 Optional options
 
+binaries                    Path to additional binaries that will be signed along with built-ins of Electron, spaced.
 entitlements                Path to entitlements file for signing Mac App Store application.
 entitlements-inherit        Path to child entitlements file for signing frameworks and bundles of Mac App Store application.
 helper-path                 Path to `Electron Helper.app`, which may be renamed.
