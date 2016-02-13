@@ -111,7 +111,7 @@ function signApplication (opts, callback) {
       path.join(appFrameworksPath, 'Squirrel.framework')
     ]
   }
-  if (opts.binaries) childPaths.concat(opts.binaries)
+  if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
 
   var helperPath = generateHelperAppPath(opts, 'helper-path', null, callback)
   if (helperPath) {
