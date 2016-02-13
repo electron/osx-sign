@@ -144,7 +144,13 @@ If error persists with `A timestamp was expected but was not found.` or `The tim
 
 - The Mac App Store builds of Electron started from v0.34.0.
 
-- From v0.36.0 there was a bug preventing GPU process to start after the app being sandboxed, so it is recommended to use v0.35.x before this bug gets fixed. You can find more about this in issue [atom/electron#3871](https://github.com/atom/electron/issues/3871), referred here at https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md.
+- From v0.36.0 there was a bug preventing GPU process to start after the app being sandboxed, so it is recommended to use v0.35.x before this bug gets fixed. You can find more about this in issue [atom/electron#3871](https://github.com/atom/electron/issues/3871), refer to [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).
+
+- To verify Gatekeeper acceptance of signed application package, currently not included in the automation, for distribution outside the Mac App Store (`darwin` only), enter the following command in Terminal:
+```
+spctl --ignore-cache --no-cache --assess --type execute --verbose=4 "path/to/my/app.app"
+```
+For more details, please refer to [Distributing Apps Outside the Mac App Store]( https://developer.apple.com/library/mac/documentation/IDEs/Conceptual/AppDistributionGuide/DistributingApplicationsOutside/DistributingApplicationsOutside.html).
 
 ## Test
 
