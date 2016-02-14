@@ -124,7 +124,7 @@ Signing platform `mas` will look for `3rd Party Mac Developer Application: * <*>
 
 Build platform of Electron.
 Allowed values: `darwin`, `mas`.
-Default to auto detect from presence of `Mantle.framework`, `ReactiveCocoa.framework`, and `Squirrel.framework` within the application package.
+Default to auto detect from presence of `Squirrel.framework` within the application package.
 
 `verbose` - *Boolean*
 
