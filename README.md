@@ -18,7 +18,9 @@ npm install electron-osx-sign -g
 
 ## Usage
 
-### From the Command Line
+### electron-osx-sign
+
+#### From the Command Line
 
 ```sh
 electron-osx-sign <app> [additional-binaries...] [--options...]
@@ -32,11 +34,11 @@ electron-osx-sign path/to/my.app
 
 For details on the optional flags, run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/sethlu/electron-sign/blob/master/bin/electron-osx-sign-usage.txt).
 
-### From the API
+#### From the API
 
 ```javascript
 var sign = require('electron-osx-sign')
-sign(opts[, function done (err) {}])
+sign(opts[, function callback (err) {}])
 ```
 
 Example:
@@ -45,7 +47,7 @@ Example:
 var sign = require('electron-osx-sign')
 sign({
   app: 'path/to/my.app'
-}, function done (err) {
+}, function callback (err) {
   if (err) {
     // Handle the error
     return;
@@ -54,15 +56,16 @@ sign({
 })
 ```
 
-#### sign(opts, callback)
+##### sign(opts, callback)
 
-##### opts
+###### opts
 
 **Required**
 
 `app` - *String*
 
 Path to the application package.
+Needs file extension `.app`.
 
 **Optional**
 
@@ -131,7 +134,86 @@ Default to auto detect from presence of `Squirrel.framework` within the applicat
 Verbose flag, to display every action through `console.log()`.
 Allowed values: `true`, `false`.
 
-##### callback
+###### callback
+
+`err` - *Error*
+
+### electron-osx-flat
+
+#### From the Command Line
+
+```sh
+electron-osx-flat <app> [--options...]
+```
+
+Example:
+
+```sh
+electron-osx-flat path/to/my.app
+```
+
+For details on the optional flags, run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/sethlu/electron-sign/blob/master/bin/electron-osx-flat-usage.txt).
+
+#### From the API
+
+```javascript
+var flat = require('electron-osx-sign').flat
+flat(opts[, function done (err) {}])
+```
+
+Example:
+
+```javascript
+var flat = require('electron-osx-sign').flat
+flat({
+  app: 'path/to/my.app'
+}, function done (err) {
+  if (err) {
+    // Handle the error
+    return;
+  }
+  // Regular callback
+})
+```
+
+##### flat(opts, callback)
+
+###### opts
+
+**Required**
+
+`app` - *String*
+
+Path to the application package.
+Needs file extension `.app`.
+
+**Optional**
+
+`identity` - *String*
+
+Name of certificate to use when flattening.
+Default to retrieve from `login.keychain`.
+
+`install` - *String*
+
+Path to install for the bundle.
+Default to `/Applications`.
+
+`platform` - *String*
+
+Build platform of Electron. Allowed values: `darwin`, `mas`.
+Default to auto detect from application.
+
+`pkg` - *String*
+
+Path to the output flattened package.
+Needs file extension `.app`.
+
+`verbose` - *String*
+
+Verbose flag, to display every action.
+
+###### callback
 
 `err` - *Error*
 
@@ -183,41 +265,57 @@ TAP version 13
 # setup
 # defaults-test:v0.24.0-darwin-x64
 ok 1 app signed
+ok 2 app flattened
 # defaults-test:v0.25.0-darwin-x64
-ok 2 app signed
-# defaults-test:v0.26.0-darwin-x64
 ok 3 app signed
-# defaults-test:v0.27.0-darwin-x64
-ok 4 app signed
-# defaults-test:v0.28.0-darwin-x64
+ok 4 app flattened
+# defaults-test:v0.26.0-darwin-x64
 ok 5 app signed
-# defaults-test:v0.29.0-darwin-x64
-ok 6 app signed
-# defaults-test:v0.30.0-darwin-x64
+ok 6 app flattened
+# defaults-test:v0.27.0-darwin-x64
 ok 7 app signed
-# defaults-test:v0.31.0-darwin-x64
-ok 8 app signed
-# defaults-test:v0.32.0-darwin-x64
+ok 8 app flattened
+# defaults-test:v0.28.0-darwin-x64
 ok 9 app signed
-# defaults-test:v0.33.0-darwin-x64
-ok 10 app signed
-# defaults-test:v0.34.0-darwin-x64
+ok 10 app flattened
+# defaults-test:v0.29.0-darwin-x64
 ok 11 app signed
-# defaults-test:v0.34.0-mas-x64
-ok 12 app signed
-# defaults-test:v0.35.0-darwin-x64
+ok 12 app flattened
+# defaults-test:v0.30.0-darwin-x64
 ok 13 app signed
-# defaults-test:v0.35.0-mas-x64
-ok 14 app signed
-# defaults-test:v0.36.0-darwin-x64
+ok 14 app flattened
+# defaults-test:v0.31.0-darwin-x64
 ok 15 app signed
+ok 16 app flattened
+# defaults-test:v0.32.0-darwin-x64
+ok 17 app signed
+ok 18 app flattened
+# defaults-test:v0.33.0-darwin-x64
+ok 19 app signed
+ok 20 app flattened
+# defaults-test:v0.34.0-darwin-x64
+ok 21 app signed
+ok 22 app flattened
+# defaults-test:v0.34.0-mas-x64
+ok 23 app signed
+ok 24 app flattened
+# defaults-test:v0.35.0-darwin-x64
+ok 25 app signed
+ok 26 app flattened
+# defaults-test:v0.35.0-mas-x64
+ok 27 app signed
+ok 28 app flattened
+# defaults-test:v0.36.0-darwin-x64
+ok 29 app signed
+ok 30 app flattened
 # defaults-test:v0.36.0-mas-x64
-ok 16 app signed
+ok 31 app signed
+ok 32 app flattened
 # teardown
 
-1..16
-# tests 16
-# pass  16
+1..32
+# tests 32
+# pass  32
 
 # ok
 ```

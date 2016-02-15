@@ -1,0 +1,10 @@
+
+Usage: electron-osx-flat <app> [--options...]
+
+Optional options
+
+identity                    Name of certificate to use when flattening. Default to retrieve from `login.keychain`.
+install                     Path to install for the bundle. Default `/Applications`.
+platform                    Build platform of Electron. Allowed values: darwin, mas. Default to auto detect from application package.
+pkg                         Path to the output package.
+verbose                     Verbose flag, to display every action.
