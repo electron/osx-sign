@@ -38,16 +38,18 @@ For details on the optional flags, run `electron-osx-sign --help` or see [electr
 
 ```javascript
 var sign = require('electron-osx-sign')
-sign(opts[, function callback (err) {}])
+sign(opts[, function done (err) {}])
 ```
 
 Example:
+
+##### sign(opts, callback)
 
 ```javascript
 var sign = require('electron-osx-sign')
 sign({
   app: 'path/to/my.app'
-}, function callback (err) {
+}, function done (err) {
   if (err) {
     // Handle the error
     return;
@@ -55,8 +57,6 @@ sign({
   // Regular callback
 })
 ```
-
-##### sign(opts, callback)
 
 ###### opts
 
@@ -114,7 +114,7 @@ Default to detect from application package.
 Path to `Electron Helper NP`, which may be renamed, in `Electron Helper NP.app`.
 Default to detect from application package.
 
-*Note: `helper-path`, `helper-eh-path`, `helper-np-path` needn't provided unless error thrown for not able to find any of them automatically.*
+*Note: `helper-path`, `helper-executable-path`, `helper-eh-path`, `helper-eh-executable-path`, `helper-np-path`, `helper-np-executable-path` needn't provided unless error thrown for not able to find any of them automatically.*
 
 `identity` - *String*
 
@@ -156,6 +156,8 @@ For details on the optional flags, run `electron-osx-flat --help` or see [electr
 
 #### From the API
 
+##### flat(opts, callback)
+
 ```javascript
 var flat = require('electron-osx-sign').flat
 flat(opts[, function done (err) {}])
@@ -175,8 +177,6 @@ flat({
   // Regular callback
 })
 ```
-
-##### flat(opts, callback)
 
 ###### opts
 
