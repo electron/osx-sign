@@ -32,7 +32,7 @@ Example:
 electron-osx-sign path/to/my.app
 ```
 
-For details on the optional flags, run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/sethlu/electron-sign/blob/master/bin/electron-osx-sign-usage.txt).
+For details on the optional flags, run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/sethlu/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt).
 
 #### From the API
 
@@ -77,12 +77,12 @@ Default to `null`.
 `entitlements` - *String*
 
 Path to entitlements file for signing Mac App Store application.
-See [mas.default.plist](https://github.com/sethlu/electron-sign/blob/master/mas.default.plist) for default.
+See [mas.default.plist](https://github.com/sethlu/electron-osx-sign/blob/master/mas.default.plist) for default.
 
 `entitlements-inherit` - *String*
 
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with `entitlements` provided, or for a `mas` platform version.*
-See [mas.inherit.default.plist](https://github.com/sethlu/electron-sign/blob/master/mas.inherit.default.plist) for default.
+See [mas.inherit.default.plist](https://github.com/sethlu/electron-osx-sign/blob/master/mas.inherit.default.plist) for default.
 
 `helper-path` - *String*
 
@@ -152,7 +152,7 @@ Example:
 electron-osx-flat path/to/my.app
 ```
 
-For details on the optional flags, run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/sethlu/electron-sign/blob/master/bin/electron-osx-flat-usage.txt).
+For details on the optional flags, run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/sethlu/electron-osx-sign/blob/master/bin/electron-osx-flat-usage.txt).
 
 #### From the API
 
