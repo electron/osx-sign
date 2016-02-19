@@ -71,7 +71,13 @@ function signApplication (opts, callback) {
       if (stat.isFile()) {
         switch (path.extname(filePath)) {
           case '': // binary
-            if (path.basename(filePath) === 'PkgInfo') break
+            switch (path.basename(filePath)) {
+              case 'PkgInfo':
+              case '.DS_Store':
+                return // ignore
+            }
+            childObjectsPaths.push(filePath) // to be signed (1)
+            break
           case '.dylib': // dynamic library
             childObjectsPaths.push(filePath) // to be signed (1)
             break
