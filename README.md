@@ -2,7 +2,9 @@
 
 Code-signing for Electron-packed OS X apps.
 
-The signing procedure follows what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).
+Please checkout our [Wiki](https://github.com/sethlu/electron-osx-sign/wiki) hosted on GitHub for walkthroughs and notes from past projects shipped with `electron-packager` and `electron-osx-sign`.
+
+Note: The signing procedure implemented in this package follows what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).
 
 ## Installation
 
