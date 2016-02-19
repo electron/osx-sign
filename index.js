@@ -64,98 +64,50 @@ function generateAppFrameworksPath (opts) {
   return path.join(opts.app, 'Contents', 'Frameworks')
 }
 
-function generateHelperAppPath (opts, opt, suffix, callback) {
-  if (opts[opt]) {
-    // Use helper path if specified
-    if (fs.existsSync(opts[opt])) return opts[opt]
-    else return callback(new Error('Specified Electron Helper not found.'))
-  } else {
-    var appFrameworksPath = generateAppFrameworksPath(opts)
-    var appBasename = generateAppBasename(opts)
-    var helperPath
-    if (fs.existsSync(helperPath = path.join(appFrameworksPath, appBasename + ' Helper' + (suffix || '') + '.app'))) {
-      // Try to look for helper named after app (assume renamed)
-      return helperPath
-    } else if (fs.existsSync(helperPath = path.join(appFrameworksPath,
-        'Electron Helper' + (suffix || '') + '.app'))) {
-      // Try to look for helper by default
-      return helperPath
-    } else {
-      // Helper not found
-      callback(new Error('Electron Helper' + (suffix || '') + ' not found.'))
-      return null
-    }
-  }
-}
-
-function generateHelperAppExecutablePath (opts, opt, helperPath, suffix, callback) {
-  if (opts[opt]) {
-    // Use helper executable path if specified
-    if (fs.existsSync(opts[opt])) return opts[opt]
-    else return callback(new Error('Specified Electron Helper executable not found.'))
-  } else {
-    var appBasename = generateAppBasename(opts)
-    var helperExecutablePath
-    if (fs.existsSync(helperExecutablePath = path.join(helperPath, 'Contents', 'MacOS', appBasename + ' Helper' + (suffix || '')))) {
-      // Try to look for helper named after app (assume renamed)
-      return helperExecutablePath
-    } else if (fs.existsSync(helperExecutablePath = path.join(helperPath, 'Contents', 'MacOS', 'Electron Helper' + (suffix || '')))) {
-      // Try to look for helper by default
-      return helperExecutablePath
-    } else {
-      // Helper not found
-      callback(new Error('Electron Helper' + (suffix || '') + ' executable not found.'))
-      return null
-    }
-  }
-}
-
 function signApplication (opts, callback) {
   var operations = []
   var appFrameworksPath = generateAppFrameworksPath(opts)
 
-  var childPaths
-  if (opts.platform === 'mas') {
-    childPaths = [
-      path.join(appFrameworksPath, 'Electron Framework.framework', 'Libraries', 'libnode.dylib'),
-      path.join(appFrameworksPath, 'Electron Framework.framework', 'Versions', 'A', 'Electron Framework'),
-      path.join(appFrameworksPath, 'Electron Framework.framework')
-    ]
-  } else if (opts.platform === 'darwin') {
-    childPaths = [
-      path.join(appFrameworksPath, 'Electron Framework.framework', 'Libraries', 'libnode.dylib'),
-      path.join(appFrameworksPath, 'Electron Framework.framework', 'Versions', 'A', 'Electron Framework'),
-      path.join(appFrameworksPath, 'Electron Framework.framework'),
-      path.join(appFrameworksPath, 'Mantle.framework', 'Versions', 'A', 'Mantle'),
-      path.join(appFrameworksPath, 'Mantle.framework'),
-      path.join(appFrameworksPath, 'ReactiveCocoa.framework', 'Versions', 'A', 'ReactiveCocoa'),
-      path.join(appFrameworksPath, 'ReactiveCocoa.framework'),
-      path.join(appFrameworksPath, 'Squirrel.framework', 'Versions', 'A', 'Squirrel'),
-      path.join(appFrameworksPath, 'Squirrel.framework')
-    ]
+  function walkSync (dirPath) {
+    fs.readdirSync(dirPath).forEach(function (name) {
+      var filePath = path.join(dirPath, name)
+      var stat = fs.lstatSync(filePath)
+      if (stat.isFile()) {
+        switch (path.extname(filePath)) {
+          case '': // binary
+            if (path.basename(filePath) === 'PkgInfo') break
+          case '.dylib': // dynamic library
+            childObjectsPaths.push(filePath) // to be signed (1)
+            break
+          case '.cstemp': // temporary file generated from past codesign
+            // TODO: Remove before signing
+            break
+          default:
+            if (path.extname(filePath).includes(' ')) {
+              // Still consider the file as binary if extension seems invalid
+              childObjectsPaths.push(filePath) // to be signed (1)
+            }
+        }
+      } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
+        switch (path.extname(filePath)) {
+          case '.app': // application
+            childAppsPaths.push(filePath) // to be signed (3)
+            break
+          case '.framework': // framework
+            childFrameworksPaths.push(filePath) // to be signed (2)
+            break
+        }
+        walkSync(filePath)
+      }
+    })
   }
+
+  var childPaths = [], childObjectsPaths = [], childFrameworksPaths = [], childAppsPaths = []
+  walkSync(appFrameworksPath)
+  childPaths = childPaths.concat(childObjectsPaths)
   if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
-
-  var helperPath = generateHelperAppPath(opts, 'helper-path', null, callback)
-  if (helperPath) {
-    var helperExecutablePath = generateHelperAppExecutablePath(opts, 'helper-executable-path', helperPath, null, callback)
-    if (helperExecutablePath) childPaths.unshift(helperExecutablePath, helperPath)
-    else return callback(new Error('Missing Electron Helper, stopped.'))
-  }
-
-  var helperEHPath = generateHelperAppPath(opts, 'helper-eh-path', ' EH', callback)
-  if (helperEHPath) {
-    var helperEHExecutablePath = generateHelperAppExecutablePath(opts, 'helper-eh-executable-path', helperEHPath, ' EH', callback)
-    if (helperEHExecutablePath) childPaths.unshift(helperEHExecutablePath, helperEHPath)
-    else return callback(new Error('Missing Electron Helper EH, stopped.'))
-  }
-
-  var helperNPPath = generateHelperAppPath(opts, 'helper-np-path', ' NP', callback)
-  if (helperNPPath) {
-    var helperNPExecutablePath = generateHelperAppExecutablePath(opts, 'helper-np-executable-path', helperNPPath, ' NP', callback)
-    if (helperNPExecutablePath) childPaths.unshift(helperNPExecutablePath, helperNPPath)
-    else return callback(new Error('Missing Electron Helper NP, stopped.'))
-  }
+  childPaths = childPaths.concat(childFrameworksPaths)
+  childPaths = childPaths.concat(childAppsPaths)
 
   if (opts.entitlements) {
     if (opts.platform === 'mas') {
