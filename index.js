@@ -56,10 +56,6 @@ function flatApplication (opts, callback) {
   })
 }
 
-function generateAppBasename (opts) {
-  return path.basename(opts.app, '.app')
-}
-
 function generateAppFrameworksPath (opts) {
   return path.join(opts.app, 'Contents', 'Frameworks')
 }
