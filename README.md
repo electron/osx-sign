@@ -86,38 +86,6 @@ See [mas.default.plist](https://github.com/sethlu/electron-osx-sign/blob/master/
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with `entitlements` provided, or for a `mas` platform version.*
 See [mas.inherit.default.plist](https://github.com/sethlu/electron-osx-sign/blob/master/mas.inherit.default.plist) for default.
 
-`helper-path` - *String*
-
-Path to `Electron Helper.app`, which may be renamed.
-Default to detect from application package.
-
-`helper-executable-path` - *String*
-
-Path to `Electron Helper`, which may be renamed, in `Electron Helper.app`.
-Default to detect from application package.
-
-`helper-eh-path` - *String*
-
-Path to `Electron Helper EH.app`, which may be renamed.
-Default to detect from application package.
-
-`helper-eh-executable-path` - *String*
-
-Path to `Electron Helper EH`, which may be renamed, in `Electron Helper EH.app`.
-Default to detect from application package.
-
-`helper-np-path` - *String*
-
-Path to `Electron Helper NP.app`, which may be renamed.
-Default to detect from application package.
-
-`helper-np-executable-path` - *String*
-
-Path to `Electron Helper NP`, which may be renamed, in `Electron Helper NP.app`.
-Default to detect from application package.
-
-*Note: `helper-path`, `helper-executable-path`, `helper-eh-path`, `helper-eh-executable-path`, `helper-np-path`, `helper-np-executable-path` needn't provided unless error thrown for not able to find any of them automatically.*
-
 `identity` - *String*
 
 Name of certificate to use when signing.
