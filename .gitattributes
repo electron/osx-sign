@@ -11,5 +11,5 @@ AUTHORS text
 
 *.js text
 *.json text
-*.plist text
+*.entitlements text
 *.txt text

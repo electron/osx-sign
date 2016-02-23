@@ -79,12 +79,12 @@ Default to `null`.
 `entitlements` - *String*
 
 Path to entitlements file for signing Mac App Store application.
-See [mas.default.plist](https://github.com/sethlu/electron-osx-sign/blob/master/mas.default.plist) for default.
+See [mas.default.entitlements](https://github.com/sethlu/electron-osx-sign/blob/master/mas.default.entitlements) for default.
 
 `entitlements-inherit` - *String*
 
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with `entitlements` provided, or for a `mas` platform version.*
-See [mas.inherit.default.plist](https://github.com/sethlu/electron-osx-sign/blob/master/mas.inherit.default.plist) for default.
+See [mas.inherit.default.entitlements](https://github.com/sethlu/electron-osx-sign/blob/master/mas.inherit.default.entitlements) for default.
 
 `identity` - *String*
 

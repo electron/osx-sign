@@ -229,11 +229,11 @@ module.exports = function sign (opts, cb) {
     // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
     if (!opts.entitlements) {
       if (opts.verbose) console.warn('No `--entitlements` passed in arguments, will fallback to default settings.')
-      opts.entitlements = path.join(__dirname, 'mas.default.plist')
+      opts.entitlements = path.join(__dirname, 'mas.default.entitlements')
     }
     if (!opts['entitlements-inherit']) {
       if (opts.verbose) console.warn('No `--entitlements-inherit` passed in arguments, will fallback to default settings.')
-      opts['entitlements-inherit'] = path.join(__dirname, 'mas.inherit.default.plist')
+      opts['entitlements-inherit'] = path.join(__dirname, 'mas.inherit.default.entitlements')
     }
   } else if (opts.platform === 'darwin') {
     // Not necessary to have entitlements for non Mac App Store distribution
