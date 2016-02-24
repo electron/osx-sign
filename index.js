@@ -16,15 +16,21 @@ function detectElectronPlatform (opts) {
 }
 
 function findIdentity (opts, identity, cb) {
-  child.exec('security find-identity', function (err, stdout, stderr) {
+  // Only to look for valid identities, excluding those flagged with
+  // CSSMERR_TP_CERT_EXPIRED or CSSMERR_TP_NOT_TRUSTED. Fix #9
+  child.exec([
+    'security',
+    'find-identity',
+    '-v'
+  ].join(' '), function (err, stdout, stderr) {
     if (err) return cb(new Error('Error in finding an identity.'))
     var lines = stdout.split('\n')
     var location
-    for (var i = 0, l = lines.length; i < l && !opts.identity; i++) {
+    for (var i = 0, l = lines.length; i < l; i++) {
       var line = lines[i]
       location = line.indexOf(identity)
       if (location >= 0) {
-        opts.identity = line.substring(location, line.length - 1)
+        opts.identity = line.substring(location, line.lastIndexOf('"'))
         break
       }
     }
