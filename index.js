@@ -247,7 +247,7 @@ module.exports = function sign (opts, cb) {
   if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
   // Match platform if none is provided
   if (!opts.platform) {
-    if (opts.verbose) console.warn('No `--platform` passed in arguments, cheking Electron platform...')
+    if (opts.verbose) console.warn('No `platform` passed in arguments, cheking Electron platform...')
     detectElectronPlatform(opts)
   }
   if (opts.platform === 'mas') {
@@ -258,11 +258,11 @@ module.exports = function sign (opts, cb) {
     // missing keys special to the project.
     // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
     if (!opts.entitlements) {
-      if (opts.verbose) console.warn('No `--entitlements` passed in arguments, will fallback to default settings.')
+      if (opts.verbose) console.warn('No `entitlements` passed in arguments, will fallback to default settings.')
       opts.entitlements = path.join(__dirname, 'mas.default.entitlements')
     }
     if (!opts['entitlements-inherit']) {
-      if (opts.verbose) console.warn('No `--entitlements-inherit` passed in arguments, will fallback to default settings.')
+      if (opts.verbose) console.warn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
       opts['entitlements-inherit'] = path.join(__dirname, 'mas.inherit.default.entitlements')
     }
   } else if (opts.platform === 'darwin') {
@@ -278,7 +278,7 @@ module.exports = function sign (opts, cb) {
     function (cb) {
       // Checking identity with series for async execution of child process
       if (!opts.identity) {
-        if (opts.verbose) console.warn('No `--identity` passed in arguments, matching identities...')
+        if (opts.verbose) console.warn('No `identity` passed in arguments, matching identities...')
         if (opts.platform === 'mas') {
           findIdentity(opts, '3rd Party Mac Developer Application', cb)
         } else if (opts.platform === 'darwin') {
@@ -321,20 +321,20 @@ module.exports.flat = function flat (opts, cb) {
   if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
   // Match platform if none is provided
   if (!opts.pkg) {
-    if (opts.verbose) console.warn('No `--pkg` passed in arguments, will fallback to default, inferred from the given application.')
+    if (opts.verbose) console.warn('No `pkg` passed in arguments, will fallback to default, inferred from the given application.')
     opts.pkg = path.join(path.dirname(opts.app), path.basename(opts.app, '.app') + '.pkg')
   } else if (path.extname(opts.pkg) !== '.pkg') return cb(new Error('Extension of output package must be `.pkg`.'))
   if (!opts.install) {
-    if (opts.verbose) console.warn('No `--install` passed in arguments, will fallback to default `/Applications`.')
+    if (opts.verbose) console.warn('No `install` passed in arguments, will fallback to default `/Applications`.')
     opts.install = '/Applications'
   }
   series([
     function (cb) {
       // Checking identity with series for async execution of child process
       if (!opts.identity) {
-        if (opts.verbose) console.warn('No `--identity` passed in arguments, matching identities...')
+        if (opts.verbose) console.warn('No `identity` passed in arguments, matching identities...')
         if (!opts.platform) {
-          if (opts.verbose) console.warn('No `--platform` passed in arguments, cheking Electron platform...')
+          if (opts.verbose) console.warn('No `platform` passed in arguments, cheking Electron platform...')
           detectElectronPlatform(opts)
         } else if (opts.platform !== 'mas' && opts.platform !== 'darwin') {
           return cb(new Error('Only platform `darwin` and `mas` are supported.'))
