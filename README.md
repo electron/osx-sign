@@ -193,8 +193,6 @@ If error persists with `A timestamp was expected but was not found.` or `The tim
 
 ## Notes
 
-- Accidental halt of `codesign` may result in files with `.cstemp` extension created within the application. Please manually remove those files to avoid any issues that may occur during signing.
-
 - To verify Gatekeeper acceptance of signed application package, currently not included in the automation, for distribution outside the Mac App Store (`darwin` only), enter the following command in Terminal:
 ```
 spctl --ignore-cache --no-cache -a -vvvv --type execute "path/to/my/app.app"
