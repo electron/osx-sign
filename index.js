@@ -278,7 +278,7 @@ module.exports = function sign (opts, cb) {
     function (cb) {
       // Checking identity with series for async execution of child process
       if (!opts.identity) {
-        if (opts.verbose) console.warn('No `identity` passed in arguments, matching identities...')
+        if (opts.verbose) console.warn('No `identity` passed in arguments, discovering identities...')
         if (opts.platform === 'mas') {
           findIdentity(opts, '3rd Party Mac Developer Application', cb)
         } else if (opts.platform === 'darwin') {
@@ -332,7 +332,7 @@ module.exports.flat = function flat (opts, cb) {
     function (cb) {
       // Checking identity with series for async execution of child process
       if (!opts.identity) {
-        if (opts.verbose) console.warn('No `identity` passed in arguments, matching identities...')
+        if (opts.verbose) console.warn('No `identity` passed in arguments, discovering identities...')
         if (!opts.platform) {
           if (opts.verbose) console.warn('No `platform` passed in arguments, cheking Electron platform...')
           detectElectronPlatform(opts)
