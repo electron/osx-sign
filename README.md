@@ -4,7 +4,7 @@ Code-signing for Electron-packed OS X apps.
 
 Please visit our [Wiki](https://github.com/sethlu/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with `electron-packager` and `electron-osx-sign`.
 
-*Note: The signing procedure implemented in this package follows what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
+*Note: The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
 
 ## Installation
 
@@ -103,7 +103,7 @@ Default to auto detect from presence of `Squirrel.framework` within the applicat
 
 `verbose` - *Boolean*
 
-Verbose flag, to display every action through `console.log()`.
+Verbose flag, to display logs.
 Allowed values: `true`, `false`.
 
 ###### callback
@@ -179,11 +179,11 @@ Default to auto detect from application.
 `pkg` - *String*
 
 Path to the output flattened package.
-Needs file extension `.app`.
+Needs file extension `.pkg`.
 
 `verbose` - *String*
 
-Verbose flag, to display every action.
+Verbose flag, to display logs.
 
 ###### callback
 
