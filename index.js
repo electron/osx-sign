@@ -114,16 +114,19 @@ function signApplication (opts, callback) {
   if (opts.entitlements) {
     if (opts.platform === 'mas') {
       // Sign with entitlements
-      childPaths.forEach(function (path) {
+      childPaths.forEach(function (filePath) {
         operations.push(function (cb) {
           child.exec([
             'codesign',
             '-s', '"' + opts.identity + '"',
             '-fv',
             '--entitlements', '"' + opts['entitlements-inherit'] + '"',
-            '"' + path.replace(/"/g, '\\"') + '"'
-          ].join(' '), cb)
-          if (opts.verbose) console.log('Signing...', path)
+            '"' + filePath.replace(/"/g, '\\"') + '"'
+          ].join(' '), function (err, stdout, stderr) {
+            if (err) return cb(err)
+            cb()
+          })
+          if (opts.verbose) console.log('Signing...', filePath)
         })
       })
       operations.push(function (cb) {
@@ -133,7 +136,10 @@ function signApplication (opts, callback) {
           '-fv',
           '--entitlements', '"' + opts.entitlements + '"',
           '"' + opts.app.replace(/"/g, '\\"') + '"'
-        ].join(' '), cb)
+        ].join(' '), function (err, stdout, stderr) {
+          if (err) return cb(err)
+          cb()
+        })
         if (opts.verbose) console.log('Signing...', opts.app)
       })
     } else if (opts.platform === 'darwin') {
@@ -141,15 +147,18 @@ function signApplication (opts, callback) {
     }
   } else {
     // Otherwise normally
-    childPaths.forEach(function (path) {
+    childPaths.forEach(function (filePath) {
       operations.push(function (cb) {
         child.exec([
           'codesign',
           '-s', '"' + opts.identity + '"',
           '-fv',
-          '"' + path.replace(/"/g, '\\"') + '"'
-        ].join(' '), cb)
-        if (opts.verbose) console.log('Signing...', path)
+          '"' + filePath.replace(/"/g, '\\"') + '"'
+        ].join(' '), function (err, stdout, stderr) {
+          if (err) return cb(err)
+          cb()
+        })
+        if (opts.verbose) console.log('Signing...', filePath)
       })
     })
     operations.push(function (cb) {
@@ -158,7 +167,10 @@ function signApplication (opts, callback) {
         '-s', '"' + opts.identity + '"',
         '-fv',
         '"' + opts.app.replace(/"/g, '\\"') + '"'
-      ].join(' '), cb)
+      ].join(' '), function (err, stdout, stderr) {
+        if (err) return cb(err)
+        cb()
+      })
       if (opts.verbose) console.log('Signing...', opts.app)
     })
   }
