@@ -206,6 +206,9 @@ A successful testing should look something like:
 ```
 $ npm test
 
+> electron-osx-sign@0.3.0-beta pretest electron-osx-sign
+> rimraf test/work
+
 > electron-osx-sign@0.3.0-beta test electron-osx-sign
 > standard && tape test
 
