@@ -2,7 +2,7 @@
 
 Code-signing for Electron-packed OS X apps.
 
-Please checkout our [Wiki](https://github.com/sethlu/electron-osx-sign/wiki) hosted on GitHub for walkthroughs and notes from past projects shipped with `electron-packager` and `electron-osx-sign`.
+Please visit our [Wiki](https://github.com/sethlu/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with `electron-packager` and `electron-osx-sign`.
 
 *Note: The signing procedure implemented in this package follows what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
 
@@ -10,13 +10,15 @@ Please checkout our [Wiki](https://github.com/sethlu/electron-osx-sign/wiki) hos
 
 ```sh
 # For use in npm scripts
-npm install electron-osx-sign --save-dev
+npm install electron-osx-sign --save
 ```
 
 ```sh
-# For use from cli
+# For use from CLI
 npm install electron-osx-sign -g
 ```
+
+*Note: `electron-osx-sign` will become a dependency of `electron-packager` in a later release for signing apps on OS X. However, please install this package globally for more customization beyond specifying identity and entitlements.*
 
 ## Usage
 
