@@ -56,13 +56,17 @@ function flatApplication (opts, callback) {
   })
 }
 
+function generateAppContentsPath (opts) {
+  return path.join(opts.app, 'Contents')
+}
+
 function generateAppFrameworksPath (opts) {
-  return path.join(opts.app, 'Contents', 'Frameworks')
+  return path.join(generateAppContentsPath(opts), 'Frameworks')
 }
 
 function signApplication (opts, callback) {
   var operations = []
-  var appFrameworksPath = generateAppFrameworksPath(opts)
+  var appContentsPath = generateAppContentsPath(opts)
 
   function walkSync (dirPath) {
     fs.readdirSync(dirPath).forEach(function (name) {
@@ -71,45 +75,53 @@ function signApplication (opts, callback) {
       if (stat.isFile()) {
         switch (path.extname(filePath)) {
           case '': // binary
-            switch (path.basename(filePath)) {
+            var baseName = path.basename(filePath)
+            switch (baseName) {
               case 'PkgInfo':
-              case '.DS_Store':
-                return // ignore
+                return // ignore files
+              default:
+                if (baseName[0] === '.') return // reject hidden files
             }
-            childObjectsPaths.push(filePath) // to be signed (1)
+            childPaths.push(filePath)
             break
           case '.dylib': // dynamic library
-            childObjectsPaths.push(filePath) // to be signed (1)
+            childPaths.push(filePath)
             break
           case '.cstemp': // temporary file generated from past codesign
-            // TODO: Remove before signing
+            operations.push(function (cb) {
+              fs.unlink(filePath, (err) => {
+                if (err) return cb(err)
+                cb()
+              })
+              console.log('Removing...', filePath)
+            })
             break
           default:
             if (path.extname(filePath).includes(' ')) {
               // Still consider the file as binary if extension seems invalid
-              childObjectsPaths.push(filePath) // to be signed (1)
+              childPaths.push(filePath)
             }
         }
       } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
-        switch (path.extname(filePath)) {
-          case '.app': // application
-            childAppsPaths.push(filePath) // to be signed (3)
-            break
-          case '.framework': // framework
-            childFrameworksPaths.push(filePath) // to be signed (2)
-            break
+        switch (path.basename(filePath)) {
+          case '_CodeSignature':
+          case 'node_modules':
+            return // ignore directories
         }
         walkSync(filePath)
+        switch (path.extname(filePath)) {
+          case '.app': // application
+          case '.framework': // framework
+            childPaths.push(filePath)
+            break
+        }
       }
     })
   }
 
-  var childPaths = [], childObjectsPaths = [], childFrameworksPaths = [], childAppsPaths = []
-  walkSync(appFrameworksPath)
-  childPaths = childPaths.concat(childObjectsPaths)
+  var childPaths = []
+  walkSync(appContentsPath)
   if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
-  childPaths = childPaths.concat(childFrameworksPaths)
-  childPaths = childPaths.concat(childAppsPaths)
 
   if (opts.entitlements) {
     if (opts.platform === 'mas') {
