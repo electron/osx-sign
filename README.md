@@ -206,7 +206,7 @@ A successful testing should look something like:
 ```
 $ npm test
 
-> electron-osx-sign@0.2.0 test electron-osx-sign
+> electron-osx-sign@0.3.0-beta test electron-osx-sign
 > standard && tape test
 
 Calling electron-download before running tests...
