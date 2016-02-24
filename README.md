@@ -187,18 +187,6 @@ Verbose flag, to display every action.
 
 `err` - *Error*
 
-## Frequently Raised Issues
-
-If error persists with `A timestamp was expected but was not found.` or `The timestamp service is not available.`, please try code-sign the application later. The intermittent nature of the failures is a networking issue in communicating with the timestamp server.
-
-## Notes
-
-- To verify Gatekeeper acceptance of signed application package, currently not included in the automation, for distribution outside the Mac App Store (`darwin` only), enter the following command in Terminal:
-```
-spctl --ignore-cache --no-cache -a -vvvv --type execute "path/to/my/app.app"
-```
-For more details, please refer to [Distributing Apps Outside the Mac App Store]( https://developer.apple.com/library/mac/documentation/IDEs/Conceptual/AppDistributionGuide/DistributingApplicationsOutside/DistributingApplicationsOutside.html).
-
 ## Test
 
 As developer certificates are required for `codesign` in OS X, this module may not be tested via online build services. If you wish to test out this module, enter:
