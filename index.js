@@ -262,8 +262,8 @@ module.exports = function sign (opts, cb) {
       console.log('Signing application...')
       console.log('> application        ', opts.app)
       console.log('> platform           ', opts.platform)
-      console.log('> entitlements       ', opts.entitlements || false)
-      console.log('> child-entitlements ', opts['entitlements-inherit'] || false)
+      console.log('> entitlements       ', opts.entitlements)
+      console.log('> child-entitlements ', opts['entitlements-inherit'])
       console.log('> additional-binaries', opts.binaries)
       console.log('> identity           ', opts.identity)
     }
