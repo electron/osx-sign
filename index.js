@@ -74,6 +74,16 @@ function signApplication (opts, callback) {
   var operations = []
   var appContentsPath = generateAppContentsPath(opts)
 
+  function isFileBinary (filePath) {
+    var buf = fs.readFileSync(filePath)
+    for (var i = 0, l = buf.length; i < l; i++) {
+      if (buf[i] > 127) {
+        return true
+      }
+    }
+    return false
+  }
+
   function walkSync (dirPath) {
     fs.readdirSync(dirPath).forEach(function (name) {
       var filePath = path.join(dirPath, name)
@@ -81,13 +91,8 @@ function signApplication (opts, callback) {
       if (stat.isFile()) {
         switch (path.extname(filePath)) {
           case '': // binary
-            var baseName = path.basename(filePath)
-            switch (baseName) {
-              case 'PkgInfo':
-                return // ignore files
-              default:
-                if (baseName[0] === '.') return // reject hidden files
-            }
+            if (path.basename(filePath)[0] === '.') break // reject hidden file
+            if (!isFileBinary(filePath)) break // reject non-binary file
             childPaths.push(filePath)
             break
           case '.dylib': // dynamic library
@@ -105,14 +110,14 @@ function signApplication (opts, callback) {
           default:
             if (path.extname(filePath).includes(' ')) {
               // Still consider the file as binary if extension seems invalid
+              if (!isFileBinary(filePath)) break // reject non-binary file
               childPaths.push(filePath)
             }
         }
       } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
         switch (path.basename(filePath)) {
-          case '_CodeSignature':
           case 'node_modules':
-            return // ignore directories
+            break // ignore directory
         }
         walkSync(filePath)
         switch (path.extname(filePath)) {
@@ -247,7 +252,7 @@ module.exports = function sign (opts, cb) {
   if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
   // Match platform if none is provided
   if (!opts.platform) {
-    if (opts.verbose) console.warn('No `platform` passed in arguments, cheking Electron platform...')
+    if (opts.verbose) console.warn('No `platform` passed in arguments, checking Electron platform...')
     detectElectronPlatform(opts)
   }
   if (opts.platform === 'mas') {
@@ -334,7 +339,7 @@ module.exports.flat = function flat (opts, cb) {
       if (!opts.identity) {
         if (opts.verbose) console.warn('No `identity` passed in arguments, discovering identities...')
         if (!opts.platform) {
-          if (opts.verbose) console.warn('No `platform` passed in arguments, cheking Electron platform...')
+          if (opts.verbose) console.warn('No `platform` passed in arguments, checking Electron platform...')
           detectElectronPlatform(opts)
         } else if (opts.platform !== 'mas' && opts.platform !== 'darwin') {
           return cb(new Error('Only platform `darwin` and `mas` are supported.'))
