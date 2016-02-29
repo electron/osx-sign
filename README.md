@@ -2,9 +2,13 @@
 
 Code-signing for Electron-packed OS X apps.
 
-Please visit our [Wiki](https://github.com/sethlu/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with `electron-packager` and `electron-osx-sign`.
+Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with `electron-packager` and `electron-osx-sign`.
 
 *Note: The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
+
+## An [OPEN Open Source Project](http://openopensource.org/)
+
+Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
 ## Installation
 
@@ -36,7 +40,7 @@ Example:
 electron-osx-sign path/to/my.app
 ```
 
-For details on the optional flags, run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/sethlu/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt).
+For details on the optional flags, run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt).
 
 #### From the API
 
@@ -81,12 +85,12 @@ Default to `null`.
 `entitlements` - *String*
 
 Path to entitlements file for signing Mac App Store application.
-See [mas.default.entitlements](https://github.com/sethlu/electron-osx-sign/blob/master/mas.default.entitlements) for default.
+See [mas.default.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/mas.default.entitlements) for default.
 
 `entitlements-inherit` - *String*
 
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with `entitlements` provided, or for a `mas` platform version.*
-See [mas.inherit.default.entitlements](https://github.com/sethlu/electron-osx-sign/blob/master/mas.inherit.default.entitlements) for default.
+See [mas.inherit.default.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/mas.inherit.default.entitlements) for default.
 
 `identity` - *String*
 
@@ -124,7 +128,7 @@ Example:
 electron-osx-flat path/to/my.app
 ```
 
-For details on the optional flags, run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/sethlu/electron-osx-sign/blob/master/bin/electron-osx-flat-usage.txt).
+For details on the optional flags, run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-flat-usage.txt).
 
 #### From the API
 
@@ -281,7 +285,7 @@ Thanks to [seanchas116](https://github.com/seanchas116), and [jasonhinkle](https
 
 ## Related
 
-- [electron-packager](https://github.com/maxogden/electron-packager) - package your electron app in OS executables (.app, .exe, etc) via JS or CLI
+- [electron-packager](https://github.com/electron-userland/electron-packager) - package your electron app in OS executables (.app, .exe, etc) via JS or CLI
 
 [npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
 [npm_url]: https://npmjs.org/package/electron-osx-sign

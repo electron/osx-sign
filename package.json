@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sethlu/electron-osx-sign.git"
+    "url": "git+https://github.com/electron-userland/electron-osx-sign.git"
   },
   "author": "sethlu",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/sethlu/electron-osx-sign/issues"
+    "url": "https://github.com/electron-userland/electron-osx-sign/issues"
   },
-  "homepage": "https://github.com/sethlu/electron-osx-sign",
+  "homepage": "https://github.com/electron-userland/electron-osx-sign",
   "dependencies": {
     "minimist": "^1.1.1",
     "run-series": "^1.1.1"
