@@ -100,7 +100,7 @@ function signApplication (opts, callback) {
             break
           case '.cstemp': // temporary file generated from past codesign
             operations.push(function (cb) {
-              fs.unlink(filePath, (err) => {
+              fs.unlink(filePath, function (err) {
                 if (err) return cb(err)
                 cb()
               })
