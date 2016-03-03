@@ -135,35 +135,35 @@ function signApplication (opts, callback) {
   if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
 
   if (opts.entitlements) {
-      // Sign with entitlements
-      childPaths.forEach(function (filePath) {
-        operations.push(function (cb) {
-          child.exec([
-            'codesign',
-            '-s', '"' + opts.identity + '"',
-            '-fv',
-            '--entitlements', '"' + opts['entitlements-inherit'] + '"',
-            '"' + filePath.replace(/"/g, '\\"') + '"'
-          ].join(' '), function (err, stdout, stderr) {
-            if (err) return cb(err)
-            cb()
-          })
-          if (opts.verbose) console.log('Signing...', filePath)
-        })
-      })
+    // Sign with entitlements
+    childPaths.forEach(function (filePath) {
       operations.push(function (cb) {
         child.exec([
           'codesign',
           '-s', '"' + opts.identity + '"',
           '-fv',
-          '--entitlements', '"' + opts.entitlements + '"',
-          '"' + opts.app.replace(/"/g, '\\"') + '"'
+          '--entitlements', '"' + opts['entitlements-inherit'] + '"',
+          '"' + filePath.replace(/"/g, '\\"') + '"'
         ].join(' '), function (err, stdout, stderr) {
           if (err) return cb(err)
           cb()
         })
-        if (opts.verbose) console.log('Signing...', opts.app)
+        if (opts.verbose) console.log('Signing...', filePath)
       })
+    })
+    operations.push(function (cb) {
+      child.exec([
+        'codesign',
+        '-s', '"' + opts.identity + '"',
+        '-fv',
+        '--entitlements', '"' + opts.entitlements + '"',
+        '"' + opts.app.replace(/"/g, '\\"') + '"'
+      ].join(' '), function (err, stdout, stderr) {
+        if (err) return cb(err)
+        cb()
+      })
+      if (opts.verbose) console.log('Signing...', opts.app)
+    })
   } else {
     // Otherwise normally
     childPaths.forEach(function (filePath) {
