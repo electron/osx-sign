@@ -135,7 +135,6 @@ function signApplication (opts, callback) {
   if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
 
   if (opts.entitlements) {
-    if (opts.platform === 'mas') {
       // Sign with entitlements
       childPaths.forEach(function (filePath) {
         operations.push(function (cb) {
@@ -165,9 +164,6 @@ function signApplication (opts, callback) {
         })
         if (opts.verbose) console.log('Signing...', opts.app)
       })
-    } else if (opts.platform === 'darwin') {
-      // TODO: Signing darwin builds with entitlements
-    }
   } else {
     // Otherwise normally
     childPaths.forEach(function (filePath) {
@@ -264,15 +260,27 @@ module.exports = function sign (opts, cb) {
     // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
     if (!opts.entitlements) {
       if (opts.verbose) console.warn('No `entitlements` passed in arguments, will fallback to default settings.')
-      opts.entitlements = path.join(__dirname, 'mas.default.entitlements')
+      opts.entitlements = path.join(__dirname, 'default.mas.entitlements')
     }
     if (!opts['entitlements-inherit']) {
       if (opts.verbose) console.warn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
-      opts['entitlements-inherit'] = path.join(__dirname, 'mas.inherit.default.entitlements')
+      opts['entitlements-inherit'] = path.join(__dirname, 'default.mas.inherit.entitlements')
     }
   } else if (opts.platform === 'darwin') {
     // Not necessary to have entitlements for non Mac App Store distribution
-    if (opts.entitlements && opts.verbose) return cb(new Error('Unable to sign for darwin platform with entitlements.'))
+    if (!opts.entitlements) {
+      if (opts.verbose) console.warn('No `entitlements` passed in arguments, will not sign with entitlements.')
+    } else {
+      // If entitlements is provided as a flag, fallback to default
+      if (opts.entitlements === true) {
+        if (opts.verbose) console.warn('`entitlements` not specified in arguments, will fallback to default settings.')
+        opts.entitlements = path.join(__dirname, 'default.mas.entitlements')
+      }
+      if (!opts['entitlements-inherit']) {
+        if (opts.verbose) console.warn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
+        opts['entitlements-inherit'] = path.join(__dirname, 'default.darwin.inherit.entitlements')
+      }
+    }
   } else {
     return cb(new Error('Only platform `darwin` and `mas` are supported.'))
   }
