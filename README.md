@@ -84,13 +84,13 @@ Default to `null`.
 
 `entitlements` - *String*
 
-Path to entitlements file for signing Mac App Store application.
-See [mas.default.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/mas.default.entitlements) for default.
+Path to entitlements file for signing the app.
+See [default.mas.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/default.mas.entitlements) or [default.darwin.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/default.darwin.entitlements) for default.
 
 `entitlements-inherit` - *String*
 
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with `entitlements` provided, or for a `mas` platform version.*
-See [mas.inherit.default.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/mas.inherit.default.entitlements) for default.
+See [default.mas.inherit.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/default.mas.inherit.entitlements) or [default.darwin.inherit.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/default.darwin.inherit.entitlements) for default.
 
 `identity` - *String*
 
