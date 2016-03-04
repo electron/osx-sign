@@ -6,7 +6,7 @@ Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/w
 
 *Note: The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
 
-## An [OPEN Open Source Project](http://openopensource.org/)
+### An [OPEN Open Source Project](http://openopensource.org/)
 
 Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
