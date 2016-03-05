@@ -32,6 +32,7 @@
     "compare-version": "^0.1.2"
   },
   "scripts": {
+    "code-standard": "standard",
     "pretest": "rimraf test/work",
     "test": "standard && tape test"
   },
