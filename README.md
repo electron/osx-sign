@@ -1,4 +1,5 @@
-# electron-osx-sign [![npm][npm_img]][npm_url]
+# electron-osx-sign [![npm][npm_img]][npm_url] [![Build Status][travis_img]][travis_url]
+
 
 Code-signing for Electron-packed OS X apps.
 
@@ -289,3 +290,5 @@ Thanks to [seanchas116](https://github.com/seanchas116), and [jasonhinkle](https
 
 [npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
 [npm_url]: https://npmjs.org/package/electron-osx-sign
+[travis_img]: https://travis-ci.org/electron-userland/electron-osx-sign.svg?branch=master
+[travis_url]: https://travis-ci.org/electron-userland/electron-osx-sign
