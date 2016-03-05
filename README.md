@@ -1,9 +1,9 @@
 # electron-osx-sign [![npm][npm_img]][npm_url] [![Build Status][travis_img]][travis_url]
 
 
-Code-signing for Electron-packed OS X apps.
+Code-signing for packaged Electron OS X apps.
 
-Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with `electron-packager` and `electron-osx-sign`.
+Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with [electron-packager] and `electron-osx-sign`.
 
 *Note: The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
 
@@ -23,7 +23,7 @@ npm install electron-osx-sign --save
 npm install electron-osx-sign -g
 ```
 
-*Note: `electron-osx-sign` will become a dependency of `electron-packager` in a later release for signing apps on OS X. However, please install this package globally for more customization beyond specifying identity and entitlements.*
+*Note: `electron-osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on OS X. However, please install this package globally for more customization beyond specifying identity and entitlements.*
 
 ## Usage
 
@@ -286,9 +286,10 @@ Thanks to [seanchas116](https://github.com/seanchas116), and [jasonhinkle](https
 
 ## Related
 
-- [electron-packager](https://github.com/electron-userland/electron-packager) - package your electron app in OS executables (.app, .exe, etc) via JS or CLI
+- [electron-packager] - package your electron app in OS executables (.app, .exe, etc) via JS or CLI
 
 [npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
 [npm_url]: https://npmjs.org/package/electron-osx-sign
 [travis_img]: https://travis-ci.org/electron-userland/electron-osx-sign.svg?branch=master
 [travis_url]: https://travis-ci.org/electron-userland/electron-osx-sign
+[electron-packager]: https://github.com/electron-userland/electron-packager
