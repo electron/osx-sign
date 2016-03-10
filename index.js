@@ -1,23 +1,29 @@
 var fs = require('fs')
 var path = require('path')
 var child = require('child_process')
-var debug = require('debug')('electron-osx-sign')
+var debug = require('debug')
+var debuglog = debug('electron-osx-sign:log')
+debuglog.log = console.log.bind(console)
+var debugwarn = debug('electron-osx-sign:warn')
+debugwarn.log = console.warn.bind(console)
+var debugerror = debug('electron-osx-sign:error')
+debugerror.log = console.error.bind(console)
 
 var series = require('run-series')
 
 function log (opts, string) {
   if (opts.verbose) console.log(string)
-  else debug(string)
+  else debuglog(string)
 }
 
 function warn (opts, string) {
   if (opts.verbose) console.warn(string)
-  else debug(string)
+  else debugwarn(string)
 }
 
 function error (opts, string) {
   if (opts.verbose) console.error(string)
-  else debug(string)
+  else debugerror(string)
 }
 
 function detectElectronPlatform (opts) {
