@@ -6,3 +6,5 @@ node_js:
   - "0.11"
   - "0.10"
   - "iojs"
+
+script: npm run-script code-standard
