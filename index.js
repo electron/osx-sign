@@ -115,10 +115,6 @@ function signApplication (opts, callback) {
             }
         }
       } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
-        switch (path.basename(filePath)) {
-          case 'node_modules':
-            break // ignore directory
-        }
         walkSync(filePath)
         switch (path.extname(filePath)) {
           case '.app': // application
