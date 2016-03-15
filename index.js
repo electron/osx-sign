@@ -96,6 +96,7 @@ function signApplication (opts, callback) {
             childPaths.push(filePath)
             break
           case '.dylib': // dynamic library
+          case '.node': // native node addon
             childPaths.push(filePath)
             break
           case '.cstemp': // temporary file generated from past codesign
