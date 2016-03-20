@@ -8,10 +8,7 @@ series([
   function (cb) {
     child.exec('which codesign', cb)
   },
-  function (stdout, stderr, cb) {
-    if (stderr) {
-      return cb(new Error('Unable to perform tests without codesign.'))
-    }
+  function (cb) {
     console.log('Calling electron-download before running tests...')
     util.downloadElectrons(cb)
   }
