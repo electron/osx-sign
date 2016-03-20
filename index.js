@@ -108,7 +108,7 @@ function signApplication (opts, callback) {
             })
             break
           default:
-            if (path.extname(filePath).includes(' ')) {
+            if (path.extname(filePath).indexOf(' ') > -1) {
               // Still consider the file as binary if extension seems invalid
               if (!isFileBinary(filePath)) break // reject non-binary file
               childPaths.push(filePath)
