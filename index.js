@@ -96,6 +96,7 @@ function signApplication (opts, callback) {
             childPaths.push(filePath)
             break
           case '.dylib': // dynamic library
+          case '.node': // native node addon
             childPaths.push(filePath)
             break
           case '.cstemp': // temporary file generated from past codesign
@@ -115,10 +116,6 @@ function signApplication (opts, callback) {
             }
         }
       } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
-        switch (path.basename(filePath)) {
-          case 'node_modules':
-            break // ignore directory
-        }
         walkSync(filePath)
         switch (path.extname(filePath)) {
           case '.app': // application
