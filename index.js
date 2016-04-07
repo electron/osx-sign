@@ -87,9 +87,6 @@ function generateAppFrameworksPath (opts) {
 }
 
 function signApplication (opts, callback) {
-  var operations = []
-  var appContentsPath = generateAppContentsPath(opts)
-
   function isFileBinary (filePath) {
     var buf = fs.readFileSync(filePath)
     for (var i = 0, l = buf.length; i < l; i++) {
@@ -143,6 +140,19 @@ function signApplication (opts, callback) {
     })
   }
 
+  function ignoreFilePath (opts, filePath) {
+    if (opts.ignore) {
+      if (typeof opts.ignore === 'function') {
+        return opts.ignore(filePath)
+      } else if (typeof opts.ignore === 'string') {
+        return filePath.match(opts.ignore)
+      }
+    }
+    return false
+  }
+
+  var operations = []
+  var appContentsPath = generateAppContentsPath(opts)
   var childPaths = []
   walkSync(appContentsPath)
   if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
@@ -158,6 +168,7 @@ function signApplication (opts, callback) {
   if (opts.entitlements) {
     // Sign with entitlements
     childPaths.forEach(function (filePath) {
+      if (ignoreFilePath(opts, filePath)) return
       operations.push(function (cb) {
         child.execFile('codesign', args.concat('--entitlements', opts['entitlements-inherit'], filePath), function (err, stdout, stderr) {
           if (err) return cb(err)
@@ -176,6 +187,7 @@ function signApplication (opts, callback) {
   } else {
     // Otherwise normally
     childPaths.forEach(function (filePath) {
+      if (ignoreFilePath(opts, filePath)) return
       operations.push(function (cb) {
         child.execFile('codesign', args.concat(filePath), function (err, stdout, stderr) {
           if (err) return cb(err)
@@ -274,6 +286,9 @@ function sign (opts, cb) {
   }
   if (opts.binaries) {
     if (!Array.isArray(opts.binaries)) return cb(new Error('Additional binaries should be an Array.'))
+  }
+  if (opts.ignore) {
+    if (typeof opts.ignore !== 'function' || typeof opts.ignore !== 'string') return cb(new Error('Ignore filter should be either a function or a string.'))
   }
   series([
     function (cb) {
