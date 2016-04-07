@@ -11,8 +11,8 @@ function createDefaultsTest (release) {
     t.timeoutAfter(config.timeout)
 
     var opts = {
-        app: util.generateAppPath(release),
-        verbose: config.verbose
+      app: util.generateAppPath(release),
+      verbose: config.verbose
     } // test with no other options for self discovery
 
     waterfall([

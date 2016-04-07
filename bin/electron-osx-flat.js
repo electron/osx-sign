@@ -15,7 +15,7 @@ flat(args, function done (err) {
   if (err) {
     console.error('Flat failed.')
     if (err.message) console.error(err.message)
-    else console.error(err, err.stack)
+    else console.error(err.stack)
     process.exit(1)
   }
   console.log('Application flattened:', args.pkg)

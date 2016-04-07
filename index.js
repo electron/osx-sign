@@ -1,6 +1,13 @@
 var fs = require('fs')
 var path = require('path')
 var child = require('child_process')
+var debug = require('debug')
+var debuglog = debug('electron-osx-sign')
+debuglog.log = console.log.bind(console)
+var debugwarn = debug('electron-osx-sign:warn')
+debugwarn.log = console.warn.bind(console)
+var debugerror = debug('electron-osx-sign:error')
+debugerror.log = console.error.bind(console)
 
 var series = require('run-series')
 
@@ -53,7 +60,7 @@ function flatApplication (opts, callback) {
       if (err) return cb(err)
       cb()
     })
-    if (opts.verbose) console.log('Flattening with productbuild...')
+    debuglog('Flattening with productbuild...')
   })
 
   series(operations, function (err) {
@@ -105,7 +112,7 @@ function signApplication (opts, callback) {
                 if (err) return cb(err)
                 cb()
               })
-              console.log('Removing...', filePath)
+              debuglog('Removing... ' + filePath)
             })
             break
           default:
@@ -145,7 +152,7 @@ function signApplication (opts, callback) {
           if (err) return cb(err)
           cb()
         })
-        if (opts.verbose) console.log('Signing...', filePath)
+        debuglog('Signing... ' + filePath)
       })
     })
     operations.push(function (cb) {
@@ -159,7 +166,7 @@ function signApplication (opts, callback) {
         if (err) return cb(err)
         cb()
       })
-      if (opts.verbose) console.log('Signing...', opts.app)
+      debuglog('Signing... ' + opts.app)
     })
   } else {
     // Otherwise normally
@@ -174,7 +181,7 @@ function signApplication (opts, callback) {
           if (err) return cb(err)
           cb()
         })
-        if (opts.verbose) console.log('Signing...', filePath)
+        debuglog('Signing... ' + filePath)
       })
     })
     operations.push(function (cb) {
@@ -187,7 +194,7 @@ function signApplication (opts, callback) {
         if (err) return cb(err)
         cb()
       })
-      if (opts.verbose) console.log('Signing...', opts.app)
+      debuglog('Signing... ' + opts.app)
     })
   }
 
@@ -201,7 +208,7 @@ function signApplication (opts, callback) {
       if (err) return cb(err)
       cb()
     })
-    if (opts.verbose) console.log('Verifying sign...')
+    debuglog('Verifying sign...')
   })
   if (opts.entitlements) {
     // Check entitlements
@@ -215,7 +222,7 @@ function signApplication (opts, callback) {
         if (err) return cb(err)
         cb()
       })
-      if (opts.verbose) console.log('Verifying entitlements...')
+      debuglog('Verifying entitlements...')
     })
   }
 
@@ -230,14 +237,12 @@ module.exports = function sign (opts, cb) {
   if (!cb) {
     cb = function (err) {
       if (err) {
-        if (opts.verbose) {
-          console.error('Sign failed.')
-          if (err.message) console.error(err.message)
-          else console.error(err, err.stack)
-        }
+        debugerror('Sign failed.')
+        if (err.message) debugerror(err.message)
+        else debugerror(err.stack)
         return
       }
-      if (opts.verbose) console.log('Application signed:', opts.app)
+      debuglog('Application signed: ' + opts.app)
     }
   }
   if (!opts.app) return cb(new Error('Path to aplication must be specified.'))
@@ -245,7 +250,7 @@ module.exports = function sign (opts, cb) {
   if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
   // Match platform if none is provided
   if (!opts.platform) {
-    if (opts.verbose) console.warn('No `platform` passed in arguments, checking Electron platform...')
+    debugwarn('No `platform` passed in arguments, checking Electron platform...')
     detectElectronPlatform(opts)
   }
   if (opts.platform === 'mas') {
@@ -256,25 +261,25 @@ module.exports = function sign (opts, cb) {
     // missing keys special to the project.
     // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
     if (!opts.entitlements) {
-      if (opts.verbose) console.warn('No `entitlements` passed in arguments, will fallback to default settings.')
+      debugwarn('No `entitlements` passed in arguments, will fallback to default settings.')
       opts.entitlements = path.join(__dirname, 'default.mas.entitlements')
     }
     if (!opts['entitlements-inherit']) {
-      if (opts.verbose) console.warn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
+      debugwarn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
       opts['entitlements-inherit'] = path.join(__dirname, 'default.mas.inherit.entitlements')
     }
   } else if (opts.platform === 'darwin') {
     // Not necessary to have entitlements for non Mac App Store distribution
     if (!opts.entitlements) {
-      if (opts.verbose) console.warn('No `entitlements` passed in arguments, will not sign with entitlements.')
+      debugwarn('No `entitlements` passed in arguments, will not sign with entitlements.')
     } else {
       // If entitlements is provided as a flag, fallback to default
       if (opts.entitlements === true) {
-        if (opts.verbose) console.warn('`entitlements` not specified in arguments, will fallback to default settings.')
+        debugwarn('`entitlements` not specified in arguments, will fallback to default settings.')
         opts.entitlements = path.join(__dirname, 'default.mas.entitlements')
       }
       if (!opts['entitlements-inherit']) {
-        if (opts.verbose) console.warn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
+        debugwarn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
         opts['entitlements-inherit'] = path.join(__dirname, 'default.darwin.inherit.entitlements')
       }
     }
@@ -288,7 +293,7 @@ module.exports = function sign (opts, cb) {
     function (cb) {
       // Checking identity with series for async execution of child process
       if (!opts.identity) {
-        if (opts.verbose) console.warn('No `identity` passed in arguments, discovering identities...')
+        debugwarn('No `identity` passed in arguments, discovering identities...')
         if (opts.platform === 'mas') {
           findIdentity(opts, '3rd Party Mac Developer Application', cb)
         } else if (opts.platform === 'darwin') {
@@ -298,15 +303,13 @@ module.exports = function sign (opts, cb) {
     }
   ], function (err) {
     if (err) return cb(err)
-    if (opts.verbose) {
-      console.log('Signing application...')
-      console.log('> application        ', opts.app)
-      console.log('> platform           ', opts.platform)
-      console.log('> entitlements       ', opts.entitlements)
-      console.log('> child-entitlements ', opts['entitlements-inherit'])
-      console.log('> additional-binaries', opts.binaries)
-      console.log('> identity           ', opts.identity)
-    }
+    debuglog('Signing application...')
+    debuglog('> application         ' + opts.app)
+    debuglog('> platform            ' + opts.platform)
+    debuglog('> entitlements        ' + opts.entitlements)
+    debuglog('> child-entitlements  ' + opts['entitlements-inherit'])
+    debuglog('> additional-binaries ' + opts.binaries)
+    debuglog('> identity            ' + opts.identity)
     return signApplication(opts, cb)
   })
 }
@@ -316,14 +319,12 @@ module.exports.flat = function flat (opts, cb) {
   if (!cb) {
     cb = function (err) {
       if (err) {
-        if (opts.verbose) {
-          console.error('Flat failed.')
-          if (err.message) console.error(err.message)
-          else console.error(err, err.stack)
-        }
+        debugerror('Flat failed.')
+        if (err.message) debugerror(err.message)
+        else debugerror(err.stack)
         return
       }
-      if (opts.verbose) console.log('Application flattened:', opts.pkg)
+      debuglog('Application flattened: ' + opts.pkg)
     }
   }
   if (!opts.app) return cb(new Error('Path to aplication must be specified.'))
@@ -331,20 +332,20 @@ module.exports.flat = function flat (opts, cb) {
   if (!fs.existsSync(opts.app)) return cb(new Error('Application not found.'))
   // Match platform if none is provided
   if (!opts.pkg) {
-    if (opts.verbose) console.warn('No `pkg` passed in arguments, will fallback to default, inferred from the given application.')
+    debugwarn('No `pkg` passed in arguments, will fallback to default, inferred from the given application.')
     opts.pkg = path.join(path.dirname(opts.app), path.basename(opts.app, '.app') + '.pkg')
   } else if (path.extname(opts.pkg) !== '.pkg') return cb(new Error('Extension of output package must be `.pkg`.'))
   if (!opts.install) {
-    if (opts.verbose) console.warn('No `install` passed in arguments, will fallback to default `/Applications`.')
+    debugwarn('No `install` passed in arguments, will fallback to default `/Applications`.')
     opts.install = '/Applications'
   }
   series([
     function (cb) {
       // Checking identity with series for async execution of child process
       if (!opts.identity) {
-        if (opts.verbose) console.warn('No `identity` passed in arguments, discovering identities...')
+        debugwarn('No `identity` passed in arguments, discovering identities...')
         if (!opts.platform) {
-          if (opts.verbose) console.warn('No `platform` passed in arguments, checking Electron platform...')
+          debugwarn('No `platform` passed in arguments, checking Electron platform...')
           detectElectronPlatform(opts)
         } else if (opts.platform !== 'mas' && opts.platform !== 'darwin') {
           return cb(new Error('Only platform `darwin` and `mas` are supported.'))
@@ -358,13 +359,11 @@ module.exports.flat = function flat (opts, cb) {
     }
   ], function (err) {
     if (err) return cb(err)
-    if (opts.verbose) {
-      console.log('Flattening application...')
-      console.log('> application       ', opts.app)
-      console.log('> package-output    ', opts.pkg)
-      console.log('> install-path      ', opts.install)
-      console.log('> identity          ', opts.identity)
-    }
+    debuglog('Flattening application...')
+    debuglog('> application    ' + opts.app)
+    debuglog('> package-output ' + opts.pkg)
+    debuglog('> install-path   ' + opts.install)
+    debuglog('> identity       ' + opts.identity)
     return flatApplication(opts, cb)
   })
 }
