@@ -7,4 +7,5 @@ entitlements                Path to entitlements file for signing Mac App Store 
 entitlements-inherit        Path to child entitlements file for signing frameworks and bundles of Mac App Store application.
 identity                    Name of certificate to use when signing. Default to retrieve from keychain specified, see below.
 keychain                    The keychain name. Default to system default keychain (`login.keychain`).
+ignore                      Regex that signals ignoring a file before signing. Default to undefined.
 platform                    Build platform of Electron. Allowed values: `darwin`, `mas`. Default to auto detect from application package.
