@@ -25,11 +25,16 @@ function detectElectronPlatform (opts) {
 function findIdentity (opts, identity, cb) {
   // Only to look for valid identities, excluding those flagged with
   // CSSMERR_TP_CERT_EXPIRED or CSSMERR_TP_NOT_TRUSTED. Fix #9
-  child.exec([
-    'security',
+
+  var args = [
     'find-identity',
     '-v'
-  ].join(' '), function (err, stdout, stderr) {
+  ]
+  if (opts.keychain) {
+    args.push(opts.keychain)
+  }
+
+  child.execFile('security', args, function (err, stdout, stderr) {
     if (err) return cb(new Error('Error in finding an identity.'))
     var lines = stdout.split('\n')
     var location
@@ -49,14 +54,18 @@ function findIdentity (opts, identity, cb) {
 function flatApplication (opts, callback) {
   var operations = []
 
+  var args = [
+    '--component', opts.app, opts.install,
+    '--sign', opts.identity,
+    opts.pkg
+  ]
+  if (opts.keychain) {
+    args.unshift('--keychain', opts.keychain)
+  }
+
   // Call productbuild
   operations.push(function (cb) {
-    child.exec([
-      'productbuild',
-      '--component', '"' + opts.app.replace(/"/g, '\\"') + '"', '"' + opts.install.replace(/"/g, '\\"') + '"',
-      '--sign', '"' + opts.identity + '"',
-      '"' + opts.pkg.replace(/"/g, '\\"') + '"'
-    ].join(' '), function (err, stdout, stderr) {
+    child.execFile('productbuild', args, function (err, stdout, stderr) {
       if (err) return cb(err)
       cb()
     })
@@ -138,17 +147,19 @@ function signApplication (opts, callback) {
   walkSync(appContentsPath)
   if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
 
+  var args = [
+    '--sign', opts.identity,
+    '-fv'
+  ]
+  if (opts.keychain) {
+    args.push('--keychain', opts.keychain)
+  }
+
   if (opts.entitlements) {
     // Sign with entitlements
     childPaths.forEach(function (filePath) {
       operations.push(function (cb) {
-        child.exec([
-          'codesign',
-          '-s', '"' + opts.identity + '"',
-          '-fv',
-          '--entitlements', '"' + opts['entitlements-inherit'] + '"',
-          '"' + filePath.replace(/"/g, '\\"') + '"'
-        ].join(' '), function (err, stdout, stderr) {
+        child.execFile('codesign', args.concat('--entitlements', opts['entitlements-inherit'], filePath), function (err, stdout, stderr) {
           if (err) return cb(err)
           cb()
         })
@@ -156,13 +167,7 @@ function signApplication (opts, callback) {
       })
     })
     operations.push(function (cb) {
-      child.exec([
-        'codesign',
-        '-s', '"' + opts.identity + '"',
-        '-fv',
-        '--entitlements', '"' + opts.entitlements + '"',
-        '"' + opts.app.replace(/"/g, '\\"') + '"'
-      ].join(' '), function (err, stdout, stderr) {
+      child.execFile('codesign', args.concat('--entitlements', opts.entitlements, opts.app), function (err, stdout, stderr) {
         if (err) return cb(err)
         cb()
       })
@@ -172,12 +177,7 @@ function signApplication (opts, callback) {
     // Otherwise normally
     childPaths.forEach(function (filePath) {
       operations.push(function (cb) {
-        child.exec([
-          'codesign',
-          '-s', '"' + opts.identity + '"',
-          '-fv',
-          '"' + filePath.replace(/"/g, '\\"') + '"'
-        ].join(' '), function (err, stdout, stderr) {
+        child.execFile('codesign', args.concat(filePath), function (err, stdout, stderr) {
           if (err) return cb(err)
           cb()
         })
@@ -185,12 +185,7 @@ function signApplication (opts, callback) {
       })
     })
     operations.push(function (cb) {
-      child.exec([
-        'codesign',
-        '-s', '"' + opts.identity + '"',
-        '-fv',
-        '"' + opts.app.replace(/"/g, '\\"') + '"'
-      ].join(' '), function (err, stdout, stderr) {
+      child.execFile('codesign', args.concat(opts.app), function (err, stdout, stderr) {
         if (err) return cb(err)
         cb()
       })
@@ -200,11 +195,7 @@ function signApplication (opts, callback) {
 
   // Lastly verify codesign
   operations.push(function (cb) {
-    child.exec([
-      'codesign',
-      '-v',
-      '"' + opts.app.replace(/"/g, '\\"') + '"'
-    ].join(' '), function (err, stdout, stderr) {
+    child.execFile('codesign', ['-v', opts.app], function (err, stdout, stderr) {
       if (err) return cb(err)
       cb()
     })
@@ -213,12 +204,7 @@ function signApplication (opts, callback) {
   if (opts.entitlements) {
     // Check entitlements
     operations.push(function (cb) {
-      child.exec([
-        'codesign',
-        '-d',
-        '--entitlements', '-',
-        '"' + opts.app.replace(/"/g, '\\"') + '"'
-      ].join(' '), function (err, stdout, stderr) {
+      child.execFile('codesign', ['-d', '--entitlements', '-', opts.app], function (err, stdout, stderr) {
         if (err) return cb(err)
         cb()
       })
@@ -232,7 +218,7 @@ function signApplication (opts, callback) {
   })
 }
 
-module.exports = function sign (opts, cb) {
+function sign (opts, cb) {
   // Default callback function if none provided
   if (!cb) {
     cb = function (err) {
@@ -314,7 +300,7 @@ module.exports = function sign (opts, cb) {
   })
 }
 
-module.exports.flat = function flat (opts, cb) {
+function flat (opts, cb) {
   // Default callback function if none provided
   if (!cb) {
     cb = function (err) {
@@ -367,3 +353,7 @@ module.exports.flat = function flat (opts, cb) {
     return flatApplication(opts, cb)
   })
 }
+
+module.exports = sign
+module.exports.sign = sign
+module.exports.flat = flat
