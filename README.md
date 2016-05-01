@@ -223,10 +223,10 @@ A successful testing should look something like:
 ```
 $ npm test
 
-> electron-osx-sign@0.3.0 pretest electron-osx-sign
+> electron-osx-sign@0.3.1 pretest electron-osx-sign
 > rimraf test/work
 
-> electron-osx-sign@0.3.0 test electron-osx-sign
+> electron-osx-sign@0.3.1 test electron-osx-sign
 > standard && tape test
 
 Calling electron-download before running tests...
