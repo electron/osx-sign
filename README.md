@@ -197,6 +197,10 @@ Needs file extension `.pkg`.
 
 `err` - *Error*
 
+## Debug
+
+As of release v0.3.1, external module `debug` is used to display logs and messages; remember to `export DEBUG=electron-osx-sign*` when necessary.
+
 ## Test
 
 As developer certificates are required for `codesign` in OS X, this module may not be tested via online build services. If you wish to test out this module, enter:
