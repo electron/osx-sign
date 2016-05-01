@@ -274,7 +274,7 @@ function sign (opts, cb) {
       // If entitlements is provided as a flag, fallback to default
       if (opts.entitlements === true) {
         debugwarn('`entitlements` not specified in arguments, will fallback to default settings.')
-        opts.entitlements = path.join(__dirname, 'default.mas.entitlements')
+        opts.entitlements = path.join(__dirname, 'default.darwin.entitlements')
       }
       if (!opts['entitlements-inherit']) {
         debugwarn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
