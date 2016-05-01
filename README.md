@@ -111,11 +111,6 @@ Build platform of Electron.
 Allowed values: `darwin`, `mas`.
 Default to auto detect from presence of `Squirrel.framework` within the application package.
 
-`verbose` - *Boolean*
-
-Verbose flag, to display logs.
-Allowed values: `true`, `false`.
-
 ###### callback
 
 `err` - *Error*
@@ -198,13 +193,13 @@ Default to auto detect from application.
 Path to the output flattened package.
 Needs file extension `.pkg`.
 
-`verbose` - *String*
-
-Verbose flag, to display logs.
-
 ###### callback
 
 `err` - *Error*
+
+## Debug
+
+As of release v0.3.1, external module `debug` is used to display logs and messages; remember to `export DEBUG=electron-osx-sign*` when necessary.
 
 ## Test
 
