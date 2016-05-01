@@ -105,6 +105,11 @@ Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)
 The keychain name.
 Default to system default keychain (`login.keychain`).
 
+`ignore` - *String*
+
+Regex or function that signals ignoring a file before signing.
+Default to undefined.
+
 `platform` - *String*
 
 Build platform of Electron.
