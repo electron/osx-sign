@@ -11,11 +11,11 @@ interface SignOptions extends BaseSignOptions {
   'entitlements-inherit'?: string;
 }
 
-export function sign(opts: SignOptions, callback: (error: Error) => void): void
+export function sign(opts: SignOptions, callback: (error: Error) => void): void;
 
 interface FlatOptions extends BaseSignOptions {
   pkg?: string;
   install?: string;
 }
 
-export function flat(opts: FlatOptions, callback: (error: Error) => void): void
+export function flat(opts: FlatOptions, callback: (error: Error) => void): void;
