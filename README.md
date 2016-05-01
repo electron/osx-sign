@@ -96,9 +96,14 @@ See [default.mas.inherit.entitlements](https://github.com/electron-userland/elec
 `identity` - *String*
 
 Name of certificate to use when signing.
-Default to retrieve from `login.keychain`.
+Default to retrieve from `opts.keychain` (see below) or system default keychain.
 
 Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)`, and platform `darwin` will look for `Developer ID Application: * (*)` by default.
+
+`keychain` - *String*
+
+The keychain name.
+Default to system default keychain (`login.keychain`).
 
 `platform` - *String*
 
@@ -169,7 +174,7 @@ Needs file extension `.app`.
 `identity` - *String*
 
 Name of certificate to use when flattening.
-Default to retrieve from `login.keychain`.
+Default to retrieve from `opts.keychain`(see below) or system default keychain.
 
 Flattening platform `mas` will look for `3rd Party Mac Developer Installer: * (*)`, and platform `darwin` will look for `Developer ID Installer: * (*)` by default.
 
@@ -177,6 +182,11 @@ Flattening platform `mas` will look for `3rd Party Mac Developer Installer: * (*
 
 Path to install for the bundle.
 Default to `/Applications`.
+
+`keychain` - *String*
+
+The keychain name.
+Default to `login.keychain`.
 
 `platform` - *String*
 
