@@ -1,6 +1,9 @@
+'use strict'
+
 var fs = require('fs')
 var path = require('path')
 var child = require('child_process')
+var Promise = require('bluebird')
 var debug = require('debug')
 var debuglog = debug('electron-osx-sign')
 debuglog.log = console.log.bind(console)
@@ -8,6 +11,7 @@ var debugwarn = debug('electron-osx-sign:warn')
 debugwarn.log = console.warn.bind(console)
 var debugerror = debug('electron-osx-sign:error')
 debugerror.log = console.error.bind(console)
+var isBinaryFile = Promise.promisify(require('isbinaryfile'))
 
 var series = require('run-series')
 
@@ -86,77 +90,87 @@ function generateAppFrameworksPath (opts) {
   return path.join(generateAppContentsPath(opts), 'Frameworks')
 }
 
-function signApplication (opts, callback) {
-  function isFileBinary (filePath) {
-    var buf = fs.readFileSync(filePath)
-    for (var i = 0, l = buf.length; i < l; i++) {
-      if (buf[i] > 127) {
-        return true
-      }
-    }
-    return false
+function signApplication (opts) {
+  var unlink = Promise.promisify(fs.unlink)
+  var readdir = Promise.promisify(fs.readdir)
+  var lstat = Promise.promisify(fs.lstat)
+
+  function getPathIfBinary (filePath) {
+    return isBinaryFile(filePath)
+      .then(function (isBinary) {
+        return isBinary ? filePath : null
+      })
   }
 
-  function walkSync (dirPath) {
-    fs.readdirSync(dirPath).forEach(function (name) {
-      var filePath = path.join(dirPath, name)
-      var stat = fs.lstatSync(filePath)
-      if (stat.isFile()) {
-        switch (path.extname(filePath)) {
-          case '': // binary
-            if (path.basename(filePath)[0] === '.') break // reject hidden file
-            if (!isFileBinary(filePath)) break // reject non-binary file
-            childPaths.push(filePath)
-            break
-          case '.dylib': // dynamic library
-          case '.node': // native node addon
-            childPaths.push(filePath)
-            break
-          case '.cstemp': // temporary file generated from past codesign
-            operations.push(function (cb) {
-              fs.unlink(filePath, function (err) {
-                if (err) return cb(err)
-                cb()
-              })
-              debuglog('Removing... ' + filePath)
+  function walk (dirPath) {
+    return readdir(dirPath)
+      .then(function (result) {
+        return Promise.map(result, function (name) {
+          var filePath = path.join(dirPath, name)
+          return lstat(filePath)
+            .then(function (stat) {
+              if (stat.isFile()) {
+                switch (path.extname(filePath)) {
+                  case '': // binary
+                    // reject hidden file
+                    if (path.basename(filePath)[0] !== '.') {
+                      return getPathIfBinary(filePath)
+                    }
+                    break
+                  case '.dylib': // dynamic library
+                  case '.node': // native node addon
+                    return filePath
+                  case '.cstemp': // temporary file generated from past codesign
+                    debuglog('Removing... ' + filePath)
+                    return unlink(filePath)
+                      .thenReturn(null)
+                  default:
+                    if (path.extname(filePath).indexOf(' ') > -1) {
+                      // Still consider the file as binary if extension seems invalid
+                      return getPathIfBinary(filePath)
+                    }
+                }
+              } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
+                return walk(filePath)
+                  .then(function (result) {
+                    switch (path.extname(filePath)) {
+                      case '.app': // application
+                      case '.framework': // framework
+                        result.push(filePath)
+                        break
+                    }
+                    return result
+                  })
+              }
+
+              return null
             })
-            break
-          default:
-            if (path.extname(filePath).indexOf(' ') > -1) {
-              // Still consider the file as binary if extension seems invalid
-              if (!isFileBinary(filePath)) break // reject non-binary file
-              childPaths.push(filePath)
+        })
+      })
+  }
+
+  return walk(generateAppContentsPath(opts))
+    .then(function (result) {
+      var flatResult = []
+
+      function addFlat (list) {
+        if (!Array.isArray(list)) {
+          flatResult.push(list)
+        } else if (list.length > 0) {
+          for (let item of list) {
+            if (item != null) {
+              addFlat(item)
             }
-        }
-      } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
-        walkSync(filePath)
-        switch (path.extname(filePath)) {
-          case '.app': // application
-          case '.framework': // framework
-            childPaths.push(filePath)
-            break
+          }
         }
       }
+
+      addFlat(result)
+      return signFiles(opts, opts.binaries ? flatResult.concat(opts.binaries) : flatResult)
     })
-  }
+}
 
-  function ignoreFilePath (opts, filePath) {
-    if (opts.ignore) {
-      if (typeof opts.ignore === 'function') {
-        return opts.ignore(filePath)
-      } else if (typeof opts.ignore === 'string') {
-        return filePath.match(opts.ignore)
-      }
-    }
-    return false
-  }
-
-  var operations = []
-  var appContentsPath = generateAppContentsPath(opts)
-  var childPaths = []
-  walkSync(appContentsPath)
-  if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
-
+function signFiles (opts, childPaths) {
   var args = [
     '--sign', opts.identity,
     '-fv'
@@ -165,69 +179,46 @@ function signApplication (opts, callback) {
     args.push('--keychain', opts.keychain)
   }
 
+  var execFile = Promise.promisify(child.execFile)
+  var promise
   if (opts.entitlements) {
     // Sign with entitlements
-    childPaths.forEach(function (filePath) {
-      if (ignoreFilePath(opts, filePath)) return
-      operations.push(function (cb) {
-        child.execFile('codesign', args.concat('--entitlements', opts['entitlements-inherit'], filePath), function (err, stdout, stderr) {
-          if (err) return cb(err)
-          cb()
-        })
-        debuglog('Signing... ' + filePath)
-      })
+    promise = Promise.mapSeries(childPaths, function (filePath) {
+      debuglog('Signing... ' + filePath)
+      return execFile('codesign', args.concat('--entitlements', opts['entitlements-inherit'], filePath))
     })
-    operations.push(function (cb) {
-      child.execFile('codesign', args.concat('--entitlements', opts.entitlements, opts.app), function (err, stdout, stderr) {
-        if (err) return cb(err)
-        cb()
+      .then(function () {
+        debuglog('Signing... ' + opts.app)
+        execFile('codesign', args.concat('--entitlements', opts.entitlements, opts.app))
       })
-      debuglog('Signing... ' + opts.app)
-    })
   } else {
     // Otherwise normally
-    childPaths.forEach(function (filePath) {
-      if (ignoreFilePath(opts, filePath)) return
-      operations.push(function (cb) {
-        child.execFile('codesign', args.concat(filePath), function (err, stdout, stderr) {
-          if (err) return cb(err)
-          cb()
-        })
-        debuglog('Signing... ' + filePath)
-      })
+    promise = Promise.mapSeries(childPaths, function (filePath) {
+      debuglog('Signing... ' + filePath)
+      return execFile('codesign', args.concat(filePath))
     })
-    operations.push(function (cb) {
-      child.execFile('codesign', args.concat(opts.app), function (err, stdout, stderr) {
-        if (err) return cb(err)
-        cb()
+      .then(function () {
+        debuglog('Signing... ' + opts.app)
+        return execFile('codesign', args.concat(opts.app))
       })
-      debuglog('Signing... ' + opts.app)
-    })
   }
 
   // Lastly verify codesign
-  operations.push(function (cb) {
-    child.execFile('codesign', ['-v', opts.app], function (err, stdout, stderr) {
-      if (err) return cb(err)
-      cb()
+  return promise
+    .then(function () {
+      debuglog('Verifying sign...')
+      var promise = execFile('codesign', ['-v', opts.app])
+      if (opts.entitlements) {
+        // Check entitlements
+        promise
+          .then(function () {
+            debuglog('Verifying entitlements...')
+            return Promise.all([promise, execFile('codesign', ['-d', '--entitlements', '-', opts.app])])
+          })
+      } else {
+        return promise
+      }
     })
-    debuglog('Verifying sign...')
-  })
-  if (opts.entitlements) {
-    // Check entitlements
-    operations.push(function (cb) {
-      child.execFile('codesign', ['-d', '--entitlements', '-', opts.app], function (err, stdout, stderr) {
-        if (err) return cb(err)
-        cb()
-      })
-      debuglog('Verifying entitlements...')
-    })
-  }
-
-  series(operations, function (err) {
-    if (err) return callback(err)
-    callback()
-  })
 }
 
 function sign (opts, cb) {
@@ -311,7 +302,11 @@ function sign (opts, cb) {
     debuglog('> child-entitlements  ' + opts['entitlements-inherit'])
     debuglog('> additional-binaries ' + opts.binaries)
     debuglog('> identity            ' + opts.identity)
-    return signApplication(opts, cb)
+    signApplication(opts)
+      .then(function () {
+        cb()
+      })
+      .catch(cb)
   })
 }
 
