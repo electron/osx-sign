@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 var fs = require('fs')
+var path = require('path')
 var args = require('minimist')(process.argv.slice(2), {boolean: ['help']})
-var usage = fs.readFileSync(__dirname + '/electron-osx-sign-usage.txt').toString()
+var usage = fs.readFileSync(path.join(__dirname, 'electron-osx-sign-usage.txt')).toString()
 var sign = require('../')
 
 args.app = args._.shift()
