@@ -13,7 +13,7 @@ var debugerror = debug('electron-osx-sign:error')
 debugerror.log = console.error.bind(console)
 var isBinaryFileAsync = Promise.promisify(require('isbinaryfile'))
 var execFileAsync = Promise.promisify(child.execFile)
-var statAsync = Promise.promisify(fs.stat)
+var lstatAsync = Promise.promisify(fs.lstat)
 
 /**
  * This function returns a promise with platform resolved.
@@ -24,7 +24,7 @@ function detectElectronPlatformAsync (opts) {
   return new Promise(function (resolve) {
     var appFrameworksPath = getAppFrameworksPath(opts)
     // The presence of Squirrel.framework identifies a Mac App Store build as used in https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md
-    return statAsync(path.join(appFrameworksPath, 'Squirrel.framework'))
+    return lstatAsync(path.join(appFrameworksPath, 'Squirrel.framework'))
       .then(function () {
         resolve('darwin')
       })
@@ -136,7 +136,7 @@ function validateOptsApplicationAsync (opts) {
   return new Promise(function (resolve, reject) {
     if (!opts.app) reject('Path to aplication must be specified.')
     if (path.extname(opts.app) !== '.app') reject('Extension of application must be `.app`.')
-    return statAsync(opts.app)
+    return lstatAsync(opts.app)
       .then(function () {
         resolve(null)
       })
@@ -197,7 +197,7 @@ function walkAsync (dirPath) {
       .then(function (names) {
         return Promise.map(names, function (name) {
           var filePath = path.join(dirPath, name)
-          return statAsync(filePath)
+          return lstatAsync(filePath)
             .then(function (stat) {
               if (stat.isFile()) {
                 switch (path.extname(filePath)) {
