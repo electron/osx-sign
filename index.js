@@ -65,8 +65,11 @@ function findIdentityAsync (opts, identity) {
             break
           }
         }
-        if (!opts.identity) reject(new Error('No identity found for signing.'))
-        else resolve(null)
+        if (!opts.identity) {
+          reject(new Error('No identity found for signing.'))
+        } else {
+          resolve(null)
+        }
       })
       .catch(function (err) {
         debugerror(err)
@@ -313,13 +316,13 @@ function signApplicationAsync (opts) {
           })
       }
 
-      // Lastly verify codesign
       return promise
         .then(function () {
-          debuglog('Verifying sign...')
+          // Verify code sign
+          debuglog('Verifying code sign...')
           var promise = execFileAsync('codesign', ['-v', opts.app])
+          // Check entitlements if applicable
           if (opts.entitlements) {
-            // Check entitlements
             promise
               .then(function () {
                 debuglog('Verifying entitlements...')
