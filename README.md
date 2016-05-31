@@ -7,9 +7,13 @@ Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/w
 
 *Note: The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
 
-### An [OPEN Open Source Project](http://openopensource.org/)
+## An [OPEN Open Source Project](http://openopensource.org/)
 
 Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
+
+### Collaborators
+
+Thanks to [seanchas116](https://github.com/seanchas116), [jasonhinkle](https://github.com/jasonhinkle), and [develar](https://github.com/develar) for improving the usability of this project implementation.
 
 ## Installation
 
@@ -65,7 +69,7 @@ sign({
 })
 ```
 
-From release {Next Release}, [Bluebird](https://github.com/petkaantonov/bluebird) promises are introduced for better async method calls; the following is also available for use.
+From release {Next Release}, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
 
 ```javascript
 var signAsync = require('electron-osx-sign').signAsync
@@ -180,7 +184,7 @@ flat({
 })
 ```
 
-From release {Next Release}, [Bluebird](https://github.com/petkaantonov/bluebird) promises are introduced for better async method calls; the following is also available for use.
+From release {Next Release}, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
 
 ```javascript
 var flatAsync = require('electron-osx-sign').flatAsync
@@ -358,16 +362,15 @@ ok 48 app flattened
 # ok
 ```
 
-## Collaborators
-
-Thanks to [seanchas116](https://github.com/seanchas116), and [jasonhinkle](https://github.com/jasonhinkle) for improving the usability of this project implementation.
-
 ## Related
 
-- [electron-packager] - package your electron app in OS executables (.app, .exe, etc) via JS or CLI
+- [electron-packager] - Package your electron app in OS executables (.app, .exe, etc) via JS or CLI.
+- [electron-builder] - Complete solution to build ready for distribution and "auto update" installers of your app for OS X, Windows and Linux.
 
+[Bluebird]: https://github.com/petkaantonov/bluebird
+[electron-packager]: https://github.com/electron-userland/electron-packager
+[electron-builder]: https://github.com/electron-userland/electron-builder
 [npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
 [npm_url]: https://npmjs.org/package/electron-osx-sign
 [travis_img]: https://travis-ci.org/electron-userland/electron-osx-sign.svg?branch=master
 [travis_url]: https://travis-ci.org/electron-userland/electron-osx-sign
-[electron-packager]: https://github.com/electron-userland/electron-packager
