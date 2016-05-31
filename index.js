@@ -65,12 +65,12 @@ function findIdentityAsync (opts, identity) {
             break
           }
         }
-        if (!opts.identity) reject('No identity found for signing.')
+        if (!opts.identity) reject(new Error('No identity found for signing.'))
         else resolve(null)
       })
       .catch(function (err) {
         debugerror(err)
-        reject('Error in finding identity. See details in debug log (electron-osx-sign:error).')
+        reject(new Error('Error in finding identity. See details in debug log. (electron-osx-sign:error)'))
       })
   })
 }
@@ -132,15 +132,15 @@ function getFilePathIfBinaryAsync (filePath) {
  */
 function validateOptsApplicationAsync (opts) {
   return new Promise(function (resolve, reject) {
-    if (!opts.app) reject('Path to aplication must be specified.')
-    if (path.extname(opts.app) !== '.app') reject('Extension of application must be `.app`.')
+    if (!opts.app) reject(new Error('Path to aplication must be specified.'))
+    if (path.extname(opts.app) !== '.app') reject(new Error('Extension of application must be `.app`.'))
     return lstatAsync(opts.app)
       .then(function () {
         resolve(null)
       })
       .catch(function (err) {
         debugerror(err)
-        reject('Application not found. See details in debug log (electron-osx-sign:error).')
+        reject(new Error('Application not found. See details in debug log. (electron-osx-sign:error)'))
       })
   })
 }
@@ -153,7 +153,7 @@ function validateOptsApplicationAsync (opts) {
 function validateOptsBinariesAsync (opts) {
   return new Promise(function (resolve, reject) {
     if (opts.binaries) {
-      if (!Array.isArray(opts.binaries)) reject('Additional binaries should be an Array.')
+      if (!Array.isArray(opts.binaries)) reject(new Error('Additional binaries should be an Array.'))
       // TODO: Loop check every binary file for existence, reject promise if any not found
     }
     resolve(null)
@@ -166,17 +166,25 @@ function validateOptsBinariesAsync (opts) {
  * @returns {Promise} Promise.
  */
 function validateOptsPlatformAsync (opts) {
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
     if (opts.platform) {
       if (opts.platform === 'mas' || opts.platform === 'darwin') {
         resolve(null)
+      } else {
+        debugwarn('`platform` passed in arguments not supported, checking Electron platform...')
       }
+    } else {
+      debugwarn('No `platform` passed in arguments, checking Electron platform...')
     }
-    debugwarn('No `platform` passed in arguments, checking Electron platform...')
     return detectElectronPlatformAsync(opts)
       .then(function (platform) {
         opts.platform = platform
         resolve(null)
+      })
+      .catch(function (err) {
+        // NB: This should logically not happen as detectElectronPlatformAsync should not give any rejections. However, it is put here just in case.
+        debugerror(err)
+        reject(new Error('Unable to decide Electron platform. See details in debug log. (electron-osx-sign:error)'))
       })
   })
 }
@@ -322,7 +330,7 @@ function signApplicationAsync (opts) {
  */
 function signAsync (opts) {
   if (opts.ignore) {
-    if (typeof opts.ignore !== 'function' || typeof opts.ignore !== 'string') return Promise.reject('Ignore filter should be either a function or a string.')
+    if (typeof opts.ignore !== 'function' || typeof opts.ignore !== 'string') return Promise.reject(new Error('Ignore filter should be either a function or a string.'))
   }
 
   return validateOptsApplicationAsync(opts)
@@ -358,7 +366,8 @@ function signAsync (opts) {
           }
         }
       } else {
-        return Promise.reject('Unexpected platform.')
+        // NB: This should logically not happen. It is put here just in case.
+        return Promise.reject(new Error('Unexpected Electron platform.'))
       }
       return validateOptsBinariesAsync(opts)
     })
@@ -372,7 +381,8 @@ function signAsync (opts) {
       } else if (opts.platform === 'darwin') {
         return findIdentityAsync(opts, 'Developer ID Application')
       } else {
-        return Promise.reject('Unexpected platform.')
+        // NB: This should logically not happen. It is put here just in case.
+        return Promise.reject(new Error('Unexpected Electron platform.'))
       }
     })
     .then(function () {
@@ -400,7 +410,7 @@ function flatAsync (opts) {
   if (!opts.pkg) {
     debugwarn('No `pkg` passed in arguments, will fallback to default, inferred from the given application.')
     opts.pkg = path.join(path.dirname(opts.app), path.basename(opts.app, '.app') + '.pkg')
-  } else if (path.extname(opts.pkg) !== '.pkg') return Promise.reject('Extension of output package must be `.pkg`.')
+  } else if (path.extname(opts.pkg) !== '.pkg') return Promise.reject(new Error('Extension of output package must be `.pkg`.'))
   if (!opts.install) {
     debugwarn('No `install` passed in arguments, will fallback to default `/Applications`.')
     opts.install = '/Applications'
@@ -420,7 +430,8 @@ function flatAsync (opts) {
       } else if (opts.platform === 'darwin') {
         return findIdentityAsync(opts, 'Developer ID Installer')
       } else {
-        return Promise.reject('Unexpected platform.')
+        // NB: This should logically not happen. It is put here just in case.
+        return Promise.reject(new Error('Unexpected Electron platform.'))
       }
     })
     .then(function () {
