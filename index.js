@@ -205,6 +205,30 @@ function validateOptsPlatformAsync (opts) {
 }
 
 /**
+ * This function returns a promise verifying the code sign of application bundle.
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise resolving output.
+ */
+function verifySignApplicationAsync (opts) {
+  // Custom promise is used here due to a strange behavior with codesign: Verbose logs are output into stderr so regular promisified execFile could not catch stderr while code execution finishes successfully.
+  return new Promise(function (resolve, reject) {
+    child.execFile('codesign', [
+      '--verify',
+      '--deep',
+      '--verbose=2',
+      opts.app
+    ], function (err, stdout, stderr) {
+      if (err) {
+        debugerror(err)
+        reject('Failed to verify application bundle. See details in debug log. (electron-osx-sign:error)')
+        return
+      }
+      resolve(stderr)
+    })
+  })
+}
+
+/**
  * This function returns a promise resolving all child paths within the directory specified.
  * @param {string} dirPath - Path to directory.
  * @returns {Promise} Promise resolving child paths needing signing in order.
@@ -289,7 +313,7 @@ function signApplicationAsync (opts) {
 
       var args = [
         '--sign', opts.identity,
-        '-fv'
+        '--force'
       ]
       if (opts.keychain) {
         args.push('--keychain', opts.keychain)
@@ -322,7 +346,10 @@ function signApplicationAsync (opts) {
         .then(function () {
           // Verify code sign
           debuglog('Verifying code sign...')
-          var promise = execFileAsync('codesign', ['-v', opts.app])
+          var promise = verifySignApplicationAsync(opts)
+            .then(function (result) {
+              debuglog('Verification displayed below:\n' + result)
+            })
           // Check entitlements if applicable
           if (opts.entitlements) {
             promise
