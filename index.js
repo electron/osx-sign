@@ -47,9 +47,7 @@ function findIdentityAsync (opts, identity) {
 
     var args = [
       'find-identity',
-      '-v',
-      '-p',
-      'codesigning'
+      '-v'
     ]
     if (opts.keychain) {
       args.push(opts.keychain)
