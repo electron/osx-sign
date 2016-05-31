@@ -3,7 +3,12 @@
 var fs = require('fs')
 var path = require('path')
 var child = require('child_process')
+
 var Promise = require('bluebird')
+var isBinaryFileAsync = Promise.promisify(require('isbinaryfile'))
+var execFileAsync = Promise.promisify(child.execFile)
+var lstatAsync = Promise.promisify(fs.lstat)
+
 var debug = require('debug')
 var debuglog = debug('electron-osx-sign')
 debuglog.log = console.log.bind(console)
@@ -11,9 +16,6 @@ var debugwarn = debug('electron-osx-sign:warn')
 debugwarn.log = console.warn.bind(console)
 var debugerror = debug('electron-osx-sign:error')
 debugerror.log = console.error.bind(console)
-var isBinaryFileAsync = Promise.promisify(require('isbinaryfile'))
-var execFileAsync = Promise.promisify(child.execFile)
-var lstatAsync = Promise.promisify(fs.lstat)
 
 /**
  * This function returns a promise with platform resolved.
