@@ -346,7 +346,10 @@ function signApplicationAsync (opts) {
         .then(function () {
           // Verify code sign
           debuglog('Verifying code sign...')
-          var promise = verifySignApplicationAsync(opts)
+          var promise = Promise.delay(1000)
+            .then(function () {
+              return verifySignApplicationAsync(opts)
+            })
             .then(function (result) {
               debuglog('Verification displayed below:\n' + result)
             })
