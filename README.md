@@ -15,15 +15,15 @@ Individuals making significant and valuable contributions are given commit-acces
 
 ```sh
 # For use in npm scripts
-npm install electron-osx-sign --save
+npm install --save electron-osx-sign
 ```
 
 ```sh
 # For use from CLI
-npm install electron-osx-sign -g
+npm install -g electron-osx-sign
 ```
 
-*Note: `electron-osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on OS X. However, please install this package globally for more customization beyond specifying identity and entitlements.*
+*Note: `electron-osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on OS X. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
 
 ## Usage
 
@@ -52,22 +52,44 @@ sign(opts[, function done (err) {}])
 
 Example:
 
-##### sign(opts, callback)
-
 ```javascript
 var sign = require('electron-osx-sign')
 sign({
   app: 'path/to/my.app'
 }, function done (err) {
   if (err) {
-    // Handle the error
+    // Application signed
     return;
   }
-  // Regular callback
+  // Regular finishing
 })
 ```
 
-###### opts
+From release {Next Release}, [Bluebird](https://github.com/petkaantonov/bluebird) promises are introduced for better async method calls; the following is also available for use.
+
+```javascript
+var signAsync = require('electron-osx-sign').signAsync
+signAsync(opts)
+  [.then(function () {})
+  [.catch(function (err) {})]]
+```
+
+Example:
+
+```javascript
+var signAsync = require('electron-osx-sign').signAsync
+signAsync({
+  app: 'path/to/my.app'
+})
+  .then(function () {
+    // Application signed
+  })
+  .catch(function (err) {
+    // Handle the error
+  })
+```
+
+###### opts - Options
 
 **Required**
 
@@ -103,7 +125,7 @@ Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)
 `keychain` - *String*
 
 The keychain name.
-Default to system default keychain (`login.keychain`).
+Default to system default keychain.
 
 `ignore` - *String*
 
@@ -114,9 +136,9 @@ Default to undefined.
 
 Build platform of Electron.
 Allowed values: `darwin`, `mas`.
-Default to auto detect from presence of `Squirrel.framework` within the application package.
+Default to auto detect by presence of `Squirrel.framework` within the application bundle.
 
-###### callback
+###### cb - Callback
 
 `err` - *Error*
 
@@ -138,8 +160,6 @@ For details on the optional flags, run `electron-osx-flat --help` or see [electr
 
 #### From the API
 
-##### flat(opts, callback)
-
 ```javascript
 var flat = require('electron-osx-sign').flat
 flat(opts[, function done (err) {}])
@@ -156,17 +176,41 @@ flat({
     // Handle the error
     return;
   }
-  // Regular callback
+  // Application flattened
 })
 ```
 
-###### opts
+From release {Next Release}, [Bluebird](https://github.com/petkaantonov/bluebird) promises are introduced for better async method calls; the following is also available for use.
+
+```javascript
+var flatAsync = require('electron-osx-sign').flatAsync
+flatAsync(opts)
+  [.then(function () {})
+  [.catch(function (err) {})]]
+```
+
+Example:
+
+```javascript
+var flatAsync = require('electron-osx-sign').flatAsync
+flatAsync({
+  app: 'path/to/my.app'
+})
+  .then(function () {
+    // Application flattened
+  })
+  .catch(function (err) {
+    // Handle the error
+  })
+```
+
+###### opts - Options
 
 **Required**
 
 `app` - *String*
 
-Path to the application package.
+Path to the application bundle.
 Needs file extension `.app`.
 
 **Optional**
@@ -186,19 +230,19 @@ Default to `/Applications`.
 `keychain` - *String*
 
 The keychain name.
-Default to `login.keychain`.
+Default to system default keychain.
 
 `platform` - *String*
 
 Build platform of Electron. Allowed values: `darwin`, `mas`.
-Default to auto detect from application.
+Default to auto detect by presence of `Squirrel.framework` within the application bundle.
 
 `pkg` - *String*
 
 Path to the output flattened package.
 Needs file extension `.pkg`.
 
-###### callback
+###### cb - Callback
 
 `err` - *Error*
 
