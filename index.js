@@ -465,7 +465,7 @@ function flatAsync (opts) {
 /**
  * This callback is used across signing and flattening.
  * @callback RequestCallback
- * @param {mixed} err
+ * @param {?Error} err
  */
 
 /**
