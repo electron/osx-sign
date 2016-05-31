@@ -1,13 +1,18 @@
 # electron-osx-sign [![npm][npm_img]][npm_url] [![Build Status][travis_img]][travis_url]
 
-
 Code-signing for packaged Electron OS X apps.
 
-Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with [electron-packager] and `electron-osx-sign`.
+## About
 
-*Note: The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
+[`electron-osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for like network access require additional work.
 
-## An [OPEN Open Source Project](http://openopensource.org/)
+We are trying to keep updated to the Electron specifications; please [file us an issue](https://github.com/electron-userland/electron-osx-sign/issues/new) if having any suggestions or experiencing difficulties code signing your products.
+
+Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with [`electron-packager`][electron-packager] and [`electron-osx-sign`][electron-osx-sign].
+
+*NB: The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
+
+### An [OPEN Open Source Project](http://openopensource.org/)
 
 Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
@@ -368,8 +373,9 @@ ok 48 app flattened
 - [electron-builder] - Complete solution to build ready for distribution and "auto update" installers of your app for OS X, Windows and Linux.
 
 [Bluebird]: https://github.com/petkaantonov/bluebird
-[electron-packager]: https://github.com/electron-userland/electron-packager
 [electron-builder]: https://github.com/electron-userland/electron-builder
+[electron-packager]: https://github.com/electron-userland/electron-packager
+[electron-osx-sign]: https://github.com/electron-userland/electron-osx-sign
 [npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
 [npm_url]: https://npmjs.org/package/electron-osx-sign
 [travis_img]: https://travis-ci.org/electron-userland/electron-osx-sign.svg?branch=master
