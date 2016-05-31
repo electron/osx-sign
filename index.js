@@ -352,10 +352,18 @@ function signApplicationAsync (opts) {
             })
           // Check entitlements if applicable
           if (opts.entitlements) {
-            promise
+            promise = promise
               .then(function () {
-                debuglog('Verifying entitlements...')
-                return Promise.all([promise, execFileAsync('codesign', ['-d', '--entitlements', '-', opts.app])])
+                debuglog('Displaying entitlements...')
+                return execFileAsync('codesign', [
+                  '--display',
+                  '--entitlements',
+                  '-',
+                  opts.app
+                ])
+              })
+              .then(function (result) {
+                debuglog('Entitlements:\n' + result)
               })
           }
           return promise
