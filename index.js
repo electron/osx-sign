@@ -15,6 +15,11 @@ var isBinaryFileAsync = Promise.promisify(require('isbinaryfile'))
 var execFileAsync = Promise.promisify(child.execFile)
 var statAsync = Promise.promisify(fs.stat)
 
+/**
+ * This function returns a promise with platform resolved.
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise resolving platform.
+ */
 function detectElectronPlatformAsync (opts) {
   return new Promise(function (resolve) {
     var appFrameworksPath = getAppFrameworksPath(opts)
@@ -29,6 +34,12 @@ function detectElectronPlatformAsync (opts) {
   })
 }
 
+/**
+ * This function returns a promise checking the indentity proposed and updates the identity option to a exact finding from results.
+ * @param {Object} opts - Options.
+ * @param {string} identity - The proposed identity.
+ * @returns {Promise} Promise.
+ */
 function findIdentityAsync (opts, identity) {
   return new Promise(function (resolve, reject) {
     // Only to look for valid identities, excluding those flagged with
@@ -66,6 +77,11 @@ function findIdentityAsync (opts, identity) {
   })
 }
 
+/**
+ * This function returns a promise flattening the application.
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise.
+ */
 function flatApplicationAsync (opts) {
   var args = [
     '--component', opts.app, opts.install,
@@ -81,14 +97,29 @@ function flatApplicationAsync (opts) {
     .thenReturn(null)
 }
 
+/**
+ * This function returns the path to app contents.
+ * @param {Object} opts - Options.
+ * @returns {string} App contents path.
+ */
 function getAppContentsPath (opts) {
   return path.join(opts.app, 'Contents')
 }
 
+/**
+ * This function returns the path to app frameworks within contents.
+ * @param {Object} opts - Options.
+ * @returns {string} App frameworks path.
+ */
 function getAppFrameworksPath (opts) {
   return path.join(getAppContentsPath(opts), 'Frameworks')
 }
 
+/**
+ * This function returns a promise resolving the file path if file binary.
+ * @param {string} filePath - Path to file.
+ * @returns {Promise} Promise resolving file path or null.
+ */
 function getFilePathIfBinaryAsync (filePath) {
   return isBinaryFileAsync(filePath)
     .then(function (isBinary) {
@@ -96,6 +127,11 @@ function getFilePathIfBinaryAsync (filePath) {
     })
 }
 
+/**
+ * This function returns a promise validating opts.app, the application to be signed or flattened
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise.
+ */
 function validateOptsApplicationAsync (opts) {
   return new Promise(function (resolve, reject) {
     if (!opts.app) reject('Path to aplication must be specified.')
@@ -111,6 +147,11 @@ function validateOptsApplicationAsync (opts) {
   })
 }
 
+/**
+ * This function returns a promise validating opts.binaries, the additional binaries to be signed along with the discovered enclosed components.
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise.
+ */
 function validateOptsBinariesAsync (opts) {
   return new Promise(function (resolve, reject) {
     if (opts.binaries) {
@@ -121,6 +162,11 @@ function validateOptsBinariesAsync (opts) {
   })
 }
 
+/**
+ * This function returns a promise validating opts.platform, the platform of Electron build. It allows auto-discovery if no opts.platform is specified.
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise.
+ */
 function validateOptsPlatformAsync (opts) {
   return new Promise(function (resolve) {
     if (opts.platform) {
@@ -137,6 +183,11 @@ function validateOptsPlatformAsync (opts) {
   })
 }
 
+/**
+ * This function returns a promise resolving all child paths within the directory specified.
+ * @param {string} dirPath - Path to directory.
+ * @returns {Promise} Promise resolving child paths needing signing in order.
+ */
 function walkAsync (dirPath) {
   var unlinkAsync = Promise.promisify(fs.unlink)
   var readdirAsync = Promise.promisify(fs.readdir)
@@ -205,6 +256,11 @@ function walkAsync (dirPath) {
     })
 }
 
+/**
+ * This function returns a promise codesigning only.
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise.
+ */
 function signApplicationAsync (opts) {
   return walkAsync(getAppContentsPath(opts))
     .then(function (childPaths) {
@@ -261,6 +317,11 @@ function signApplicationAsync (opts) {
     .thenReturn(null)
 }
 
+/**
+ * This function is exported and returns a promise signing the application.
+ * @param {mixed} opts - Options.
+ * @returns {Promise} Promise.
+ */
 function signAsync (opts) {
   if (opts.ignore) {
     if (typeof opts.ignore !== 'function' || typeof opts.ignore !== 'string') return Promise.reject('Ignore filter should be either a function or a string.')
@@ -332,6 +393,11 @@ function signAsync (opts) {
     })
 }
 
+/**
+ * This function is exported and returns a promise flattening the application.
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise.
+ */
 function flatAsync (opts) {
   if (!opts.pkg) {
     debugwarn('No `pkg` passed in arguments, will fallback to default, inferred from the given application.')
@@ -373,6 +439,18 @@ function flatAsync (opts) {
     })
 }
 
+/**
+ * This callback is used across signing and flattening.
+ * @callback RequestCallback
+ * @param {mixed} err
+ */
+
+/**
+ * This function is exported with normal callback implementation.
+ * @param {Object} opts - Options.
+ * @param {RequestCallback} cb - Callback.
+ * @returns {null} Nothing.
+ */
 function sign (opts, cb) {
   // Default callback function if none provided
   if (!cb) {
@@ -393,6 +471,12 @@ function sign (opts, cb) {
     .catch(cb)
 }
 
+/**
+ * This function is exported with normal callback implementation.
+ * @param {Object} opts - Options.
+ * @param {RequestCallback} cb - Callback.
+ * @returns {null} Nothing.
+ */
 function flat (opts, cb) {
   // Default callback function if none provided
   if (!cb) {
@@ -413,7 +497,8 @@ function flat (opts, cb) {
     .catch(cb)
 }
 
-module.exports = sign
+// Module exporting
+module.exports = sign // Aliasing
 module.exports.sign = sign
 module.exports.signAsync = signAsync
 module.exports.flat = flat
