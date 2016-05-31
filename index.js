@@ -325,9 +325,8 @@ function signApplicationAsync (opts) {
                 debuglog('Verifying entitlements...')
                 return Promise.all([promise, execFileAsync('codesign', ['-d', '--entitlements', '-', opts.app])])
               })
-          } else {
-            return promise
           }
+          return promise
         })
     })
     .thenReturn(null)
