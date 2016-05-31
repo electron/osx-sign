@@ -313,7 +313,7 @@ function signApplicationAsync (opts) {
 
       var args = [
         '--sign', opts.identity,
-        '-fv'
+        '--force'
       ]
       if (opts.keychain) {
         args.push('--keychain', opts.keychain)
