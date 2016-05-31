@@ -7,23 +7,27 @@ Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/w
 
 *Note: The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
 
-### An [OPEN Open Source Project](http://openopensource.org/)
+## An [OPEN Open Source Project](http://openopensource.org/)
 
 Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
+
+### Collaborators
+
+Thanks to [seanchas116](https://github.com/seanchas116), [jasonhinkle](https://github.com/jasonhinkle), and [develar](https://github.com/develar) for improving the usability of this project implementation.
 
 ## Installation
 
 ```sh
 # For use in npm scripts
-npm install electron-osx-sign --save
+npm install --save electron-osx-sign
 ```
 
 ```sh
 # For use from CLI
-npm install electron-osx-sign -g
+npm install -g electron-osx-sign
 ```
 
-*Note: `electron-osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on OS X. However, please install this package globally for more customization beyond specifying identity and entitlements.*
+*Note: `electron-osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on OS X. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
 
 ## Usage
 
@@ -52,8 +56,6 @@ sign(opts[, function done (err) {}])
 
 Example:
 
-##### sign(opts, callback)
-
 ```javascript
 var sign = require('electron-osx-sign')
 sign({
@@ -63,11 +65,35 @@ sign({
     // Handle the error
     return;
   }
-  // Regular callback
+  // Application signed
 })
 ```
 
-###### opts
+From release {Next Release}, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
+
+```javascript
+var signAsync = require('electron-osx-sign').signAsync
+signAsync(opts)
+  [.then(function () {})
+  [.catch(function (err) {})]]
+```
+
+Example:
+
+```javascript
+var signAsync = require('electron-osx-sign').signAsync
+signAsync({
+  app: 'path/to/my.app'
+})
+  .then(function () {
+    // Application signed
+  })
+  .catch(function (err) {
+    // Handle the error
+  })
+```
+
+###### opts - Options
 
 **Required**
 
@@ -103,7 +129,7 @@ Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)
 `keychain` - *String*
 
 The keychain name.
-Default to system default keychain (`login.keychain`).
+Default to system default keychain.
 
 `ignore` - *String*
 
@@ -114,9 +140,9 @@ Default to undefined.
 
 Build platform of Electron.
 Allowed values: `darwin`, `mas`.
-Default to auto detect from presence of `Squirrel.framework` within the application package.
+Default to auto detect by presence of `Squirrel.framework` within the application bundle.
 
-###### callback
+###### cb - Callback
 
 `err` - *Error*
 
@@ -138,8 +164,6 @@ For details on the optional flags, run `electron-osx-flat --help` or see [electr
 
 #### From the API
 
-##### flat(opts, callback)
-
 ```javascript
 var flat = require('electron-osx-sign').flat
 flat(opts[, function done (err) {}])
@@ -156,17 +180,41 @@ flat({
     // Handle the error
     return;
   }
-  // Regular callback
+  // Application flattened
 })
 ```
 
-###### opts
+From release {Next Release}, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
+
+```javascript
+var flatAsync = require('electron-osx-sign').flatAsync
+flatAsync(opts)
+  [.then(function () {})
+  [.catch(function (err) {})]]
+```
+
+Example:
+
+```javascript
+var flatAsync = require('electron-osx-sign').flatAsync
+flatAsync({
+  app: 'path/to/my.app'
+})
+  .then(function () {
+    // Application flattened
+  })
+  .catch(function (err) {
+    // Handle the error
+  })
+```
+
+###### opts - Options
 
 **Required**
 
 `app` - *String*
 
-Path to the application package.
+Path to the application bundle.
 Needs file extension `.app`.
 
 **Optional**
@@ -186,19 +234,19 @@ Default to `/Applications`.
 `keychain` - *String*
 
 The keychain name.
-Default to `login.keychain`.
+Default to system default keychain.
 
 `platform` - *String*
 
 Build platform of Electron. Allowed values: `darwin`, `mas`.
-Default to auto detect from application.
+Default to auto detect by presence of `Squirrel.framework` within the application bundle.
 
 `pkg` - *String*
 
 Path to the output flattened package.
 Needs file extension `.pkg`.
 
-###### callback
+###### cb - Callback
 
 `err` - *Error*
 
@@ -236,70 +284,93 @@ TAP version 13
 # defaults-test:v0.24.0-darwin-x64
 ok 1 app signed
 ok 2 app flattened
-# defaults-test:v0.25.0-darwin-x64
+# defaults-test:v0.25.3-darwin-x64
 ok 3 app signed
 ok 4 app flattened
-# defaults-test:v0.26.0-darwin-x64
+# defaults-test:v0.26.1-darwin-x64
 ok 5 app signed
 ok 6 app flattened
-# defaults-test:v0.27.0-darwin-x64
+# defaults-test:v0.27.3-darwin-x64
 ok 7 app signed
 ok 8 app flattened
-# defaults-test:v0.28.0-darwin-x64
+# defaults-test:v0.28.3-darwin-x64
 ok 9 app signed
 ok 10 app flattened
-# defaults-test:v0.29.0-darwin-x64
+# defaults-test:v0.29.2-darwin-x64
 ok 11 app signed
 ok 12 app flattened
-# defaults-test:v0.30.0-darwin-x64
+# defaults-test:v0.30.8-darwin-x64
 ok 13 app signed
 ok 14 app flattened
-# defaults-test:v0.31.0-darwin-x64
+# defaults-test:v0.31.2-darwin-x64
 ok 15 app signed
 ok 16 app flattened
-# defaults-test:v0.32.0-darwin-x64
+# defaults-test:v0.32.3-darwin-x64
 ok 17 app signed
 ok 18 app flattened
-# defaults-test:v0.33.0-darwin-x64
+# defaults-test:v0.33.9-darwin-x64
 ok 19 app signed
 ok 20 app flattened
-# defaults-test:v0.34.0-darwin-x64
+# defaults-test:v0.34.5-darwin-x64
 ok 21 app signed
 ok 22 app flattened
-# defaults-test:v0.34.0-mas-x64
+# defaults-test:v0.34.5-mas-x64
 ok 23 app signed
 ok 24 app flattened
-# defaults-test:v0.35.0-darwin-x64
+# defaults-test:v0.35.6-darwin-x64
 ok 25 app signed
 ok 26 app flattened
-# defaults-test:v0.35.0-mas-x64
+# defaults-test:v0.35.6-mas-x64
 ok 27 app signed
 ok 28 app flattened
-# defaults-test:v0.36.0-darwin-x64
+# defaults-test:v0.36.12-darwin-x64
 ok 29 app signed
 ok 30 app flattened
-# defaults-test:v0.36.0-mas-x64
+# defaults-test:v0.36.12-mas-x64
 ok 31 app signed
 ok 32 app flattened
+# defaults-test:v0.37.8-darwin-x64
+ok 33 app signed
+ok 34 app flattened
+# defaults-test:v0.37.8-mas-x64
+ok 35 app signed
+ok 36 app flattened
+# defaults-test:v1.0.2-darwin-x64
+ok 37 app signed
+ok 38 app flattened
+# defaults-test:v1.0.2-mas-x64
+ok 39 app signed
+ok 40 app flattened
+# defaults-test:v1.1.3-darwin-x64
+ok 41 app signed
+ok 42 app flattened
+# defaults-test:v1.1.3-mas-x64
+ok 43 app signed
+ok 44 app flattened
+# defaults-test:v1.2.0-darwin-x64
+ok 45 app signed
+ok 46 app flattened
+# defaults-test:v1.2.0-mas-x64
+ok 47 app signed
+ok 48 app flattened
 # teardown
 
-1..32
-# tests 32
-# pass  32
+1..48
+# tests 48
+# pass  48
 
 # ok
 ```
 
-## Collaborators
-
-Thanks to [seanchas116](https://github.com/seanchas116), and [jasonhinkle](https://github.com/jasonhinkle) for improving the usability of this project implementation.
-
 ## Related
 
-- [electron-packager] - package your electron app in OS executables (.app, .exe, etc) via JS or CLI
+- [electron-packager] - Package your electron app in OS executables (.app, .exe, etc) via JS or CLI.
+- [electron-builder] - Complete solution to build ready for distribution and "auto update" installers of your app for OS X, Windows and Linux.
 
+[Bluebird]: https://github.com/petkaantonov/bluebird
+[electron-packager]: https://github.com/electron-userland/electron-packager
+[electron-builder]: https://github.com/electron-userland/electron-builder
 [npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
 [npm_url]: https://npmjs.org/package/electron-osx-sign
 [travis_img]: https://travis-ci.org/electron-userland/electron-osx-sign.svg?branch=master
 [travis_url]: https://travis-ci.org/electron-userland/electron-osx-sign
-[electron-packager]: https://github.com/electron-userland/electron-packager

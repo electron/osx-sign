@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 var fs = require('fs')
-var args = require('minimist')(process.argv.slice(2), {boolean: ['help']})
-var usage = fs.readFileSync(__dirname + '/electron-osx-sign-usage.txt').toString()
+var path = require('path')
+var args = require('minimist')(process.argv.slice(2), {'boolean': ['help']})
+var usage = fs.readFileSync(path.join(__dirname, 'electron-osx-sign-usage.txt')).toString()
 var sign = require('../')
 
 args.app = args._.shift()
@@ -18,9 +19,10 @@ delete args.help
 
 sign(args, function done (err) {
   if (err) {
-    console.error('Sign failed.')
+    console.error('Sign failed:')
     if (err.message) console.error(err.message)
-    else console.error(err.stack)
+    else if (err.stack) console.error(err.stack)
+    else console.log(err)
     process.exit(1)
   }
   console.log('Application signed:', args.app)
