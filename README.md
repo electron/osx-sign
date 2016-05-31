@@ -62,10 +62,10 @@ sign({
   app: 'path/to/my.app'
 }, function done (err) {
   if (err) {
-    // Application signed
+    // Handle the error
     return;
   }
-  // Regular finishing
+  // Application signed
 })
 ```
 
