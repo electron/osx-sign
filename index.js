@@ -132,8 +132,14 @@ function getFilePathIfBinaryAsync (filePath) {
  */
 function validateOptsApplicationAsync (opts) {
   return new Promise(function (resolve, reject) {
-    if (!opts.app) reject(new Error('Path to aplication must be specified.'))
-    if (path.extname(opts.app) !== '.app') reject(new Error('Extension of application must be `.app`.'))
+    if (!opts.app) {
+      reject(new Error('Path to aplication must be specified.'))
+      return
+    }
+    if (path.extname(opts.app) !== '.app') {
+      reject(new Error('Extension of application must be `.app`.'))
+      return
+    }
     return lstatAsync(opts.app)
       .then(function () {
         resolve(null)
@@ -153,7 +159,10 @@ function validateOptsApplicationAsync (opts) {
 function validateOptsBinariesAsync (opts) {
   return new Promise(function (resolve, reject) {
     if (opts.binaries) {
-      if (!Array.isArray(opts.binaries)) reject(new Error('Additional binaries should be an Array.'))
+      if (!Array.isArray(opts.binaries)) {
+        reject(new Error('Additional binaries should be an Array.'))
+        return
+      }
       // TODO: Loop check every binary file for existence, reject promise if any not found
     }
     resolve(null)
@@ -170,6 +179,7 @@ function validateOptsPlatformAsync (opts) {
     if (opts.platform) {
       if (opts.platform === 'mas' || opts.platform === 'darwin') {
         resolve(null)
+        return
       } else {
         debugwarn('`platform` passed in arguments not supported, checking Electron platform...')
       }
