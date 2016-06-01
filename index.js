@@ -175,10 +175,10 @@ function preAutoEntitlementAppGroupAsync (opts) {
           var appGroup = appInfo.ElectronTeamID + '.' + appInfo.CFBundleIdentifier
           if (entitlements['com.apple.security.application-groups'].indexOf(appGroup) === -1) {
             entitlements['com.apple.security.application-groups'].push(appGroup)
-            debugwarn('`com.apple.security.application-groups` not found in `entitlements`, new inserted: ' + appGroup)
+            debugwarn('`com.apple.security.application-groups` not found in entitlements file, new inserted: ' + appGroup)
             return writeFileAsync(entitlementsPath, plist.build(entitlements), 'utf8')
           } else {
-            debuglog('`com.apple.security.application-groups` found in `entitlements`: ' + appGroup)
+            debuglog('`com.apple.security.application-groups` found in entitlements file: ' + appGroup)
             return Promise.resolve()
           }
         })
@@ -494,12 +494,17 @@ function signAsync (opts) {
     .then(function () {
       // Pre-sign operations
       var promise = Promise.resolve()
-      if ((opts.version ? compareVersion(opts.version, '1.1.1') >= 0 : false) || opts['pre-auto-entitlement-app-group']) {
-        // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relate to electron#5601
-        promise = promise.then(function () {
-          debuglog('Automating entitlement app group...')
-          return preAutoEntitlementAppGroupAsync(opts)
-        })
+      if (opts.version ? compareVersion(opts.version, '1.1.1') >= 0 : true) {
+        // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
+        if (opts['pre-auto-entitlements'] === false) {
+          debugwarn('Pre-sign operation disabled for entitlements automation.')
+        } else {
+          debuglog('Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`; disable by setting `pre-auto-entitlements` to `false`.')
+          promise = promise.then(function () {
+            debuglog('Automating entitlement app group...')
+            return preAutoEntitlementAppGroupAsync(opts)
+          })
+        }
       }
       return promise
     })

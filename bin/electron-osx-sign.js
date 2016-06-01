@@ -1,7 +1,15 @@
 #!/usr/bin/env node
 var fs = require('fs')
 var path = require('path')
-var args = require('minimist')(process.argv.slice(2), {'boolean': ['help', 'pre-auto-entitlement-app-group']})
+var args = require('minimist')(process.argv.slice(2), {
+  'boolean': [
+    'help',
+    'pre-auto-entitlements'
+  ],
+  'default': {
+    'pre-auto-entitlements': true
+  }
+})
 var usage = fs.readFileSync(path.join(__dirname, 'electron-osx-sign-usage.txt')).toString()
 var sign = require('../')
 

@@ -6,7 +6,7 @@ Code-signing for packaged Electron OS X apps.
 
 [`electron-osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for like network access require additional work.
 
-It is worth noting as well that starting from [Electron] v1.1.1, a new mechanism was introduced to satisfy IPC communications (see [electron#5601](https://github.com/electron/electron/pull/5601)); wishing to have full support of various Electron versions, please utilize `opts.version`, which for example brings automation to your entitlements file and `Info.plist` so there is much less to hassle with the default settings. However, flags like `opts['pre-auto-entitlement-app-group']` are available for customizations.
+It is worth noting as well that starting from [Electron] v1.1.1, a new mechanism was introduced to satisfy IPC communications (see [electron#5601](https://github.com/electron/electron/pull/5601)); wishing to have full support of various Electron versions, please utilize `opts.version`, which brings less hassle with making default settings among releases.
 
 We are trying to keep updated to the Electron specifications; please [file us an issue](https://github.com/electron-userland/electron-osx-sign/issues/new) if having any suggestions or experiencing difficulties code signing your products.
 
@@ -135,7 +135,7 @@ See [default.mas.inherit.entitlements](https://github.com/electron-userland/elec
 `identity` - *String*
 
 Name of certificate to use when signing.
-Default to retrieve from `opts.keychain` (see below) or system default keychain.
+Default to retrieve from `keychain` (see below) or system default keychain.
 
 Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)`, and platform `darwin` will look for `Developer ID Application: * (*)` by default.
 
@@ -155,19 +155,19 @@ Build platform of Electron.
 Allowed values: `darwin`, `mas`.
 Default to auto detect by presence of `Squirrel.framework` within the application bundle.
 
-`pre-auto-entitlement-app-group` - *Boolean*
+`pre-auto-entitlements` - *Boolean*
 
-Flag to automate `com.apple.security.application-groups` in entitlements file and update `Info.plist` with `ElectronTeamID`.
+Flag to enable automation of `com.apple.security.application-groups` in entitlements file and update `Info.plist` with `ElectronTeamID`.
 Allowed values: `true`, `false`.
-Default to seek from `opts.version` (see below) for all above or equal to `1.1.1`.
-More information please check: [electron#5601](https://github.com/electron/electron/pull/5601).
+Default to `true`.
 
 `version` - *String*
 
 Build version of Electron.
-Values may be: `1.2.0`.
-This does not default to any value.
-It is though recommended to make use of this option for best support of specific Electron versions. This may trigger enabling of pre/post operations for signing.
+Values may be like: `1.1.1`, `1.2.0`.
+Default to latest Electron version.
+
+It is recommended to utilize this option for best support of specific Electron versions. This may trigger pre/post operations for signing: For example, automation of setting `com.apple.security.application-groups` in entitlements file and of updating `Info.plist` with `ElectronTeamID` is enabled for all versions starting from `1.1.1`; set `pre-auto-entitlements` option to `false` to disable this feature.
 
 ###### cb - Callback
 
@@ -249,7 +249,7 @@ Needs file extension `.app`.
 `identity` - *String*
 
 Name of certificate to use when flattening.
-Default to retrieve from `opts.keychain`(see below) or system default keychain.
+Default to retrieve from `keychain`(see below) or system default keychain.
 
 Flattening platform `mas` will look for `3rd Party Mac Developer Installer: * (*)`, and platform `darwin` will look for `Developer ID Installer: * (*)` by default.
 
