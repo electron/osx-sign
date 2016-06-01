@@ -9,6 +9,10 @@ var isBinaryFileAsync = Promise.promisify(require('isbinaryfile'))
 var execFileAsync = Promise.promisify(child.execFile)
 var lstatAsync = Promise.promisify(fs.lstat)
 
+var compareVersion = require('compare-version')
+var plist = require('plist')
+var tempfile = require('tempfile')
+
 var debug = require('debug')
 var debuglog = debug('electron-osx-sign')
 debuglog.log = console.log.bind(console)
@@ -62,7 +66,7 @@ function findIdentityAsync (opts, identity) {
         for (var i = 0, l = lines.length; i < l; i++) {
           var line = lines[i]
           location = line.indexOf(identity)
-          if (location >= 0) {
+          if (location > -1) {
             opts.identity = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'))
             break
           }
@@ -127,6 +131,63 @@ function getFilePathIfBinaryAsync (filePath) {
   return isBinaryFileAsync(filePath)
     .then(function (isBinary) {
       return isBinary ? filePath : null
+    })
+}
+
+/**
+ * This function returns a promise completing the entitlements automation: The process includes checking in `Info.plist` for `ElectronTeamID` or setting parsed value from identity, and checking in entitlements file for `com.apple.security.application-groups` or inserting new into array. A temporary entitlements file may be created to replace the input for any changes introduced.
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise.
+ */
+function preAutoEntitlementAppGroupAsync (opts) {
+  // If entitlements file not provided, default will be used. Fixes #41
+  var readFileAsync = Promise.promisify(fs.readFile)
+  var writeFileAsync = Promise.promisify(fs.writeFile)
+
+  var appInfoPath = path.join(getAppContentsPath(opts), 'Info.plist')
+  var appInfo
+  var entitlementsPath = tempfile('.plist')
+  var entitlements
+
+  return readFileAsync(opts.entitlements, 'utf8')
+    .then(function (result) {
+      entitlements = plist.parse(result)
+      if (!entitlements['com.apple.security.app-sandbox']) {
+        // Only automate when app sandbox enabled
+        return Promise.resolve()
+      }
+
+      return readFileAsync(appInfoPath, 'utf8')
+        .then(function (result) {
+          appInfo = plist.parse(result)
+
+          // Use ElectronTeamID in Info.plist if already specified
+          if (!appInfo.ElectronTeamID) {
+            appInfo.ElectronTeamID = opts.identity.substring(opts.identity.indexOf('(') + 1, opts.identity.lastIndexOf(')'))
+            debugwarn('`ElectronTeamID` not found in `Info.plist`, use parsed from signing identity: ' + appInfo.ElectronTeamID)
+            return writeFileAsync(appInfoPath, plist.build(appInfo), 'utf8')
+          } else {
+            debuglog('`ElectronTeamID` found in `Info.plist`: ' + appInfo.ElectronTeamID)
+            return Promise.resolve()
+          }
+        })
+        .then(function () {
+          // Init entitlements app group key to array
+          if (!entitlements['com.apple.security.application-groups']) {
+            entitlements['com.apple.security.application-groups'] = []
+          }
+          // Insert app group if not exists
+          var appGroup = appInfo.ElectronTeamID + '.' + appInfo.CFBundleIdentifier
+          if (entitlements['com.apple.security.application-groups'].indexOf(appGroup) === -1) {
+            entitlements['com.apple.security.application-groups'].push(appGroup)
+            debugwarn('`com.apple.security.application-groups` not found in entitlements file, new inserted: ' + appGroup)
+            return writeFileAsync(entitlementsPath, plist.build(entitlements), 'utf8')
+          } else {
+            debuglog('`com.apple.security.application-groups` found in entitlements file: ' + appGroup)
+            return Promise.resolve()
+          }
+        })
+        .thenReturn(null)
     })
 }
 
@@ -328,7 +389,7 @@ function signApplicationAsync (opts) {
         })
           .then(function () {
             debuglog('Signing... ' + opts.app)
-            execFileAsync('codesign', args.concat('--entitlements', opts.entitlements, opts.app))
+            return execFileAsync('codesign', args.concat('--entitlements', opts.entitlements, opts.app))
           })
       } else {
         // Otherwise normally
@@ -346,10 +407,7 @@ function signApplicationAsync (opts) {
         .then(function () {
           // Verify code sign
           debuglog('Verifying code sign...')
-          var promise = Promise.delay(1000)
-            .then(function () {
-              return verifySignApplicationAsync(opts)
-            })
+          var promise = verifySignApplicationAsync(opts)
             .then(function (result) {
               debuglog('Verification displayed below:\n' + result)
             })
@@ -367,6 +425,7 @@ function signApplicationAsync (opts) {
               })
               .then(function (result) {
                 debuglog('Entitlements:\n' + result)
+                return null
               })
           }
           return promise
@@ -396,11 +455,11 @@ function signAsync (opts) {
         // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
         if (!opts.entitlements) {
           debugwarn('No `entitlements` passed in arguments, will fallback to default settings.')
-          opts.entitlements = path.join(__dirname, 'default.mas.entitlements')
+          opts.entitlements = path.join(__dirname, 'default.mas.plist')
         }
         if (!opts['entitlements-inherit']) {
           debugwarn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
-          opts['entitlements-inherit'] = path.join(__dirname, 'default.mas.inherit.entitlements')
+          opts['entitlements-inherit'] = path.join(__dirname, 'default.mas.inherit.plist')
         }
       } else if (opts.platform === 'darwin') {
         // Not necessary to have entitlements for non Mac App Store distribution
@@ -410,11 +469,11 @@ function signAsync (opts) {
           // If entitlements is provided as a flag, fallback to default
           if (opts.entitlements === true) {
             debugwarn('`entitlements` not specified in arguments, will fallback to default settings.')
-            opts.entitlements = path.join(__dirname, 'default.darwin.entitlements')
+            opts.entitlements = path.join(__dirname, 'default.darwin.plist')
           }
           if (!opts['entitlements-inherit']) {
             debugwarn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
-            opts['entitlements-inherit'] = path.join(__dirname, 'default.darwin.inherit.entitlements')
+            opts['entitlements-inherit'] = path.join(__dirname, 'default.darwin.inherit.plist')
           }
         }
       } else {
@@ -438,6 +497,23 @@ function signAsync (opts) {
       }
     })
     .then(function () {
+      // Pre-sign operations
+      var promise = Promise.resolve()
+      if (opts.version ? compareVersion(opts.version, '1.1.1') >= 0 : true) {
+        // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
+        if (opts['pre-auto-entitlements'] === false) {
+          debugwarn('Pre-sign operation disabled for entitlements automation.')
+        } else {
+          debuglog('Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`; disable by setting `pre-auto-entitlements` to `false`.')
+          promise = promise.then(function () {
+            debuglog('Automating entitlement app group...')
+            return preAutoEntitlementAppGroupAsync(opts)
+          })
+        }
+      }
+      return promise
+    })
+    .then(function () {
       debuglog('Signing application...')
       debuglog('> application         ' + opts.app)
       debuglog('> platform            ' + opts.platform)
@@ -446,10 +522,11 @@ function signAsync (opts) {
       debuglog('> additional-binaries ' + opts.binaries)
       debuglog('> identity            ' + opts.identity)
       return signApplicationAsync(opts)
-        .then(function () {
-          debuglog('Application signed.')
-          return null
-        })
+    })
+    .then(function () {
+      // Post-sign operations
+      debuglog('Application signed.')
+      return null
     })
 }
 
@@ -487,16 +564,21 @@ function flatAsync (opts) {
       }
     })
     .then(function () {
+      // Pre-flat operations
+      return null
+    })
+    .then(function () {
       debuglog('Flattening application...')
       debuglog('> application    ' + opts.app)
       debuglog('> package-output ' + opts.pkg)
       debuglog('> install-path   ' + opts.install)
       debuglog('> identity       ' + opts.identity)
       return flatApplicationAsync(opts)
-        .then(function () {
-          debuglog('Application flattened.')
-          return null
-        })
+    })
+    .then(function () {
+      // Post-flat operations
+      debuglog('Application flattened.')
+      return null
     })
 }
 

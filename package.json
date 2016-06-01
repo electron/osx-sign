@@ -19,12 +19,14 @@
   "homepage": "https://github.com/electron-userland/electron-osx-sign",
   "dependencies": {
     "bluebird": "^3.3.5",
+    "compare-version": "^0.1.2",
     "debug": "^2.2.0",
     "isbinaryfile": "^3.0.0",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.0",
+    "plist": "^1.2.0",
+    "tempfile": "^1.1.1"
   },
   "devDependencies": {
-    "compare-version": "^0.1.2",
     "electron-download": "^2.1.2",
     "extract-zip": "^1.5.0",
     "mkdirp": "^0.5.1",
