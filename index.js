@@ -134,6 +134,11 @@ function getFilePathIfBinaryAsync (filePath) {
     })
 }
 
+/**
+ * This function returns a promise completing the entitlements automation: The process includes checking in `Info.plist` for `ElectronTeamID` or setting parsed value from identity, and checking in entitlements file for `com.apple.security.application-groups` or inserting new into array. A temporary entitlements file may be created to replace the input for any changes introduced.
+ * @param {Object} opts - Options.
+ * @returns {Promise} Promise.
+ */
 function preAutoEntitlementAppGroupAsync (opts) {
   // If entitlements file not provided, default will be used. Fixes #41
   var readFileAsync = Promise.promisify(fs.readFile)
