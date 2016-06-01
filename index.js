@@ -384,7 +384,7 @@ function signApplicationAsync (opts) {
         })
           .then(function () {
             debuglog('Signing... ' + opts.app)
-            execFileAsync('codesign', args.concat('--entitlements', opts.entitlements, opts.app))
+            return execFileAsync('codesign', args.concat('--entitlements', opts.entitlements, opts.app))
           })
       } else {
         // Otherwise normally
@@ -402,10 +402,7 @@ function signApplicationAsync (opts) {
         .then(function () {
           // Verify code sign
           debuglog('Verifying code sign...')
-          var promise = Promise.delay(1000)
-            .then(function () {
-              return verifySignApplicationAsync(opts)
-            })
+          var promise = verifySignApplicationAsync(opts)
             .then(function (result) {
               debuglog('Verification displayed below:\n' + result)
             })
