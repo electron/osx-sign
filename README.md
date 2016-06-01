@@ -6,6 +6,8 @@ Code-signing for packaged Electron OS X apps.
 
 [`electron-osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for like network access require additional work.
 
+It is worth noting as well that starting from [Electron] v1.1.1, a new mechanism was introduced to satisfy IPC communications (see [electron#5601](https://github.com/electron/electron/pull/5601)); wishing to have full support of various Electron versions, please utilize `opts.version`, which for example brings automation to your entitlements file and `Info.plist` so there is much less to hassle with the default settings. However, flags like `opts['pre-auto-entitlement-app-group']` are available for customizations.
+
 We are trying to keep updated to the Electron specifications; please [file us an issue](https://github.com/electron-userland/electron-osx-sign/issues/new) if having any suggestions or experiencing difficulties code signing your products.
 
 Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with [`electron-packager`][electron-packager] and [`electron-osx-sign`][electron-osx-sign].
@@ -48,6 +50,12 @@ Example:
 
 ```sh
 electron-osx-sign path/to/my.app
+```
+
+The script above being sufficient, it is, however, recommended to make use of `opts.version` while signing for example:
+
+```sh
+electron-osx-sign path/to/my.app --version=1.2.0
 ```
 
 For details on the optional flags, run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt).
@@ -146,6 +154,20 @@ Default to undefined.
 Build platform of Electron.
 Allowed values: `darwin`, `mas`.
 Default to auto detect by presence of `Squirrel.framework` within the application bundle.
+
+`pre-auto-entitlement-app-group` - *Boolean*
+
+Flag to automate `com.apple.security.application-groups` in entitlements file and update `Info.plist` with `ElectronTeamID`.
+Allowed values: `true`, `false`.
+Default to seek from `opts.version` (see below) for all above or equal to `1.1.1`.
+More information please check: [electron#5601](https://github.com/electron/electron/pull/5601).
+
+`version` - *String*
+
+Build version of Electron.
+Values may be: `1.2.0`.
+This does not default to any value.
+It is though recommended to make use of this option for best support of specific Electron versions. This may trigger enabling of pre/post operations for signing.
 
 ###### cb - Callback
 
@@ -373,6 +395,7 @@ ok 48 app flattened
 - [electron-builder] - Complete solution to build ready for distribution and "auto update" installers of your app for OS X, Windows and Linux.
 
 [Bluebird]: https://github.com/petkaantonov/bluebird
+[Electron]: https://github.com/electron/electron
 [electron-builder]: https://github.com/electron-userland/electron-builder
 [electron-packager]: https://github.com/electron-userland/electron-packager
 [electron-osx-sign]: https://github.com/electron-userland/electron-osx-sign
