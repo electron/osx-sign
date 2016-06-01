@@ -499,20 +499,16 @@ function signAsync (opts) {
     })
     .then(function () {
       // Pre-sign operations
-      var promise = Promise.resolve()
-      if (opts.version ? compareVersion(opts.version, '1.1.1') >= 0 : true) {
+      if (opts.entitlements && (!opts.version || compareVersion(opts.version, '1.1.1') >= 0)) {
         // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
         if (opts['pre-auto-entitlements'] === false) {
           debugwarn('Pre-sign operation disabled for entitlements automation.')
         } else {
           debuglog('Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`; disable by setting `pre-auto-entitlements` to `false`.')
-          promise = promise.then(function () {
-            debuglog('Automating entitlement app group...')
-            return preAutoEntitlementAppGroupAsync(opts)
-          })
+          debuglog('Automating entitlement app group...')
+          return preAutoEntitlementAppGroupAsync(opts)
         }
       }
-      return promise
     })
     .then(function () {
       debuglog('Signing application...')

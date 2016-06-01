@@ -3,6 +3,8 @@ interface BaseSignOptions {
   identity?: string;
   platform?: string;
   keychain?: string;
+
+  version?: string;
 }
 
 interface SignOptions extends BaseSignOptions {
@@ -12,6 +14,7 @@ interface SignOptions extends BaseSignOptions {
 }
 
 export function sign(opts: SignOptions, callback: (error: Error) => void): void;
+export function signAsync(opts: SignOptions): Promise<any>;
 
 interface FlatOptions extends BaseSignOptions {
   pkg?: string;
@@ -19,3 +22,4 @@ interface FlatOptions extends BaseSignOptions {
 }
 
 export function flat(opts: FlatOptions, callback: (error: Error) => void): void;
+export function flatAsync(opts: FlatOptions): Promise<any>;
