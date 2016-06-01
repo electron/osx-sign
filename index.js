@@ -179,8 +179,9 @@ function preAutoEntitlementAppGroupAsync (opts) {
           // Insert app group if not exists
           var appGroup = appInfo.ElectronTeamID + '.' + appInfo.CFBundleIdentifier
           if (entitlements['com.apple.security.application-groups'].indexOf(appGroup) === -1) {
-            entitlements['com.apple.security.application-groups'].push(appGroup)
             debugwarn('`com.apple.security.application-groups` not found in entitlements file, new inserted: ' + appGroup)
+            entitlements['com.apple.security.application-groups'].push(appGroup)
+            opts.entitlements = entitlementsPath
             return writeFileAsync(entitlementsPath, plist.build(entitlements), 'utf8')
           } else {
             debuglog('`com.apple.security.application-groups` found in entitlements file: ' + appGroup)
