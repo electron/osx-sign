@@ -3,7 +3,6 @@ interface BaseSignOptions {
   identity?: string;
   platform?: string;
   keychain?: string;
-
   version?: string;
 }
 

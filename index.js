@@ -66,7 +66,7 @@ function findIdentityAsync (opts, identity) {
         for (var i = 0, l = lines.length; i < l; i++) {
           var line = lines[i]
           location = line.indexOf(identity)
-          if (location > -1) {
+          if (location >= 0) {
             opts.identity = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'))
             break
           }
@@ -154,7 +154,7 @@ function preAutoEntitlementAppGroupAsync (opts) {
       entitlements = plist.parse(result)
       if (!entitlements['com.apple.security.app-sandbox']) {
         // Only automate when app sandbox enabled
-        return Promise.resolve()
+        return
       }
 
       return readFileAsync(appInfoPath, 'utf8')
@@ -168,7 +168,6 @@ function preAutoEntitlementAppGroupAsync (opts) {
             return writeFileAsync(appInfoPath, plist.build(appInfo), 'utf8')
           } else {
             debuglog('`ElectronTeamID` found in `Info.plist`: ' + appInfo.ElectronTeamID)
-            return Promise.resolve()
           }
         })
         .then(function () {
@@ -185,7 +184,6 @@ function preAutoEntitlementAppGroupAsync (opts) {
             return writeFileAsync(entitlementsPath, plist.build(entitlements), 'utf8')
           } else {
             debuglog('`com.apple.security.application-groups` found in entitlements file: ' + appGroup)
-            return Promise.resolve()
           }
         })
         .thenReturn(null)
@@ -321,7 +319,7 @@ function walkAsync (dirPath) {
                     return unlinkAsync(filePath)
                       .thenReturn(null)
                   default:
-                    if (path.extname(filePath).indexOf(' ') > -1) {
+                    if (path.extname(filePath).indexOf(' ') >= 0) {
                       // Still consider the file as binary if extension seems invalid
                       return getFilePathIfBinaryAsync(filePath)
                     }
@@ -426,7 +424,6 @@ function signApplicationAsync (opts) {
               })
               .then(function (result) {
                 debuglog('Entitlements:\n' + result)
-                return null
               })
           }
           return promise
@@ -523,7 +520,6 @@ function signAsync (opts) {
     .then(function () {
       // Post-sign operations
       debuglog('Application signed.')
-      return null
     })
 }
 
@@ -562,7 +558,6 @@ function flatAsync (opts) {
     })
     .then(function () {
       // Pre-flat operations
-      return null
     })
     .then(function () {
       debuglog('Flattening application...')
@@ -575,7 +570,6 @@ function flatAsync (opts) {
     .then(function () {
       // Post-flat operations
       debuglog('Application flattened.')
-      return null
     })
 }
 
