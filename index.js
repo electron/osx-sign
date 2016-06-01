@@ -453,11 +453,11 @@ function signAsync (opts) {
         // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
         if (!opts.entitlements) {
           debugwarn('No `entitlements` passed in arguments, will fallback to default settings.')
-          opts.entitlements = path.join(__dirname, 'default.mas.plist')
+          opts.entitlements = path.join(__dirname, 'default.entitlements.mas.plist')
         }
         if (!opts['entitlements-inherit']) {
           debugwarn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
-          opts['entitlements-inherit'] = path.join(__dirname, 'default.mas.inherit.plist')
+          opts['entitlements-inherit'] = path.join(__dirname, 'default.entitlements.mas.inherit.plist')
         }
       } else if (opts.platform === 'darwin') {
         // Not necessary to have entitlements for non Mac App Store distribution
@@ -467,11 +467,11 @@ function signAsync (opts) {
           // If entitlements is provided as a flag, fallback to default
           if (opts.entitlements === true) {
             debugwarn('`entitlements` not specified in arguments, will fallback to default settings.')
-            opts.entitlements = path.join(__dirname, 'default.darwin.plist')
+            opts.entitlements = path.join(__dirname, 'default.entitlements.darwin.plist')
           }
           if (!opts['entitlements-inherit']) {
             debugwarn('No `entitlements-inherit` passed in arguments, will fallback to default settings.')
-            opts['entitlements-inherit'] = path.join(__dirname, 'default.darwin.inherit.plist')
+            opts['entitlements-inherit'] = path.join(__dirname, 'default.entitlements.darwin.inherit.plist')
           }
         }
       } else {
