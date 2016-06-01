@@ -125,12 +125,12 @@ Default to `null`.
 `entitlements` - *String*
 
 Path to entitlements file for signing the app.
-See [default.mas.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/default.mas.entitlements) or [default.darwin.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/default.darwin.entitlements) for default.
+See [default.entitlements.mas.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.plist) or [default.entitlements.darwin.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.plist) for default.
 
 `entitlements-inherit` - *String*
 
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with `entitlements` provided, or for a `mas` platform version.*
-See [default.mas.inherit.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/default.mas.inherit.entitlements) or [default.darwin.inherit.entitlements](https://github.com/electron-userland/electron-osx-sign/blob/master/default.darwin.inherit.entitlements) for default.
+See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.inherit.plist) for default.
 
 `identity` - *String*
 
