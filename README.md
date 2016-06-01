@@ -82,7 +82,7 @@ sign({
 })
 ```
 
-From release {Next Release}, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
+From release v0.4.0-beta, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
 
 ```javascript
 var signAsync = require('electron-osx-sign').signAsync
@@ -211,7 +211,7 @@ flat({
 })
 ```
 
-From release {Next Release}, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
+From release v0.4.0-beta, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
 
 ```javascript
 var flatAsync = require('electron-osx-sign').flatAsync
@@ -298,10 +298,10 @@ A successful testing should look something like:
 ```
 $ npm test
 
-> electron-osx-sign@0.3.1 pretest electron-osx-sign
+> electron-osx-sign@0.4.0-beta pretest electron-osx-sign
 > rimraf test/work
 
-> electron-osx-sign@0.3.1 test electron-osx-sign
+> electron-osx-sign@0.4.0-beta test electron-osx-sign
 > standard && tape test
 
 Calling electron-download before running tests...
