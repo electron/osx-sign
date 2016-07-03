@@ -439,7 +439,7 @@ function signApplicationAsync (opts) {
  */
 function signAsync (opts) {
   if (opts.ignore) {
-    if (typeof opts.ignore !== 'function' || typeof opts.ignore !== 'string') return Promise.reject(new Error('Ignore filter should be either a function or a string.'))
+    if (typeof opts.ignore !== 'function' && typeof opts.ignore !== 'string') return Promise.reject(new Error('Ignore filter should be either a function or a string.'))
   }
 
   return validateOptsApplicationAsync(opts)
