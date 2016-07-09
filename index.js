@@ -378,6 +378,9 @@ function signApplicationAsync (opts) {
       if (opts.keychain) {
         args.push('--keychain', opts.keychain)
       }
+      if (opts.requirements) {
+        args.push('--requirements', opts.requirements)
+      }
 
       var promise
       if (opts.entitlements) {

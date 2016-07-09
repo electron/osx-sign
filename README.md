@@ -161,6 +161,11 @@ Flag to enable automation of `com.apple.security.application-groups` in entitlem
 Allowed values: `true`, `false`.
 Default to `true`.
 
+`requirements` - *String*
+
+Specify the criteria that you recommend to be used to evaluate the code signature.
+See more info from https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
+
 `version` - *String*
 
 Build version of Electron.
