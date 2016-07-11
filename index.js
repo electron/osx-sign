@@ -270,6 +270,10 @@ function validateOptsPlatformAsync (opts) {
  * @returns {Promise} Promise resolving output.
  */
 function verifySignApplicationAsync (opts) {
+  return (opts.platform === 'mas') ? verifySignMasAsync(opts) : verifySignDarwinAsync(opts)
+}
+
+function verifySignMasAsync (opts) {
   // Custom promise is used here due to a strange behavior with codesign: Verbose logs are output into stderr so regular promisified execFile could not catch stderr while code execution finishes successfully.
   return new Promise(function (resolve, reject) {
     child.execFile('codesign', [
@@ -280,7 +284,29 @@ function verifySignApplicationAsync (opts) {
     ], function (err, stdout, stderr) {
       if (err) {
         debugerror(err)
-        reject('Failed to verify application bundle. See details in debug log. (electron-osx-sign:error)')
+        reject('Failed to verify MAS application bundle. See details in debug log. (electron-osx-sign:error)')
+        return
+      }
+      resolve(stderr)
+    })
+  })
+}
+
+function verifySignDarwinAsync (opts) {
+  // Custom promise is used here due to a strange behavior with Gatekeeper: Verbose logs are output into stderr so regular promisified execFile could not catch stderr while code execution finishes successfully.
+  return new Promise(function (resolve, reject) {
+    child.execFile('spctl', [
+      '--ignore-cache',
+      '--no-cache',
+      '--verbose=2',
+      '--assess',
+      '--type',
+      'execute', // arg for --type
+      opts.app
+    ], function (err, stdout, stderr) {
+      if (err) {
+        debugerror(err)
+        reject('Failed to verify Darwin application bundle. See details in debug log. (electron-osx-sign:error)')
         return
       }
       resolve(stderr)
