@@ -12,3 +12,4 @@ ignore                    Regex that signals ignoring a file before signing. Def
 no-pre-auto-entitlements  Flag to disable automation of `com.apple.security.application-groups` in entitlements file and update `Info.plist` with `ElectronTeamID`.
 platform                  Build platform of Electron. Allowed values: `darwin`, `mas`. Default to auto detect from application package.
 version                   Build version of Electron. Values may be: `1.2.0`.
+requirements              Specify the criteria that you recommend to be used to evaluate the code signature. Default to undefined.
