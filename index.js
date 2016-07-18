@@ -270,12 +270,9 @@ function validateOptsPlatformAsync (opts) {
  * @returns {Promise} Promise resolving output.
  */
 function verifySignApplicationAsync (opts) {
-  return (opts.platform === 'mas') ? verifySignMasAsync(opts) : verifySignDarwinAsync(opts)
-}
-
-function verifySignMasAsync (opts) {
-  // Custom promise is used here due to a strange behavior with codesign: Verbose logs are output into stderr so regular promisified execFile could not catch stderr while code execution finishes successfully.
-  return new Promise(function (resolve, reject) {
+  // Verify with codesign
+  var promise = new Promise(function (resolve, reject) {
+    debuglog('Verifying application bundle with codesign...')
     child.execFile('codesign', [
       '--verify',
       '--deep',
@@ -284,34 +281,40 @@ function verifySignMasAsync (opts) {
     ], function (err, stdout, stderr) {
       if (err) {
         debugerror(err)
-        reject('Failed to verify MAS application bundle. See details in debug log. (electron-osx-sign:error)')
+        reject('Failed to verify application bundle. See details in debug log. (electron-osx-sign:error)')
         return
       }
-      resolve(stderr)
+      debuglog('Result:\n' + stderr)
+      resolve(null)
     })
   })
-}
 
-function verifySignDarwinAsync (opts) {
-  // Custom promise is used here due to a strange behavior with Gatekeeper: Verbose logs are output into stderr so regular promisified execFile could not catch stderr while code execution finishes successfully.
-  return new Promise(function (resolve, reject) {
-    child.execFile('spctl', [
-      '--ignore-cache',
-      '--no-cache',
-      '--verbose=2',
-      '--assess',
-      '--type',
-      'execute', // arg for --type
-      opts.app
-    ], function (err, stdout, stderr) {
-      if (err) {
-        debugerror(err)
-        reject('Failed to verify Darwin application bundle. See details in debug log. (electron-osx-sign:error)')
-        return
-      }
-      resolve(stderr)
+  // Additionally test Gatekeeper acceptance for darwin platform
+  if (opts.platform === 'darwin') {
+    promise = promise.then(function () {
+      return new Promise(function (resolve, reject) {
+        debuglog('Verifying Gatekeeper acceptance for darwin platform...')
+        child.execFile('spctl', [
+          '--assess',
+          '--type', 'execute',
+          '--verbose',
+          '--ignore-cache',
+          '--no-cache',
+          opts.app
+        ], function (err, stdout, stderr) {
+          if (err) {
+            debugerror(err)
+            reject('Failed to pass Gatekeeper. See details in debug log. (electron-osx-sign:error)')
+            return
+          }
+          debuglog('Result:\n' + stderr)
+          resolve(null)
+        })
+      })
     })
-  })
+  }
+
+  return promise
 }
 
 /**
@@ -434,10 +437,10 @@ function signApplicationAsync (opts) {
       return promise
         .then(function () {
           // Verify code sign
-          debuglog('Verifying code sign...')
+          debuglog('Verifying...')
           var promise = verifySignApplicationAsync(opts)
             .then(function (result) {
-              debuglog('Verification displayed below:\n' + result)
+              debuglog('Verified.')
             })
           // Check entitlements if applicable
           if (opts.entitlements) {
