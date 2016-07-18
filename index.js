@@ -369,6 +369,17 @@ function walkAsync (dirPath) {
 function signApplicationAsync (opts) {
   return walkAsync(getAppContentsPath(opts))
     .then(function (childPaths) {
+      function ignoreFilePath (opts, filePath) {
+        if (opts.ignore) {
+          if (typeof opts.ignore === 'function') {
+            return opts.ignore(filePath)
+          } else if (typeof opts.ignore === 'string') {
+            return filePath.match(opts.ignore)
+          }
+        }
+        return false
+      }
+
       if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
 
       var args = [
@@ -386,6 +397,10 @@ function signApplicationAsync (opts) {
       if (opts.entitlements) {
         // Sign with entitlements
         promise = Promise.mapSeries(childPaths, function (filePath) {
+          if (ignoreFilePath(opts, filePath)) {
+            debuglog('Skipped... ' + filePath)
+            return
+          }
           debuglog('Signing... ' + filePath)
           return execFileAsync('codesign', args.concat('--entitlements', opts['entitlements-inherit'], filePath))
         })
@@ -396,6 +411,10 @@ function signApplicationAsync (opts) {
       } else {
         // Otherwise normally
         promise = Promise.mapSeries(childPaths, function (filePath) {
+          if (ignoreFilePath(opts, filePath)) {
+            debuglog('Skipped... ' + filePath)
+            return
+          }
           debuglog('Signing... ' + filePath)
           return execFileAsync('codesign', args.concat(filePath))
         })
