@@ -445,7 +445,7 @@ function signApplicationAsync (opts) {
                 ])
               })
               .then(function (result) {
-                debuglog('Entitlements:\n' + result)
+                debuglog('Entitlements (prefixed with blob header):\n' + result)
               })
           }
           return promise
