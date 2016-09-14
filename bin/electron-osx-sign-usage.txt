@@ -9,3 +9,4 @@ identity                    Name of certificate to use when signing. Default to 
 keychain                    The keychain name. Default to system default keychain (`login.keychain`).
 ignore                      Regex that signals ignoring a file before signing. Default to undefined.
 platform                    Build platform of Electron. Allowed values: `darwin`, `mas`. Default to auto detect from application package.
+requirements                Specify the criteria that you recommend to be used to evaluate the code signature. Default to undefined.
