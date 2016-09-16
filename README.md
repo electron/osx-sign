@@ -116,6 +116,11 @@ Build platform of Electron.
 Allowed values: `darwin`, `mas`.
 Default to auto detect from presence of `Squirrel.framework` within the application package.
 
+`requirements` - *String*
+
+Specify the criteria that you recommend to be used to evaluate the code signature.
+See more info from https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
+
 ###### callback
 
 `err` - *Error*

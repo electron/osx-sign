@@ -164,6 +164,9 @@ function signApplication (opts, callback) {
   if (opts.keychain) {
     args.push('--keychain', opts.keychain)
   }
+  if (opts.requirements) {
+    args.push('--requirements', opts.requirements)
+  }
 
   if (opts.entitlements) {
     // Sign with entitlements
