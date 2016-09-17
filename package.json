@@ -1,6 +1,6 @@
 {
   "name": "electron-osx-sign",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Code-signing for Electron-packed OS X apps.",
   "main": "index.js",
   "bin": {
