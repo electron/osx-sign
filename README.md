@@ -43,7 +43,7 @@ npm install -g electron-osx-sign
 #### From the Command Line
 
 ```sh
-electron-osx-sign <app> [additional-binaries...] [--options...]
+electron-osx-sign app [embedded-binary ...] [options ...]
 ```
 
 Example:
@@ -58,7 +58,7 @@ The script above being sufficient, it is, however, recommended to make use of `o
 electron-osx-sign path/to/my.app --version=1.2.0
 ```
 
-For details on the optional flags, run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt).
+Run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt) for CLI-specific options.
 
 #### From the API
 
@@ -87,8 +87,8 @@ From release v0.4.0-beta, [Bluebird] promises are introduced for better async me
 ```javascript
 var signAsync = require('electron-osx-sign').signAsync
 signAsync(opts)
-  [.then(function () {})
-  [.catch(function (err) {})]]
+  [.then(function () {})]
+  [.catch(function (err) {})]
 ```
 
 Example:
@@ -120,22 +120,23 @@ Needs file extension `.app`.
 `binaries` - *Array*
 
 Path to additional binaries that will be signed along with built-ins of Electron.
-Default to `null`.
+Default to `undefined`.
 
 `entitlements` - *String*
 
 Path to entitlements file for signing the app.
-See [default.entitlements.mas.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.plist) or [default.entitlements.darwin.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.plist) for default.
+Default to built-in entitlements file, Sandbox enabled for Mac App Store platform.
+See [default.entitlements.mas.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.plist) or [default.entitlements.darwin.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.plist) with respect to your platform.
 
 `entitlements-inherit` - *String*
 
-Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with `entitlements` provided, or for a `mas` platform version.*
-See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.inherit.plist) for default.
+Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with entitlements.*
+See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.inherit.plist) with respect to your platform.
 
 `identity` - *String*
 
 Name of certificate to use when signing.
-Default to retrieve from `keychain` (see below) or system default keychain.
+Default to be selected with respect to `provisioning-profile` and `platform` from `keychain` or keychain by system default.
 
 Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)`, and platform `darwin` will look for `Developer ID Application: * (*)` by default.
 
@@ -147,7 +148,7 @@ Default to system default keychain.
 `ignore` - *String*
 
 Regex or function that signals ignoring a file before signing.
-Default to undefined.
+Default to `undefined`.
 
 `platform` - *String*
 
@@ -161,10 +162,27 @@ Flag to enable automation of `com.apple.security.application-groups` in entitlem
 Allowed values: `true`, `false`.
 Default to `true`.
 
+`pre-embed-provisioning-profile` - *Boolean*
+
+Flag to enable embedding of provisioning profile in the current working directory.
+Allowed values: `true`, `false`.
+Default to `true`.
+
+`provisioning-profile` - *String*
+
+Path to provisioning profile.
+
 `requirements` - *String*
 
 Specify the criteria that you recommend to be used to evaluate the code signature.
 See more info from https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
+Default to `undefined`.
+
+`type` - *String*
+
+Specify whether to sign app for development or for distribution.
+Allowed values: `development`, `distribution`.
+Default to `distribution`.
 
 `version` - *String*
 
@@ -183,7 +201,7 @@ It is recommended to utilize this option for best support of specific Electron v
 #### From the Command Line
 
 ```sh
-electron-osx-flat <app> [--options...]
+electron-osx-flat app [options ...]
 ```
 
 Example:
@@ -192,7 +210,7 @@ Example:
 electron-osx-flat path/to/my.app
 ```
 
-For details on the optional flags, run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-flat-usage.txt).
+Run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-flat-usage.txt) for CLI-specific options.
 
 #### From the API
 
@@ -221,8 +239,8 @@ From release v0.4.0-beta, [Bluebird] promises are introduced for better async me
 ```javascript
 var flatAsync = require('electron-osx-sign').flatAsync
 flatAsync(opts)
-  [.then(function () {})
-  [.catch(function (err) {})]]
+  [.then(function () {})]
+  [.catch(function (err) {})]
 ```
 
 Example:
@@ -253,14 +271,14 @@ Needs file extension `.app`.
 
 `identity` - *String*
 
-Name of certificate to use when flattening.
-Default to retrieve from `keychain`(see below) or system default keychain.
+Name of certificate to use when signing.
+Default to be selected with respect to `platform` from `keychain` or keychain by system default.
 
 Flattening platform `mas` will look for `3rd Party Mac Developer Installer: * (*)`, and platform `darwin` will look for `Developer ID Installer: * (*)` by default.
 
 `install` - *String*
 
-Path to install for the bundle.
+Path to install the bundle.
 Default to `/Applications`.
 
 `keychain` - *String*
@@ -275,8 +293,11 @@ Default to auto detect by presence of `Squirrel.framework` within the applicatio
 
 `pkg` - *String*
 
-Path to the output flattened package.
+Path to the output the flattened package.
 Needs file extension `.pkg`.
+
+`scripts` - *String*
+Path to a directory containing pre and/or post install scripts.
 
 ###### cb - Callback
 
@@ -288,7 +309,7 @@ As of release v0.3.1, external module `debug` is used to display logs and messag
 
 ## Test
 
-As developer certificates are required for `codesign` in OS X, this module may not be tested via online build services. If you wish to test out this module, enter:
+As developer certificates are required for `codesign` in OS X, this module is difficult to be tested via online build services. If you wish to test out this module, enter:
 
 ```
 npm test
