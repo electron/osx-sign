@@ -619,7 +619,7 @@ function flatAsync (opts) {
       debuglog('> package-output ' + opts.pkg)
       debuglog('> install-path   ' + opts.install)
       debuglog('> identity       ' + opts.identity)
-      debuglog('> scripts        ', opts.scripts)
+      debuglog('> scripts        ' + opts.scripts)
       return flatApplicationAsync(opts)
     })
     .then(function () {
