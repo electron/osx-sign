@@ -98,6 +98,9 @@ function flatApplicationAsync (opts) {
   if (opts.keychain) {
     args.unshift('--keychain', opts.keychain)
   }
+  if (opts.scripts) {
+    args.unshift('--scripts', opts.scripts)
+  }
 
   debuglog('Flattening... ' + opts.app)
   return execFileAsync('productbuild', args)
@@ -616,6 +619,7 @@ function flatAsync (opts) {
       debuglog('> package-output ' + opts.pkg)
       debuglog('> install-path   ' + opts.install)
       debuglog('> identity       ' + opts.identity)
+      debuglog('> scripts        ', opts.scripts)
       return flatApplicationAsync(opts)
     })
     .then(function () {
