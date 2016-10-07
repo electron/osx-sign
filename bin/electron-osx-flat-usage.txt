@@ -8,3 +8,4 @@ install   Path to install for the bundle. Default `/Applications`.
 keychain  The keychain name. Default to system default keychain.
 platform  Build platform of Electron. Allowed values: darwin, mas. Default to auto detect from application package.
 pkg       Path to the output package.
+scripts   Path to a directory containing pre and/or post install scripts.
