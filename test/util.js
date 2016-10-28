@@ -56,9 +56,12 @@ exports.downloadElectrons = function downloadElectrons (callback) {
 exports.setup = function setup () {
   test('setup', function (t) {
     mkdirp(WORK_CWD, function (err) {
-      if (err) t.end(err)
-      process.chdir(WORK_CWD)
-      t.end()
+      if (err) {
+        t.end(err)
+      } else {
+        process.chdir(WORK_CWD)
+        t.end()
+      }
     })
   })
 }
