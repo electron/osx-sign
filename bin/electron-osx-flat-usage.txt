@@ -1,11 +1,38 @@
 
-Usage: electron-osx-flat <app> [--options...]
+NAME
+  electron-osx-flat -- product building for Electron apps
 
-Options:
+SYNOPSIS
+  electron-osx-flat app [options ...]
 
-identity  Name of certificate to use when flattening. Default to retrieve from keychain specified, see below.
-install   Path to install for the bundle. Default `/Applications`.
-keychain  The keychain name. Default to system default keychain.
-platform  Build platform of Electron. Allowed values: darwin, mas. Default to auto detect from application package.
-pkg       Path to the output package.
-scripts   Path to a directory containing pre and/or post install scripts.
+DESCRIPTION
+  app
+    Path to the application package.
+    Needs file extension ``.app''.
+
+  --help
+    Flag to display all commands.
+
+  --identity=identity
+    Name of certificate to use when signing.
+    Default to selected with respect to --platform from --keychain specified or keychain by system default.
+
+  --install=install-path
+    Path to install the bundle.
+    Default to ``/Applications''.
+
+  --keychain=keychain
+    The keychain name.
+    Default to system default keychain.
+
+  --platform=platform
+    Build platform of Electron.
+    Allowed values: ``darwin'', ``mas''.
+    Default to auto detect from application bundle.
+
+  --pkg
+    Path to the output the flattened package.
+    Needs file extension ``.pkg''.
+
+  --scripts
+    Path to a directory containing pre and/or post install scripts.
