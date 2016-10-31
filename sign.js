@@ -340,6 +340,13 @@ var signAsync = module.exports.signAsync = function (opts) {
       })
     })
     .then(function () {
+      debuglog('Signing application...', '\n',
+        '> Application:', opts.app, '\n',
+        '> Platform:', opts.platform, '\n',
+        '> Entitlements:', opts.entitlements, '\n',
+        '> Child entitlements:', opts['entitlements-inherit'], '\n',
+        '> Additional binaries:', opts.binaries, '\n',
+        '> Identity:', opts.identity)
       return signApplicationAsync(opts)
     })
     .then(function () {

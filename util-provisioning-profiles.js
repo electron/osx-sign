@@ -32,16 +32,24 @@ var ProvisioningProfile = module.exports.ProvisioningProfile = function (filePat
   this.message = message
 }
 
-Object.defineProperty(ProvisioningProfile.prototype, 'type', {
-  get: function () {
-    if ('ProvisionedDevices' in this.message) return 'development'
-    else return 'distribution'
-  }
-})
-
 Object.defineProperty(ProvisioningProfile.prototype, 'name', {
   get: function () {
     return this.message['Name']
+  }
+})
+
+Object.defineProperty(ProvisioningProfile.prototype, 'platforms', {
+  get: function () {
+    if ('ProvisionsAllDevices' in this.message) return ['darwin'] // Developer ID
+    else if (this.type === 'distribution') return ['mas'] // Mac App Store
+    else return ['darwin', 'mas'] // Mac App Development
+  }
+})
+
+Object.defineProperty(ProvisioningProfile.prototype, 'type', {
+  get: function () {
+    if ('ProvisionedDevices' in this.message) return 'development' // Mac App Development
+    else return 'distribution' // Developer ID or Mac App Store
   }
 })
 
@@ -61,6 +69,7 @@ var getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = f
       var provisioningProfile = new ProvisioningProfile(filePath, plist.parse(result))
       debuglog('Provisioning profile:', '\n',
         '> Name:', provisioningProfile.name, '\n',
+        '> Platforms:', provisioningProfile.platforms, '\n',
         '> Type:', provisioningProfile.type, '\n',
         '> Path:', provisioningProfile.filePath, '\n',
         '> Message:', provisioningProfile.message)
@@ -98,11 +107,13 @@ var findProvisioningProfilesAsync = module.exports.findProvisioningProfilesAsync
       })
   })
     .then(flatList)
-    .map(getProvisioningProfileAsync)
-    .map(function (provisioningProfile) {
-      if (provisioningProfile.type === opts.type) return provisioningProfile
-      debugwarn('Provisioning profile above ignored, not for ' + opts.type + '.')
-      return undefined
+    .map(function (filePath) {
+      return getProvisioningProfileAsync(filePath)
+        .then(function (provisioningProfile) {
+          if (provisioningProfile.platforms.indexOf(opts.platform) >= 0 && provisioningProfile.type === opts.type) return provisioningProfile
+          debugwarn('Provisioning profile above ignored, not for ' + opts.platform + ' ' + opts.type + '.')
+          return undefined
+        })
     })
     .then(flatList)
     .catch(function (err) {
