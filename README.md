@@ -1,6 +1,6 @@
 # electron-osx-sign [![npm][npm_img]][npm_url] [![Build Status][travis_img]][travis_url]
 
-Code-signing for packaged Electron OS X apps.
+Codesign Electron macOS apps
 
 ## About
 
@@ -34,7 +34,7 @@ npm install --save electron-osx-sign
 npm install -g electron-osx-sign
 ```
 
-*Note: `electron-osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on OS X. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
+*Note: `electron-osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on macOS. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
 
 ## Usage
 
@@ -309,7 +309,7 @@ As of release v0.3.1, external module `debug` is used to display logs and messag
 
 ## Test
 
-As developer certificates are required for `codesign` in OS X, this module is difficult to be tested via online build services. If you wish to test out this module, enter:
+As developer certificates are required for `codesign` on macOS, this module is difficult to be tested via online build services. If you wish to test out this module, enter:
 
 ```
 npm test
@@ -317,7 +317,7 @@ npm test
 
 from the dev directory, and tell us if all tests should pass.
 
-When this command is fun for the first time: `electron-download` will download all major releases of Electron available for OS X from 0.24.0, and save to `~/.electron/`, which might take up less than 1GB of disk space.
+When this command is fun for the first time: `electron-download` will download all major releases of Electron available for macOS from 0.24.0, and save to `~/.electron/`, which might take up less than 1GB of disk space.
 
 A successful testing should look something like:
 
@@ -417,8 +417,8 @@ ok 48 app flattened
 
 ## Related
 
-- [electron-packager] - Package your electron app in OS executables (.app, .exe, etc) via JS or CLI.
-- [electron-builder] - Complete solution to build ready for distribution and "auto update" installers of your app for OS X, Windows and Linux.
+- [electron-packager] - Package your electron app in OS executables (.app, .exe, etc) via JS or CLI
+- [electron-builder] - A complete solution to package and build a ready for distribution Electron app with “auto update” support out of the box
 
 [Bluebird]: https://github.com/petkaantonov/bluebird
 [Electron]: https://github.com/electron/electron
