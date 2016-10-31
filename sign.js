@@ -88,6 +88,7 @@ function verifySignApplicationAsync (opts) {
     child.execFile('codesign', [
       '--verify',
       '--deep',
+      '--strict',
       '--verbose=2',
       opts.app
     ], function (err, stdout, stderr) {
