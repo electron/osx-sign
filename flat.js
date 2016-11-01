@@ -118,8 +118,8 @@ var flatAsync = module.exports.flatAsync = function (opts) {
         '> Application:', opts.app, '\n',
         '> Package output:', opts.pkg, '\n',
         '> Install path:', opts.install, '\n',
-        '> Identity', opts.identity, '\n',
-        '> Scripts', opts.scripts)
+        '> Identity:', opts.identity, '\n',
+        '> Scripts:', opts.scripts)
       return flatApplicationAsync(opts)
     })
     .then(function () {
