@@ -6,7 +6,7 @@ Codesign Electron macOS apps
 
 [`electron-osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for like network access require additional work.
 
-It is worth noting as well that starting from [Electron] v1.1.1, a new mechanism was introduced to satisfy IPC communications (see [electron#5601](https://github.com/electron/electron/pull/5601)); wishing to have full support of various Electron versions, please utilize `opts.version`, which brings less hassle with making default settings among releases.
+It is worth noting as well that starting from [Electron] v1.1.1, a new mechanism was introduced to satisfy IPC communications (see [electron#5601](https://github.com/electron/electron/pull/5601)); wish to have full support of legacy Electron versions, please utilize `opts.version`, which option brings less hassle with making default settings among Electron builds.
 
 We are trying to keep updated to the Electron specifications; please [file us an issue](https://github.com/electron-userland/electron-osx-sign/issues/new) if having any suggestions or experiencing difficulties code signing your products.
 
@@ -397,7 +397,7 @@ ok 40 app flattened
 # defaults-test:v1.3.7-mas-x64
 ok 41 app signed
 ok 42 app flattened
-# defaults-test:v1.4.2-darwin-x64
+# defaults-test:v1.4.4-darwin-x64
 ok 43 app signed
 ok 44 app flattened
 # defaults-test:v1.4.4-mas-x64
