@@ -324,13 +324,13 @@ var signAsync = module.exports.signAsync = function (opts) {
         preSignOperations.push(preEmbedProvisioningProfile)
       }
 
-      if (opts.entitlements && (!opts.version || compareVersion(opts.version, '1.1.1') >= 0)) {
-        // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
-        if (opts['pre-auto-entitlements'] === false) {
-          debugwarn('Pre-sign operation disabled for entitlements automation.')
-        } else {
-          debuglog('Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`:', '\n',
-            '* Disable by setting `pre-auto-entitlements` to `false`.')
+      if (opts['pre-auto-entitlements'] === false) {
+        debugwarn('Pre-sign operation disabled for entitlements automation.')
+      } else {
+        debuglog('Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`:', '\n',
+          '* Disable by setting `pre-auto-entitlements` to `false`.')
+        if (opts.entitlements && (!opts.version || compareVersion(opts.version, '1.1.1') >= 0)) {
+          // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
           preSignOperations.push(preAutoEntitlements)
         }
       }
