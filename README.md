@@ -334,83 +334,80 @@ Calling electron-download before running tests...
 Running tests...
 TAP version 13
 # setup
-# defaults-test:v0.24.0-darwin-x64
+# defaults-test:v0.29.2-darwin-x64
 ok 1 app signed
 ok 2 app flattened
-# defaults-test:v0.25.3-darwin-x64
+# defaults-test:v0.30.8-darwin-x64
 ok 3 app signed
 ok 4 app flattened
-# defaults-test:v0.26.1-darwin-x64
+# defaults-test:v0.31.2-darwin-x64
 ok 5 app signed
 ok 6 app flattened
-# defaults-test:v0.27.3-darwin-x64
+# defaults-test:v0.32.3-darwin-x64
 ok 7 app signed
 ok 8 app flattened
-# defaults-test:v0.28.3-darwin-x64
+# defaults-test:v0.33.9-darwin-x64
 ok 9 app signed
 ok 10 app flattened
-# defaults-test:v0.29.2-darwin-x64
+# defaults-test:v0.34.5-darwin-x64
 ok 11 app signed
 ok 12 app flattened
-# defaults-test:v0.30.8-darwin-x64
+# defaults-test:v0.34.5-mas-x64
 ok 13 app signed
 ok 14 app flattened
-# defaults-test:v0.31.2-darwin-x64
+# defaults-test:v0.35.6-darwin-x64
 ok 15 app signed
 ok 16 app flattened
-# defaults-test:v0.32.3-darwin-x64
+# defaults-test:v0.35.6-mas-x64
 ok 17 app signed
 ok 18 app flattened
-# defaults-test:v0.33.9-darwin-x64
+# defaults-test:v0.36.12-darwin-x64
 ok 19 app signed
 ok 20 app flattened
-# defaults-test:v0.34.5-darwin-x64
+# defaults-test:v0.36.12-mas-x64
 ok 21 app signed
 ok 22 app flattened
-# defaults-test:v0.34.5-mas-x64
+# defaults-test:v0.37.8-darwin-x64
 ok 23 app signed
 ok 24 app flattened
-# defaults-test:v0.35.6-darwin-x64
+# defaults-test:v0.37.8-mas-x64
 ok 25 app signed
 ok 26 app flattened
-# defaults-test:v0.35.6-mas-x64
+# defaults-test:v1.0.2-darwin-x64
 ok 27 app signed
 ok 28 app flattened
-# defaults-test:v0.36.12-darwin-x64
+# defaults-test:v1.0.2-mas-x64
 ok 29 app signed
 ok 30 app flattened
-# defaults-test:v0.36.12-mas-x64
+# defaults-test:v1.1.3-darwin-x64
 ok 31 app signed
 ok 32 app flattened
-# defaults-test:v0.37.8-darwin-x64
+# defaults-test:v1.1.3-mas-x64
 ok 33 app signed
 ok 34 app flattened
-# defaults-test:v0.37.8-mas-x64
+# defaults-test:v1.2.8-darwin-x64
 ok 35 app signed
 ok 36 app flattened
-# defaults-test:v1.0.2-darwin-x64
+# defaults-test:v1.2.8-mas-x64
 ok 37 app signed
 ok 38 app flattened
-# defaults-test:v1.0.2-mas-x64
+# defaults-test:v1.3.7-darwin-x64
 ok 39 app signed
 ok 40 app flattened
-# defaults-test:v1.1.3-darwin-x64
+# defaults-test:v1.3.7-mas-x64
 ok 41 app signed
 ok 42 app flattened
-# defaults-test:v1.1.3-mas-x64
+# defaults-test:v1.4.2-darwin-x64
 ok 43 app signed
 ok 44 app flattened
-# defaults-test:v1.2.0-darwin-x64
+# defaults-test:v1.4.4-mas-x64
 ok 45 app signed
 ok 46 app flattened
-# defaults-test:v1.2.0-mas-x64
-ok 47 app signed
-ok 48 app flattened
 # teardown
 
-1..48
-# tests 48
-# pass  48
+1..46
+# tests 46
+# pass  46
 
 # ok
 ```
