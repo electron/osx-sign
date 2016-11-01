@@ -233,6 +233,43 @@ function signApplicationAsync (opts) {
 var signAsync = module.exports.signAsync = function (opts) {
   return validateSignOptsAsync(opts)
     .then(function () {
+      // Determine identity for signing
+      var promise
+      if (opts.identity) {
+        debuglog('`identity` passed in arguments.')
+        promise = findIdentitiesAsync(opts, opts.identity)
+      } else {
+        debugwarn('No `identity` passed in arguments...')
+        if (opts.platform === 'mas') {
+          if (opts.type === 'distribution') {
+            debuglog('Finding `3rd Party Mac Developer Application` certificate for signing app distribution in the Mac App Store...')
+            promise = findIdentitiesAsync(opts, '3rd Party Mac Developer Application:')
+          } else {
+            debuglog('Finding `Mac Developer` certificate for signing app in development for the Mac App Store signing...')
+            promise = findIdentitiesAsync(opts, 'Mac Developer:')
+          }
+        } else {
+          debuglog('Finding `Developer ID Application` certificate for distribution outside the Mac App Store...')
+          promise = findIdentitiesAsync(opts, 'Developer ID Application:')
+        }
+      }
+      return promise
+        .then(function (identities) {
+          if (identities.length > 0) {
+            // Provisioning profile(s) found
+            if (identities.length > 1) {
+              debugwarn('Multiple identities found, will use the first discovered.')
+            } else {
+              debuglog('Found 1 identity.')
+            }
+            opts.identity = identities[0]
+          } else {
+            // No identity found
+            return Promise.reject(new Error('No identity found for signing.'))
+          }
+        })
+    })
+    .then(function () {
       // Determine entitlements for code signing
       var filePath
       if (opts.platform === 'mas') {
@@ -273,43 +310,6 @@ var signAsync = module.exports.signAsync = function (opts) {
           }
         }
       }
-    })
-    .then(function () {
-      // Determine identity for signing
-      var promise
-      if (opts.identity) {
-        debuglog('`identity` passed in arguments.')
-        promise = findIdentitiesAsync(opts, opts.identity)
-      } else {
-        debugwarn('No `identity` passed in arguments...')
-        if (opts.platform === 'mas') {
-          if (opts.type === 'distribution') {
-            debuglog('Finding `3rd Party Mac Developer Application` certificate for signing app distribution in the Mac App Store...')
-            promise = findIdentitiesAsync(opts, '3rd Party Mac Developer Application:')
-          } else {
-            debuglog('Finding `Mac Developer` certificate for signing app in development for the Mac App Store signing...')
-            promise = findIdentitiesAsync(opts, 'Mac Developer:')
-          }
-        } else {
-          debuglog('Finding `Developer ID Application` certificate for distribution outside the Mac App Store...')
-          promise = findIdentitiesAsync(opts, 'Developer ID Application:')
-        }
-      }
-      return promise
-        .then(function (identities) {
-          if (identities.length > 0) {
-            // Provisioning profile(s) found
-            if (identities.length > 1) {
-              debugwarn('Multiple identities found, will use the first discovered.')
-            } else {
-              debuglog('Found 1 identity.')
-            }
-            opts.identity = identities[0]
-          } else {
-            // No identity found
-            return Promise.reject(new Error('No identity found for signing.'))
-          }
-        })
     })
     .then(function () {
       // Pre-sign operations
