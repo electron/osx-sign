@@ -150,6 +150,11 @@ Default to system default keychain.
 Regex or function that signals ignoring a file before signing.
 Default to `undefined`.
 
+`no-getekeeper-check` - *Boolean*
+
+Skip Gatekeeper check after signing the app. Useful for signing with self-signed certificates.
+Gatekeeper check is enabled by default.
+
 `platform` - *String*
 
 Build platform of Electron.

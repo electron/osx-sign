@@ -35,6 +35,9 @@ DESCRIPTION
     The keychain name.
     Default to system default keychain.
 
+  --no-getekeeper-check
+    Skip Gatekeeper check after signing the app. Useful for signing with self-signed certificates.
+
   --platform=platform
     Build platform of Electron.
     Allowed values: ``darwin'', ``mas''.

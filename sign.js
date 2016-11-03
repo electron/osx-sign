@@ -103,7 +103,7 @@ function verifySignApplicationAsync (opts) {
   })
 
   // Additionally test Gatekeeper acceptance for darwin platform
-  if (opts.platform === 'darwin') {
+  if (opts.platform === 'darwin' && !opts['no-gatekeeper-check']) {
     promise = promise.then(function () {
       return new Promise(function (resolve, reject) {
         debuglog('Verifying Gatekeeper acceptance for darwin platform...')
