@@ -10,7 +10,7 @@ interface SignOptions extends BaseSignOptions {
   binaries?: string[];
   entitlements?: string;
   'entitlements-inherit'?: string;
-  'no-gatekeeper-check'?: boolean;
+  'gatekeeper-check'?: boolean;
 }
 
 export function sign(opts: SignOptions, callback: (error: Error) => void): void;

@@ -150,10 +150,10 @@ Default to system default keychain.
 Regex or function that signals ignoring a file before signing.
 Default to `undefined`.
 
-`no-getekeeper-check` - *Boolean*
+`gatekeeper-assess` - *Boolean*
 
-Skip Gatekeeper check after signing the app. Useful for signing with self-signed certificates.
-Gatekeeper check is enabled by default.
+Flag to enable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
+Gatekeeper assessment is enabled by default.
 
 `platform` - *String*
 
