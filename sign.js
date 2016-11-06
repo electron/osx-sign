@@ -57,7 +57,7 @@ function validateSignOptsAsync (opts) {
   }
 
   if (opts['provisioning-profile']) {
-    if (typeof opts['provisioning-profile'] !== 'string' || !(opts['provisioning-profile'] instanceof ProvisioningProfile)) return Promise.reject(new Error('Path to provisioning profile should be a string or a ProvisioningProfile object.'))
+    if (typeof opts['provisioning-profile'] !== 'string' && !(opts['provisioning-profile'] instanceof ProvisioningProfile)) return Promise.reject(new Error('Path to provisioning profile should be a string or a ProvisioningProfile object.'))
   }
 
   if (opts['type']) {
