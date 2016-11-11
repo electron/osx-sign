@@ -6,11 +6,13 @@ var args = require('minimist')(process.argv.slice(2), {
   'boolean': [
     'help',
     'pre-auto-entitlements',
-    'pre-embed-provisioning-profile'
+    'pre-embed-provisioning-profile',
+    'gatekeeper-assess'
   ],
   'default': {
     'pre-auto-entitlements': true,
-    'pre-embed-provisioning-profile': true
+    'pre-embed-provisioning-profile': true,
+    'gatekeeper-assess': true
   }
 })
 var usage = fs.readFileSync(path.join(__dirname, 'electron-osx-sign-usage.txt')).toString()
