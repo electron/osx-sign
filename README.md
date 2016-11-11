@@ -153,7 +153,8 @@ Default to `undefined`.
 `gatekeeper-assess` - *Boolean*
 
 Flag to enable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
-Gatekeeper assessment is enabled by default.
+Gatekeeper assessment is enabled by default on `darwin` platform.
+Default to `true`.
 
 `platform` - *String*
 
