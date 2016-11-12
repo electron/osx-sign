@@ -50,7 +50,7 @@ DESCRIPTION
   --pre-embed-provisioning-profile, --no-pre-embed-provisioning-profile
     Flag to enable embedding of provisioning profile.
 
-  --provisioning-profile
+  --provisioning-profile=file
     Path to provisioning profile.
 
   --requirements=requirements
