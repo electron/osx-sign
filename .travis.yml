@@ -1,11 +1,8 @@
 language: node_js
 node_js:
+  - "7"
   - "6"
   - "4.1"
   - "4.0"
-  - "0.12"
-  - "0.11"
-  - "0.10"
-  - "iojs"
 
 script: npm run-script code-standard

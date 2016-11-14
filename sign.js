@@ -4,7 +4,6 @@
 
 'use strict'
 
-const child = require('child_process')
 const path = require('path')
 
 const Promise = require('bluebird')
@@ -83,48 +82,29 @@ function validateSignOptsAsync (opts) {
  */
 function verifySignApplicationAsync (opts) {
   // Verify with codesign
-  var promise = new Promise(function (resolve, reject) {
-    debuglog('Verifying application bundle with codesign...')
-    child.execFile('codesign', [
-      '--verify',
-      '--deep',
-      '--strict',
-      '--verbose=2',
-      opts.app
-    ], function (err, stdout, stderr) {
-      if (err) {
-        debugerror(err)
-        reject('Failed to verify application bundle. See details in debug log. (electron-osx-sign:error)')
-        return
-      }
-      debuglog('Result:\n' + stderr)
-      resolve(undefined)
-    })
-  })
+  debuglog('Verifying application bundle with codesign...')
+  var promise = execFileAsync('codesign', [
+    '--verify',
+    '--deep',
+    '--strict',
+    '--verbose=2',
+    opts.app
+  ])
 
   // Additionally test Gatekeeper acceptance for darwin platform
   if (opts.platform === 'darwin' && opts['gatekeeper-assess'] !== false) {
-    promise = promise.then(function () {
-      return new Promise(function (resolve, reject) {
+    promise = promise
+      .then(function () {
         debuglog('Verifying Gatekeeper acceptance for darwin platform...')
-        child.execFile('spctl', [
+        return execFileAsync('spctl', [
           '--assess',
           '--type', 'execute',
           '--verbose',
           '--ignore-cache',
           '--no-cache',
           opts.app
-        ], function (err, stdout, stderr) {
-          if (err) {
-            debugerror(err)
-            reject('Failed to pass Gatekeeper. See details in debug log. (electron-osx-sign:error)')
-            return
-          }
-          debuglog('Result:\n' + stderr)
-          resolve(undefined)
-        })
+        ])
       })
-    })
   }
 
   return promise
