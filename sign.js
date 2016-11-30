@@ -82,11 +82,13 @@ function validateSignOptsAsync (opts) {
  */
 function verifySignApplicationAsync (opts) {
   // Verify with codesign
+  var compareVersion = require('compare-version')
+  var osRelease = require('os').release()
   debuglog('Verifying application bundle with codesign...')
   var promise = execFileAsync('codesign', [
     '--verify',
     '--deep',
-    '--strict',
+    compareVersion(osRelease, '15.0.0') >= 0 ? '--strict' : '', // Only pass strict flag in El Capitan and later
     '--verbose=2',
     opts.app
   ])
