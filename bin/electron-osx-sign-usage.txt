@@ -21,6 +21,10 @@ DESCRIPTION
     Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution.
     This option only applies when signing with entitlements.
 
+  --gatekeeper-assess, --no-gatekeeper-assess
+    Flag to enable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
+    Gatekeeper assessment is enabled by default on ``darwin'' platform.
+
   --help
     Flag to display all commands.
 
@@ -35,10 +39,6 @@ DESCRIPTION
     The keychain name.
     Default to system default keychain.
 
-  --gatekeeper-assess, --no-gatekeeper-assess
-    Flag to enable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
-    Gatekeeper assessment is enabled by default on ``darwin'' platform.
-
   --platform=platform
     Build platform of Electron.
     Allowed values: ``darwin'', ``mas''.
@@ -50,7 +50,7 @@ DESCRIPTION
   --pre-embed-provisioning-profile, --no-pre-embed-provisioning-profile
     Flag to enable embedding of provisioning profile.
 
-  --provisioning-profile
+  --provisioning-profile=file
     Path to provisioning profile.
 
   --requirements=requirements

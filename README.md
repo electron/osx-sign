@@ -133,6 +133,12 @@ See [default.entitlements.mas.plist](https://github.com/electron-userland/electr
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with entitlements.*
 See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.inherit.plist) with respect to your platform.
 
+`gatekeeper-assess` - *Boolean*
+
+Flag to enable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
+Gatekeeper assessment is enabled by default on `darwin` platform.
+Default to `true`.
+
 `identity` - *String*
 
 Name of certificate to use when signing.
@@ -149,12 +155,6 @@ Default to system default keychain.
 
 Regex or function that signals ignoring a file before signing.
 Default to `undefined`.
-
-`gatekeeper-assess` - *Boolean*
-
-Flag to enable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
-Gatekeeper assessment is enabled by default on `darwin` platform.
-Default to `true`.
 
 `platform` - *String*
 
