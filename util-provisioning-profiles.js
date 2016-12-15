@@ -129,8 +129,6 @@ var findProvisioningProfilesAsync = module.exports.findProvisioningProfilesAsync
  * @returns {Promise} Promise.
  */
 module.exports.preEmbedProvisioningProfile = function (opts) {
-  const debuglog = debug('electron-osx-sign:pre-embed-provisioning-profile')
-
   function embedProvisioningProfile () {
     if (opts['provisioning-profile']) {
       debuglog('Looking for existing provisioning profile...')
