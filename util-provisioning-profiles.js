@@ -75,10 +75,6 @@ var getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = f
         '> Message:', provisioningProfile.message)
       return provisioningProfile
     })
-    .catch(function (err) {
-      debugerror(err)
-      return Promise.reject(new Error('Error in decoding provisioning profile. See details in debug log. (electron-osx-sign:error)'))
-    })
 }
 
 /**
@@ -116,10 +112,6 @@ var findProvisioningProfilesAsync = module.exports.findProvisioningProfilesAsync
         })
     })
     .then(flatList)
-    .catch(function (err) {
-      debugerror(err)
-      return Promise.reject(new Error('Error in finding provisioning profiles. See details in debug log. (electron-osx-sign:error)'))
-    })
 }
 
 /**
@@ -144,10 +136,7 @@ module.exports.preEmbedProvisioningProfile = function (opts) {
             // File does not exist
             debuglog('Embedding provisioning profile...')
             return copyFileAsync(opts['provisioning-profile'].filePath, embeddedFilePath)
-          } else {
-            debugerror(err)
-            return Promise.reject(new Error('Error checking existing embedded provisioning profile. See details in debug log. (electron-osx-sign:error)'))
-          }
+          } else throw err
         })
     }
   }

@@ -43,8 +43,4 @@ module.exports.findIdentitiesAsync = function (opts, identity) {
       })
     })
     .then(flatList)
-    .catch(function (err) {
-      debugerror(err)
-      return Promise.reject(new Error('Error in finding identities. See details in debug log. (electron-osx-sign:error)'))
-    })
 }
