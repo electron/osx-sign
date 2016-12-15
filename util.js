@@ -202,28 +202,20 @@ module.exports.validateOptsAppAsync = function (opts) {
  * @returns {Promise} Promise.
  */
 module.exports.validateOptsPlatformAsync = function (opts) {
-  return new Promise(function (resolve, reject) {
-    if (opts.platform) {
-      if (opts.platform === 'mas' || opts.platform === 'darwin') {
-        resolve()
-        return
-      } else {
-        debugwarn('`platform` passed in arguments not supported, checking Electron platform...')
-      }
+  if (opts.platform) {
+    if (opts.platform === 'mas' || opts.platform === 'darwin') {
+      return Promise.resolve()
     } else {
-      debugwarn('No `platform` passed in arguments, checking Electron platform...')
+      debugwarn('`platform` passed in arguments not supported, checking Electron platform...')
     }
-    return detectElectronPlatformAsync(opts)
-      .then(function (platform) {
-        opts.platform = platform
-        resolve()
-      })
-      .catch(function (err) {
-        // NB: This should logically not happen as detectElectronPlatformAsync should not give any rejections. However, it is put here just in case.
-        debugerror(err)
-        reject(new Error('Unable to decide Electron platform. See details in debug log. (electron-osx-sign:error)'))
-      })
-  })
+  } else {
+    debugwarn('No `platform` passed in arguments, checking Electron platform...')
+  }
+
+  return detectElectronPlatformAsync(opts)
+    .then(function (platform) {
+      opts.platform = platform
+    })
 }
 
 /**
