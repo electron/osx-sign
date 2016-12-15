@@ -185,24 +185,14 @@ var getFilePathIfBinaryAsync = module.exports.getFilePathIfBinaryAsync = functio
  * @returns {Promise} Promise.
  */
 module.exports.validateOptsAppAsync = function (opts) {
-  return new Promise(function (resolve, reject) {
-    if (!opts.app) {
-      reject(new Error('Path to aplication must be specified.'))
-      return
-    }
-    if (path.extname(opts.app) !== '.app') {
-      reject(new Error('Extension of application must be `.app`.'))
-      return
-    }
-    return lstatAsync(opts.app)
-      .then(function () {
-        resolve(undefined)
-      })
-      .catch(function (err) {
-        debugerror(err)
-        reject(new Error('Application not found. See details in debug log. (electron-osx-sign:error)'))
-      })
-  })
+  if (!opts.app) {
+    return Promise.reject(new Error('Path to aplication must be specified.'))
+  }
+  if (path.extname(opts.app) !== '.app') {
+    return Promise.reject(new Error('Extension of application must be `.app`.'))
+  }
+  return lstatAsync(opts.app)
+    .thenReturn()
 }
 
 /**
