@@ -40,7 +40,6 @@ module.exports.findIdentitiesAsync = function (opts, identity) {
             '> Name:', identityFound)
           return identityFound
         }
-        return undefined
       })
     })
     .then(flatList)
