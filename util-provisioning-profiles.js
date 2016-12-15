@@ -14,7 +14,6 @@ const plist = require('plist')
 const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
-const debugerror = util.debugerror
 const getAppContentsPath = util.getAppContentsPath
 const flatList = util.flatList
 const copyFileAsync = util.copyFileAsync

@@ -27,10 +27,6 @@ const debugwarn = module.exports.debugwarn = debug('electron-osx-sign:warn')
 debugwarn.log = console.warn.bind(console)
 
 /** @function */
-const debugerror = module.exports.debugerror = debug('electron-osx-sign:error')
-debugerror.log = console.error.bind(console)
-
-/** @function */
 const isBinaryFileAsync = module.exports.isBinaryFileAsync = Promise.promisify(require('isbinaryfile'))
 
 function removePassword (input) {

@@ -8,7 +8,6 @@ const Promise = require('bluebird')
 
 const util = require('./util')
 const debuglog = util.debuglog
-const debugerror = util.debugerror
 const flatList = util.flatList
 const execFileAsync = util.execFileAsync
 

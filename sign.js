@@ -13,7 +13,6 @@ const compareVersion = require('compare-version')
 const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
-const debugerror = util.debugerror
 const getAppContentsPath = util.getAppContentsPath
 const execFileAsync = util.execFileAsync
 const validateOptsAppAsync = util.validateOptsAppAsync

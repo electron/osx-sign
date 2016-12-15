@@ -11,7 +11,6 @@ const Promise = require('bluebird')
 const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
-const debugerror = util.debugerror
 const execFileAsync = util.execFileAsync
 const validateOptsAppAsync = util.validateOptsAppAsync
 const validateOptsPlatformAsync = util.validateOptsPlatformAsync
