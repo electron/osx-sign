@@ -206,7 +206,6 @@ function signApplicationAsync (opts) {
           return promise
         })
     })
-    .thenReturn(undefined)
 }
 
 /**
