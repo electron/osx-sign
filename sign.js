@@ -184,6 +184,7 @@ function signApplicationAsync (opts) {
             .then(function (result) {
               debuglog('Verified.')
             })
+
           // Check entitlements if applicable
           if (opts.entitlements) {
             promise = promise
@@ -191,15 +192,16 @@ function signApplicationAsync (opts) {
                 debuglog('Displaying entitlements...')
                 return execFileAsync('codesign', [
                   '--display',
-                  '--entitlements',
-                  '-',
+                  '--entitlements', ':-', // Write to standard output and strip off the blob header
                   opts.app
                 ])
               })
               .then(function (result) {
-                debuglog('Entitlements (prefixed with blob header):\n' + result)
+                debuglog('Entitlements:', '\n',
+                  result)
               })
           }
+
           return promise
         })
     })
