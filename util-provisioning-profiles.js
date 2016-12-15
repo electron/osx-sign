@@ -7,8 +7,6 @@
 const path = require('path')
 
 const Promise = require('bluebird')
-
-const debug = require('debug')
 const plist = require('plist')
 
 const util = require('./util')

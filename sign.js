@@ -7,7 +7,6 @@
 const path = require('path')
 
 const Promise = require('bluebird')
-
 const compareVersion = require('compare-version')
 
 const util = require('./util')

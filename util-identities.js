@@ -4,8 +4,6 @@
 
 'use strict'
 
-const Promise = require('bluebird')
-
 const util = require('./util')
 const debuglog = util.debuglog
 const flatList = util.flatList
