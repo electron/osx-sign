@@ -267,7 +267,6 @@ module.exports.walkAsync = function (dirPath) {
                     return result
                   })
               }
-              return undefined
             })
         })
       })
