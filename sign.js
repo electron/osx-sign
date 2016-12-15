@@ -110,6 +110,7 @@ function verifySignApplicationAsync (opts) {
   }
 
   return promise
+    .thenReturn()
 }
 
 /**
