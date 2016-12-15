@@ -37,7 +37,7 @@ module.exports.preAutoEntitlements = function (opts) {
     .then(function (result) {
       entitlements = plist.parse(result)
       if (!entitlements['com.apple.security.app-sandbox']) {
-        // Only automate when app sandbox enabled
+        // Only automate when app sandbox enabled by user
         return
       }
 
@@ -99,6 +99,5 @@ module.exports.preAutoEntitlements = function (opts) {
                 '> Entitlements:', entitlementsPath)
             })
         })
-        .thenReturn(undefined)
     })
 }
