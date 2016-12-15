@@ -346,21 +346,16 @@ var signAsync = module.exports.signAsync = function (opts) {
  * @param {RequestCallback} cb - Callback.
  */
 module.exports.sign = function (opts, cb) {
-  // Default callback function if none provided
-  if (!cb) {
-    cb = function (err) {
-      if (err) {
-        debugerror('Sign failed:')
-        if (err.message) debugerror(err.message)
-        else if (err.stack) debugerror(err.stack)
-        else debugerror(err)
-        return
-      }
-      debuglog('Application signed: ' + opts.app)
-    }
-  }
-
   signAsync(opts)
-    .then(cb)
-    .catch(cb)
+    .then(function () {
+      debuglog('Application signed: ' + opts.app)
+      if (cb) cb()
+    })
+    .catch(function (err) {
+      debuglog('Sign failed:')
+      if (err.message) debuglog(err.message)
+      else if (err.stack) debuglog(err.stack)
+      else debuglog(err)
+      if (cb) cb(err)
+    })
 }
