@@ -36,9 +36,9 @@ function validateOptsBinariesAsync (opts) {
         reject(new Error('Additional binaries should be an Array.'))
         return
       }
-      // TODO: Loop check every binary file for existence, reject promise if any not found
+      // TODO: Presence check for binary files, reject if any does not exist
     }
-    resolve(undefined)
+    resolve()
   })
 }
 
