@@ -7,14 +7,11 @@
 const path = require('path')
 
 const Promise = require('bluebird')
-
-const debug = require('debug')
 const plist = require('plist')
 
 const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
-const debugerror = util.debugerror
 const getAppContentsPath = util.getAppContentsPath
 const flatList = util.flatList
 const copyFileAsync = util.copyFileAsync
@@ -75,10 +72,6 @@ var getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = f
         '> Message:', provisioningProfile.message)
       return provisioningProfile
     })
-    .catch(function (err) {
-      debugerror(err)
-      return Promise.reject(new Error('Error in decoding provisioning profile. See details in debug log. (electron-osx-sign:error)'))
-    })
 }
 
 /**
@@ -116,10 +109,6 @@ var findProvisioningProfilesAsync = module.exports.findProvisioningProfilesAsync
         })
     })
     .then(flatList)
-    .catch(function (err) {
-      debugerror(err)
-      return Promise.reject(new Error('Error in finding provisioning profiles. See details in debug log. (electron-osx-sign:error)'))
-    })
 }
 
 /**
@@ -129,8 +118,6 @@ var findProvisioningProfilesAsync = module.exports.findProvisioningProfilesAsync
  * @returns {Promise} Promise.
  */
 module.exports.preEmbedProvisioningProfile = function (opts) {
-  const debuglog = debug('electron-osx-sign:pre-embed-provisioning-profile')
-
   function embedProvisioningProfile () {
     if (opts['provisioning-profile']) {
       debuglog('Looking for existing provisioning profile...')
@@ -146,10 +133,7 @@ module.exports.preEmbedProvisioningProfile = function (opts) {
             // File does not exist
             debuglog('Embedding provisioning profile...')
             return copyFileAsync(opts['provisioning-profile'].filePath, embeddedFilePath)
-          } else {
-            debugerror(err)
-            return Promise.reject(new Error('Error checking existing embedded provisioning profile. See details in debug log. (electron-osx-sign:error)'))
-          }
+          } else throw err
         })
     }
   }

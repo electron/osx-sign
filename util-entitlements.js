@@ -9,9 +9,8 @@ const path = require('path')
 const plist = require('plist')
 const tempfile = require('tempfile')
 
-const debug = require('debug')
-
 const util = require('./util')
+const debuglog = util.debuglog
 const getAppContentsPath = util.getAppContentsPath
 const readFileAsync = util.readFileAsync
 const writeFileAsync = util.writeFileAsync
@@ -23,8 +22,6 @@ const writeFileAsync = util.writeFileAsync
  * @returns {Promise} Promise.
  */
 module.exports.preAutoEntitlements = function (opts) {
-  const debuglog = debug('electron-osx-sign:pre-auto-entitlements')
-
   // If entitlements file not provided, default will be used. Fixes #41
   var appInfoPath = path.join(getAppContentsPath(opts), 'Info.plist')
   var appInfo
@@ -37,7 +34,7 @@ module.exports.preAutoEntitlements = function (opts) {
     .then(function (result) {
       entitlements = plist.parse(result)
       if (!entitlements['com.apple.security.app-sandbox']) {
-        // Only automate when app sandbox enabled
+        // Only automate when app sandbox enabled by user
         return
       }
 
@@ -99,6 +96,5 @@ module.exports.preAutoEntitlements = function (opts) {
                 '> Entitlements:', entitlementsPath)
             })
         })
-        .thenReturn(undefined)
     })
 }

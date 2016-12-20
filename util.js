@@ -9,7 +9,6 @@ const fs = require('fs')
 const path = require('path')
 
 const Promise = require('bluebird')
-
 const debug = require('debug')
 
 /**
@@ -27,13 +26,10 @@ const debugwarn = module.exports.debugwarn = debug('electron-osx-sign:warn')
 debugwarn.log = console.warn.bind(console)
 
 /** @function */
-const debugerror = module.exports.debugerror = debug('electron-osx-sign:error')
-debugerror.log = console.error.bind(console)
-
-/** @function */
 const isBinaryFileAsync = module.exports.isBinaryFileAsync = Promise.promisify(require('isbinaryfile'))
 
-function removePassword (input) {
+/** @function */
+const removePassword = function (input) {
   return input.replace(/(-P |pass:|\/p|-pass )([^ ]+)/, function (match, p1, p2) {
     return `${p1}***`
   })
@@ -42,32 +38,19 @@ function removePassword (input) {
 /** @function */
 module.exports.execFileAsync = function (file, args, options) {
   if (debuglog.enabled) {
-    debuglog(`Executing ${file} ${args == null ? '' : removePassword(args.join(' '))}`)
+    debuglog('Executing...', file, args && Array.isArray(args) ? removePassword(args.join(' ')) : '')
   }
 
-  return new Promise((resolve, reject) => {
-    child.execFile(file, args, options, function (error, stdout, stderr) {
-      if (error == null) {
-        if (debuglog.enabled) {
-          if (stderr.length !== 0) {
-            debuglog(stderr)
-          }
-          if (stdout.length !== 0) {
-            debuglog(stdout)
-          }
-        }
-        resolve(stdout)
-      } else {
-        let message = removePassword(`Exit code: ${error.code}. ${error.message}`)
-        if (stdout.length !== 0) {
-          message += `\n${stdout}`
-        }
-        if (stderr.length !== 0) {
-          message += `\n${stderr}`
-        }
-
-        reject(new Error(message))
+  return new Promise(function (resolve, reject) {
+    child.execFile(file, args, options, function (err, stdout, stderr) {
+      if (err) {
+        debuglog('Error executing file:', '\n',
+          '> Stdout:', stdout, '\n',
+          '> Stderr:', stderr)
+        reject(err)
+        return
       }
+      resolve(stdout)
     })
   })
 }
@@ -185,24 +168,14 @@ var getFilePathIfBinaryAsync = module.exports.getFilePathIfBinaryAsync = functio
  * @returns {Promise} Promise.
  */
 module.exports.validateOptsAppAsync = function (opts) {
-  return new Promise(function (resolve, reject) {
-    if (!opts.app) {
-      reject(new Error('Path to aplication must be specified.'))
-      return
-    }
-    if (path.extname(opts.app) !== '.app') {
-      reject(new Error('Extension of application must be `.app`.'))
-      return
-    }
-    return lstatAsync(opts.app)
-      .then(function () {
-        resolve(undefined)
-      })
-      .catch(function (err) {
-        debugerror(err)
-        reject(new Error('Application not found. See details in debug log. (electron-osx-sign:error)'))
-      })
-  })
+  if (!opts.app) {
+    return Promise.reject(new Error('Path to aplication must be specified.'))
+  }
+  if (path.extname(opts.app) !== '.app') {
+    return Promise.reject(new Error('Extension of application must be `.app`.'))
+  }
+  return lstatAsync(opts.app)
+    .thenReturn()
 }
 
 /**
@@ -212,28 +185,20 @@ module.exports.validateOptsAppAsync = function (opts) {
  * @returns {Promise} Promise.
  */
 module.exports.validateOptsPlatformAsync = function (opts) {
-  return new Promise(function (resolve, reject) {
-    if (opts.platform) {
-      if (opts.platform === 'mas' || opts.platform === 'darwin') {
-        resolve()
-        return
-      } else {
-        debugwarn('`platform` passed in arguments not supported, checking Electron platform...')
-      }
+  if (opts.platform) {
+    if (opts.platform === 'mas' || opts.platform === 'darwin') {
+      return Promise.resolve()
     } else {
-      debugwarn('No `platform` passed in arguments, checking Electron platform...')
+      debugwarn('`platform` passed in arguments not supported, checking Electron platform...')
     }
-    return detectElectronPlatformAsync(opts)
-      .then(function (platform) {
-        opts.platform = platform
-        resolve()
-      })
-      .catch(function (err) {
-        // NB: This should logically not happen as detectElectronPlatformAsync should not give any rejections. However, it is put here just in case.
-        debugerror(err)
-        reject(new Error('Unable to decide Electron platform. See details in debug log. (electron-osx-sign:error)'))
-      })
-  })
+  } else {
+    debugwarn('No `platform` passed in arguments, checking Electron platform...')
+  }
+
+  return detectElectronPlatformAsync(opts)
+    .then(function (platform) {
+      opts.platform = platform
+    })
 }
 
 /**
@@ -285,7 +250,6 @@ module.exports.walkAsync = function (dirPath) {
                     return result
                   })
               }
-              return undefined
             })
         })
       })

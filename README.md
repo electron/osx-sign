@@ -49,13 +49,31 @@ electron-osx-sign app [embedded-binary ...] [options ...]
 Example:
 
 ```sh
+# To sign distribution version
 electron-osx-sign path/to/my.app
 ```
 
-The script above being sufficient, it is, however, recommended to make use of `opts.version` while signing for example:
+```sh
+# To sign development version
+electron-osx-sign path/to/my.app --type=development
+```
 
 ```sh
-electron-osx-sign path/to/my.app --version=1.2.0
+# It is recommended to place the provisioning profile(s) under the current working directory for electron-osx-sign to pick up automatically; and to specify provisioning profile to be embedded explicitly
+electron-osx-sign path/to/my.app --provisioning-profile=path/to/my.provisioningprofile
+```
+
+```sh
+# To specify the entitlements file (.plist)
+electron-osx-sign path/to/my.app --entitlements=path/to/my.entitlements
+# Or (.entitlements)
+electron-osx-sign path/to/my.app --entitlements=path/to/my-entitlements.plist
+```
+
+It is recommended to make use of `opts.version` while signing legacy versions, for example:
+
+```sh
+electron-osx-sign path/to/my.app --version=0.34.0
 ```
 
 Run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt) for CLI-specific options.

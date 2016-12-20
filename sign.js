@@ -7,13 +7,11 @@
 const path = require('path')
 
 const Promise = require('bluebird')
-
 const compareVersion = require('compare-version')
 
 const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
-const debugerror = util.debugerror
 const getAppContentsPath = util.getAppContentsPath
 const execFileAsync = util.execFileAsync
 const validateOptsAppAsync = util.validateOptsAppAsync
@@ -36,9 +34,9 @@ function validateOptsBinariesAsync (opts) {
         reject(new Error('Additional binaries should be an Array.'))
         return
       }
-      // TODO: Loop check every binary file for existence, reject promise if any not found
+      // TODO: Presence check for binary files, reject if any does not exist
     }
-    resolve(undefined)
+    resolve()
   })
 }
 
@@ -110,6 +108,7 @@ function verifySignApplicationAsync (opts) {
   }
 
   return promise
+    .thenReturn()
 }
 
 /**
@@ -184,6 +183,7 @@ function signApplicationAsync (opts) {
             .then(function (result) {
               debuglog('Verified.')
             })
+
           // Check entitlements if applicable
           if (opts.entitlements) {
             promise = promise
@@ -191,19 +191,19 @@ function signApplicationAsync (opts) {
                 debuglog('Displaying entitlements...')
                 return execFileAsync('codesign', [
                   '--display',
-                  '--entitlements',
-                  '-',
+                  '--entitlements', ':-', // Write to standard output and strip off the blob header
                   opts.app
                 ])
               })
               .then(function (result) {
-                debuglog('Entitlements (prefixed with blob header):\n' + result)
+                debuglog('Entitlements:', '\n',
+                  result)
               })
           }
+
           return promise
         })
     })
-    .thenReturn(undefined)
 }
 
 /**
@@ -344,21 +344,16 @@ var signAsync = module.exports.signAsync = function (opts) {
  * @param {RequestCallback} cb - Callback.
  */
 module.exports.sign = function (opts, cb) {
-  // Default callback function if none provided
-  if (!cb) {
-    cb = function (err) {
-      if (err) {
-        debugerror('Sign failed:')
-        if (err.message) debugerror(err.message)
-        else if (err.stack) debugerror(err.stack)
-        else debugerror(err)
-        return
-      }
-      debuglog('Application signed: ' + opts.app)
-    }
-  }
-
   signAsync(opts)
-    .then(cb)
-    .catch(cb)
+    .then(function () {
+      debuglog('Application signed: ' + opts.app)
+      if (cb) cb()
+    })
+    .catch(function (err) {
+      debuglog('Sign failed:')
+      if (err.message) debuglog(err.message)
+      else if (err.stack) debuglog(err.stack)
+      else debuglog(err)
+      if (cb) cb(err)
+    })
 }

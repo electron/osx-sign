@@ -11,7 +11,6 @@ const Promise = require('bluebird')
 const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
-const debugerror = util.debugerror
 const execFileAsync = util.execFileAsync
 const validateOptsAppAsync = util.validateOptsAppAsync
 const validateOptsPlatformAsync = util.validateOptsPlatformAsync
@@ -135,21 +134,16 @@ var flatAsync = module.exports.flatAsync = function (opts) {
  * @param {RequestCallback} cb - Callback.
  */
 module.exports.flat = function (opts, cb) {
-  // Default callback function if none provided
-  if (!cb) {
-    cb = function (err) {
-      if (err) {
-        debugerror('Flat failed:')
-        if (err.message) debugerror(err.message)
-        else if (err.stack) debugerror(err.stack)
-        else debugerror(err)
-        return
-      }
-      debuglog('Application flattened, saved to: ' + opts.app)
-    }
-  }
-
   flatAsync(opts)
-    .then(cb)
-    .catch(cb)
+    .then(function () {
+      debuglog('Application flattened, saved to: ' + opts.app)
+      if (cb) cb()
+    })
+    .catch(function (err) {
+      debuglog('Flat failed:')
+      if (err.message) debuglog(err.message)
+      else if (err.stack) debuglog(err.stack)
+      else debuglog(err)
+      if (cb) cb(err)
+    })
 }

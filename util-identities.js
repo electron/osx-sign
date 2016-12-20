@@ -4,11 +4,8 @@
 
 'use strict'
 
-const Promise = require('bluebird')
-
 const util = require('./util')
 const debuglog = util.debuglog
-const debugerror = util.debugerror
 const flatList = util.flatList
 const execFileAsync = util.execFileAsync
 
@@ -40,12 +37,7 @@ module.exports.findIdentitiesAsync = function (opts, identity) {
             '> Name:', identityFound)
           return identityFound
         }
-        return undefined
       })
     })
     .then(flatList)
-    .catch(function (err) {
-      debugerror(err)
-      return Promise.reject(new Error('Error in finding identities. See details in debug log. (electron-osx-sign:error)'))
-    })
 }
