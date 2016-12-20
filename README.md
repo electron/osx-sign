@@ -421,10 +421,10 @@ ok 40 app flattened
 # defaults-test:v1.3.7-mas-x64
 ok 41 app signed
 ok 42 app flattened
-# defaults-test:v1.4.4-darwin-x64
+# defaults-test:v1.4.14-darwin-x64
 ok 43 app signed
 ok 44 app flattened
-# defaults-test:v1.4.4-mas-x64
+# defaults-test:v1.4.14-mas-x64
 ok 45 app signed
 ok 46 app flattened
 # teardown
