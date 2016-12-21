@@ -46,35 +46,32 @@ npm install -g electron-osx-sign
 electron-osx-sign app [embedded-binary ...] [options ...]
 ```
 
-Example:
+##### Examples
 
-```sh
-# To sign distribution version
-electron-osx-sign path/to/my.app
-```
+- To sign a distribution version:
+  ```sh
+  electron-osx-sign path/to/my.app
+  ```
 
-```sh
-# To sign development version
-electron-osx-sign path/to/my.app --type=development
-```
+- To sign development version:
+  ```sh
+  electron-osx-sign path/to/my.app --type=development
+  ```
 
-```sh
-# It is recommended to place the provisioning profile(s) under the current working directory for electron-osx-sign to pick up automatically; and to specify provisioning profile to be embedded explicitly
-electron-osx-sign path/to/my.app --provisioning-profile=path/to/my.provisioningprofile
-```
+- It is recommended to place the provisioning profile(s) under the working directory for `electron-osx-sign` to pick up automatically; however, to specify provisioning profile to be embedded explicitly:
+  ```sh
+  electron-osx-sign path/to/my.app --provisioning-profile=path/to/my.provisioningprofile
+  ```
 
-```sh
-# To specify the entitlements file (.plist)
-electron-osx-sign path/to/my.app --entitlements=path/to/my.entitlements
-# Or (.entitlements)
-electron-osx-sign path/to/my.app --entitlements=path/to/my-entitlements.plist
-```
+- To specify the entitlements file:
+  ```sh
+  electron-osx-sign path/to/my.app --entitlements=path/to/my.entitlements
+  ```
 
-It is recommended to make use of `opts.version` while signing legacy versions, for example:
-
-```sh
-electron-osx-sign path/to/my.app --version=0.34.0
-```
+- It is recommended to make use of `--version` while signing legacy versions of Electron:
+  ```sh
+  electron-osx-sign path/to/my.app --version=0.34.0
+  ```
 
 Run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt) for CLI-specific options.
 
