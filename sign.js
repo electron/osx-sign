@@ -85,11 +85,11 @@ function verifySignApplicationAsync (opts) {
   debuglog('Verifying application bundle with codesign...')
   var promise = execFileAsync('codesign', [
     '--verify',
-    '--deep',
-    compareVersion(osRelease, '15.0.0') >= 0 ? '--strict' : '', // Only pass strict flag in El Capitan and later
-    '--verbose=2',
-    opts.app
-  ])
+    '--deep']
+    .concat(compareVersion(osRelease, '15.0.0') >= 0 ? ['--strict'] : [], // Only pass strict flag in El Capitan and later
+    ['--verbose=2',
+    opts.app])
+  )
 
   // Additionally test Gatekeeper acceptance for darwin platform
   if (opts.platform === 'darwin' && opts['gatekeeper-assess'] !== false) {
