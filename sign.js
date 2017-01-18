@@ -88,7 +88,7 @@ function verifySignApplicationAsync (opts) {
     '--deep']
     .concat(compareVersion(osRelease, '15.0.0') >= 0 ? ['--strict'] : [], // Only pass strict flag in El Capitan and later
     ['--verbose=2',
-    opts.app])
+      opts.app])
   )
 
   // Additionally test Gatekeeper acceptance for darwin platform
