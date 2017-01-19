@@ -40,6 +40,8 @@ npm install -g electron-osx-sign
 
 ### electron-osx-sign
 
+Check out [`electron-osx-sign` guide](https://mintkit.net/electron-userland/electron-osx-sign/guide/) for suggestions on setting up your environment and workflow for distribution or development.
+
 #### From the Command Line
 
 ```sh
@@ -48,7 +50,7 @@ electron-osx-sign app [embedded-binary ...] [options ...]
 
 ##### Examples
 
-- To sign a distribution version:
+- To sign a distribution version by default:
   ```sh
   electron-osx-sign path/to/my.app
   ```
