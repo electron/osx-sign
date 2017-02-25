@@ -18,7 +18,7 @@ declare module "electron-osx-sign" {
     'requirements'?: string;
     'type'?: string;
     version?: string;
-    skipIdentityValidation?: boolean;
+    "identity-validation?: boolean;
   }
 
   export function sign(opts: SignOptions, callback: (error: Error) => void): void;
