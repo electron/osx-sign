@@ -219,6 +219,9 @@ var signAsync = module.exports.signAsync = function (opts) {
       var promise
       if (opts.identity) {
         debuglog('`identity` passed in arguments.')
+        if (opts['identity-validation'] === false) {
+          return Promise.resolve()
+        }
         promise = findIdentitiesAsync(opts, opts.identity)
       } else {
         debugwarn('No `identity` passed in arguments...')
