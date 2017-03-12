@@ -359,78 +359,55 @@ TAP version 13
 # setup
 # defaults-test:v0.29.2-darwin-x64
 ok 1 app signed
-ok 2 app flattened
 # defaults-test:v0.30.8-darwin-x64
-ok 3 app signed
-ok 4 app flattened
+ok 2 app signed
 # defaults-test:v0.31.2-darwin-x64
-ok 5 app signed
-ok 6 app flattened
+ok 3 app signed
 # defaults-test:v0.32.3-darwin-x64
-ok 7 app signed
-ok 8 app flattened
+ok 4 app signed
 # defaults-test:v0.33.9-darwin-x64
-ok 9 app signed
-ok 10 app flattened
+ok 5 app signed
 # defaults-test:v0.34.5-darwin-x64
-ok 11 app signed
-ok 12 app flattened
+ok 6 app signed
 # defaults-test:v0.34.5-mas-x64
-ok 13 app signed
-ok 14 app flattened
+ok 7 app signed
 # defaults-test:v0.35.6-darwin-x64
-ok 15 app signed
-ok 16 app flattened
+ok 8 app signed
 # defaults-test:v0.35.6-mas-x64
-ok 17 app signed
-ok 18 app flattened
+ok 9 app signed
 # defaults-test:v0.36.12-darwin-x64
-ok 19 app signed
-ok 20 app flattened
+ok 10 app signed
 # defaults-test:v0.36.12-mas-x64
-ok 21 app signed
-ok 22 app flattened
+ok 11 app signed
 # defaults-test:v0.37.8-darwin-x64
-ok 23 app signed
-ok 24 app flattened
+ok 12 app signed
 # defaults-test:v0.37.8-mas-x64
-ok 25 app signed
-ok 26 app flattened
+ok 13 app signed
 # defaults-test:v1.0.2-darwin-x64
-ok 27 app signed
-ok 28 app flattened
+ok 14 app signed
 # defaults-test:v1.0.2-mas-x64
-ok 29 app signed
-ok 30 app flattened
+ok 15 app signed
 # defaults-test:v1.1.3-darwin-x64
-ok 31 app signed
-ok 32 app flattened
+ok 16 app signed
 # defaults-test:v1.1.3-mas-x64
-ok 33 app signed
-ok 34 app flattened
+ok 17 app signed
 # defaults-test:v1.2.8-darwin-x64
-ok 35 app signed
-ok 36 app flattened
+ok 18 app signed
 # defaults-test:v1.2.8-mas-x64
-ok 37 app signed
-ok 38 app flattened
+ok 19 app signed
 # defaults-test:v1.3.7-darwin-x64
-ok 39 app signed
-ok 40 app flattened
+ok 20 app signed
 # defaults-test:v1.3.7-mas-x64
-ok 41 app signed
-ok 42 app flattened
+ok 21 app signed
 # defaults-test:v1.4.14-darwin-x64
-ok 43 app signed
-ok 44 app flattened
+ok 22 app signed
 # defaults-test:v1.4.14-mas-x64
-ok 45 app signed
-ok 46 app flattened
+ok 23 app signed
 # teardown
 
-1..46
-# tests 46
-# pass  46
+1..23
+# tests 23
+# pass  23
 
 # ok
 ```

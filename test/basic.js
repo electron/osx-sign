@@ -1,5 +1,4 @@
 var sign = require('..')
-var flat = require('..').flat
 
 var waterfall = require('run-waterfall')
 
@@ -19,9 +18,6 @@ function createDefaultsTest (release) {
         sign(Object.create(opts), cb)
       }, function (cb) {
         t.pass('app signed')
-        flat(Object.create(opts), cb)
-      }, function (cb) {
-        t.pass('app flattened')
         cb()
       }
     ], function (err) {
