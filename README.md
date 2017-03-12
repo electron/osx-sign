@@ -399,15 +399,19 @@ ok 19 app signed
 ok 20 app signed
 # defaults-test:v1.3.7-mas-x64
 ok 21 app signed
-# defaults-test:v1.4.14-darwin-x64
+# defaults-test:v1.4.15-darwin-x64
 ok 22 app signed
-# defaults-test:v1.4.14-mas-x64
+# defaults-test:v1.4.15-mas-x64
 ok 23 app signed
+# defaults-test:v1.6.2-darwin-x64
+ok 24 app signed
+# defaults-test:v1.6.2-mas-x64
+ok 25 app signed
 # teardown
 
-1..23
-# tests 23
-# pass  23
+1..25
+# tests 25
+# pass  25
 
 # ok
 ```
