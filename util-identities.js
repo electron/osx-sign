@@ -32,7 +32,9 @@ module.exports.findIdentitiesAsync = function (opts, identity) {
     .then(function (result) {
       return result.split('\n').map(function (line) {
         if (line.indexOf(identity) >= 0) {
-          var identityFound = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'))
+          var identityFound = opts['use-cert-id']
+            ? line.substring(line.indexOf(')') + 2, line.indexOf('"') - 1)
+            : line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'))
           debuglog('Identity:', '\n',
             '> Name:', identityFound)
           return identityFound
