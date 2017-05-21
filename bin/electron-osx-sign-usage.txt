@@ -56,6 +56,10 @@ DESCRIPTION
   --requirements=requirements
     Specify the criteria that you recommend to be used to evaluate the code signature.
 
+  --timestamp=timestamp
+    Specify the URL of the timestamp authority server, default to server provided by Apple.
+    Disable the timestamp service with ``none''.
+
   --type=type
     Specify whether to sign app for development or for distribution.
     Allowed values: ``development'', ``distribution''.

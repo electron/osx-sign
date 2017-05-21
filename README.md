@@ -201,6 +201,11 @@ Specify the criteria that you recommend to be used to evaluate the code signatur
 See more info from https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
 Default to `undefined`.
 
+`timestamp` - *String*
+
+Specify the URL of the timestamp authority server, default to server provided by Apple. Please note that this default server may not support signatures not furnished by Apple.
+Disable the timestamp service with `none`.
+
 `type` - *String*
 
 Specify whether to sign app for development or for distribution.
