@@ -33,9 +33,11 @@ module.exports.findIdentitiesAsync = function (opts, identity) {
       return result.split('\n').map(function (line) {
         if (line.indexOf(identity) >= 0) {
           var identityFound = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'))
+          var identityHashFound = line.substring(line.indexOf(')') + 2, line.indexOf('"') - 1)
           debuglog('Identity:', '\n',
-            '> Name:', identityFound)
-          return identityFound
+            '> Name:', identityFound, '\n',
+            '> Hash:', identityHashFound)
+          return identityHashFound
         }
       })
     })
