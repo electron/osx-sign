@@ -152,7 +152,7 @@ See [default.entitlements.mas.inherit.plist](https://github.com/electron-userlan
 
 `gatekeeper-assess` - *Boolean*
 
-Flag to enable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
+Flag to enable/disable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
 Gatekeeper assessment is enabled by default on `darwin` platform.
 Default to `true`.
 
@@ -162,6 +162,11 @@ Name of certificate to use when signing.
 Default to be selected with respect to `provisioning-profile` and `platform` from `keychain` or keychain by system default.
 
 Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)`, and platform `darwin` will look for `Developer ID Application: * (*)` by default.
+
+`identity-validation` - *Boolean*
+
+Flag to enable/disable validation for the signing identity. If enabled, the `identity` provided will be validated in the `keychain` specified.
+Default to `true`.
 
 `keychain` - *String*
 
@@ -181,14 +186,12 @@ Default to auto detect by presence of `Squirrel.framework` within the applicatio
 
 `pre-auto-entitlements` - *Boolean*
 
-Flag to enable automation of `com.apple.security.application-groups` in entitlements file and update `Info.plist` with `ElectronTeamID`.
-Allowed values: `true`, `false`.
+Flag to enable/disable automation of `com.apple.security.application-groups` in entitlements file and update `Info.plist` with `ElectronTeamID`.
 Default to `true`.
 
 `pre-embed-provisioning-profile` - *Boolean*
 
-Flag to enable embedding of provisioning profile in the current working directory.
-Allowed values: `true`, `false`.
+Flag to enable/disable embedding of provisioning profile in the current working directory.
 Default to `true`.
 
 `provisioning-profile` - *String*
@@ -303,6 +306,11 @@ Name of certificate to use when signing.
 Default to be selected with respect to `platform` from `keychain` or keychain by system default.
 
 Flattening platform `mas` will look for `3rd Party Mac Developer Installer: * (*)`, and platform `darwin` will look for `Developer ID Installer: * (*)` by default.
+
+`identity-validation` - *Boolean*
+
+Flag to enable/disable validation for signing identity. If enabled, the `identity` provided will be validated in the `keychain` specified.
+Default to `true`.
 
 `install` - *String*
 
