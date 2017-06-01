@@ -224,7 +224,7 @@ var signAsync = module.exports.signAsync = function (opts) {
         debuglog('`identity` passed in arguments.')
         if (opts['identity-validation'] === false) {
           if (!(opts.identity instanceof Identity)) {
-            opts.identity = new Identity(opts.identity);
+            opts.identity = new Identity(opts.identity)
           }
           return Promise.resolve()
         }
