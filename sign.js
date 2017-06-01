@@ -222,7 +222,10 @@ var signAsync = module.exports.signAsync = function (opts) {
       var promise
       if (opts.identity) {
         debuglog('`identity` passed in arguments.')
-        if (opts['identity-validation'] === false || opts.identity instanceof Identity) {
+        if (opts['identity-validation'] === false) {
+          if (!(opts.identity instanceof Identity)) {
+            opts.identity = new Identity(opts.identity);
+          }
           return Promise.resolve()
         }
         promise = findIdentitiesAsync(opts, opts.identity)
