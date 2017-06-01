@@ -17,7 +17,9 @@ const execFileAsync = util.execFileAsync
 const validateOptsAppAsync = util.validateOptsAppAsync
 const validateOptsPlatformAsync = util.validateOptsPlatformAsync
 const walkAsync = util.walkAsync
+const Identity = require('./util-identities').Identity
 const findIdentitiesAsync = require('./util-identities').findIdentitiesAsync
+const ProvisioningProfile = require('./util-provisioning-profiles').ProvisioningProfile
 const preEmbedProvisioningProfile = require('./util-provisioning-profiles').preEmbedProvisioningProfile
 const preAutoEntitlements = require('./util-entitlements').preAutoEntitlements
 
@@ -47,8 +49,6 @@ function validateOptsBinariesAsync (opts) {
  * @returns {Promise} Promise.
  */
 function validateSignOptsAsync (opts) {
-  const ProvisioningProfile = require('./util-provisioning-profiles').ProvisioningProfile
-
   if (opts.ignore) {
     if (typeof opts.ignore !== 'function' && typeof opts.ignore !== 'string') return Promise.reject(new Error('Ignore filter should be either a function or a string.'))
   }
@@ -134,7 +134,7 @@ function signApplicationAsync (opts) {
       if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
 
       var args = [
-        '--sign', opts.identity,
+        '--sign', opts.identity.hash || opts.identity.name,
         '--force'
       ]
       if (opts.keychain) {
@@ -222,7 +222,7 @@ var signAsync = module.exports.signAsync = function (opts) {
       var promise
       if (opts.identity) {
         debuglog('`identity` passed in arguments.')
-        if (opts['identity-validation'] === false) {
+        if (opts['identity-validation'] === false || opts.identity instanceof Identity) {
           return Promise.resolve()
         }
         promise = findIdentitiesAsync(opts, opts.identity)
@@ -244,7 +244,7 @@ var signAsync = module.exports.signAsync = function (opts) {
       return promise
         .then(function (identities) {
           if (identities.length > 0) {
-            // Provisioning profile(s) found
+            // Identity(/ies) found
             if (identities.length > 1) {
               debugwarn('Multiple identities found, will use the first discovered.')
             } else {
