@@ -22,7 +22,7 @@ DESCRIPTION
     This option only applies when signing with entitlements.
 
   --gatekeeper-assess, --no-gatekeeper-assess
-    Flag to enable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
+    Flag to enable/disable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
     Gatekeeper assessment is enabled by default on ``darwin'' platform.
 
   --help
@@ -31,6 +31,9 @@ DESCRIPTION
   --identity=identity
     Name of certificate to use when signing.
     Default to selected with respect to --provisioning-profile and --platform from --keychain specified or keychain by system default.
+
+  --identity-validation, --no-identity-validation
+    Flag to enable/disable validation for the signing identity.
 
   --ignore=regex
     Regex that signals ignoring a file before signing.
@@ -45,10 +48,10 @@ DESCRIPTION
     Default to auto detect from application bundle.
 
   --pre-auto-entitlements, --no-pre-auto-entitlements
-    Flag to enable automation of entitlements file and Info.plist.
+    Flag to enable/disable automation of entitlements file and Info.plist.
 
   --pre-embed-provisioning-profile, --no-pre-embed-provisioning-profile
-    Flag to enable embedding of provisioning profile.
+    Flag to enable/disable embedding of provisioning profile.
 
   --provisioning-profile=file
     Path to provisioning profile.

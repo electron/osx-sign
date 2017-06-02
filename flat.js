@@ -14,6 +14,7 @@ const debugwarn = util.debugwarn
 const execFileAsync = util.execFileAsync
 const validateOptsAppAsync = util.validateOptsAppAsync
 const validateOptsPlatformAsync = util.validateOptsPlatformAsync
+const Identity = require('./util-identities').findIdentitiesAsync
 const findIdentitiesAsync = require('./util-identities').findIdentitiesAsync
 
 /**
@@ -55,7 +56,7 @@ function validateFlatOptsAsync (opts) {
 function flatApplicationAsync (opts) {
   var args = [
     '--component', opts.app, opts.install,
-    '--sign', opts.identity,
+    '--sign', opts.identity.name,
     opts.pkg
   ]
   if (opts.keychain) {
@@ -82,6 +83,9 @@ var flatAsync = module.exports.flatAsync = function (opts) {
       var promise
       if (opts.identity) {
         debuglog('`identity` passed in arguments.')
+        if (opts['identity-validation'] === false || opts.identity instanceof Identity) {
+          return Promise.resolve()
+        }
         promise = findIdentitiesAsync(opts, opts.identity)
       } else {
         debugwarn('No `identity` passed in arguments...')

@@ -50,7 +50,7 @@ module.exports.preAutoEntitlements = function (opts) {
               appInfo.ElectronTeamID = opts['provisioning-profile'].message.Entitlements['com.apple.developer.team-identifier']
               debuglog('`ElectronTeamID` not found in `Info.plist`, use parsed from provisioning profile: ' + appInfo.ElectronTeamID)
             } else {
-              appInfo.ElectronTeamID = opts.identity.substring(opts.identity.indexOf('(') + 1, opts.identity.lastIndexOf(')'))
+              appInfo.ElectronTeamID = opts.identity.name.substring(opts.identity.name.indexOf('(') + 1, opts.identity.name.lastIndexOf(')'))
               debuglog('`ElectronTeamID` not found in `Info.plist`, use parsed from signing identity: ' + appInfo.ElectronTeamID)
             }
             return writeFileAsync(appInfoPath, plist.build(appInfo), 'utf8')

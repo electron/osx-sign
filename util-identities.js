@@ -10,6 +10,16 @@ const flatList = util.flatList
 const execFileAsync = util.execFileAsync
 
 /**
+ * @constructor
+ * @param {string} name - Name of the signing identity.
+ * @param {String} hash - SHA-1 hash of the identity.
+ */
+var Identity = module.exports.Identity = function (name, hash) {
+  this.name = name
+  this.hash = hash
+}
+
+/**
  * This function returns a promise checking the indentity proposed and updates the identity option to a exact finding from results.
  * @function
  * @param {Object} opts - Options.
@@ -37,7 +47,7 @@ module.exports.findIdentitiesAsync = function (opts, identity) {
           debuglog('Identity:', '\n',
             '> Name:', identityFound, '\n',
             '> Hash:', identityHashFound)
-          return identityHashFound
+          return new Identity(identityFound, identityHashFound)
         }
       })
     })
