@@ -69,13 +69,6 @@ module.exports.preAutoEntitlements = function (opts) {
             debuglog('`com.apple.application-identifier` not found in entitlements file, new inserted: ' + appIdentifier)
             entitlements['com.apple.application-identifier'] = appIdentifier
           }
-          // Insert developer team identifier if not exists
-          if (entitlements['com.apple.developer.team-identifier']) {
-            debuglog('`com.apple.developer.team-identifier` found in entitlements file: ' + entitlements['com.apple.developer.team-identifier'])
-          } else {
-            debuglog('`com.apple.developer.team-identifier` not found in entitlements file, new inserted: ' + appInfo.ElectronTeamID)
-            entitlements['com.apple.developer.team-identifier'] = appInfo.ElectronTeamID
-          }
           // Init entitlements app group key to array if not exists
           if (!entitlements['com.apple.security.application-groups']) {
             entitlements['com.apple.security.application-groups'] = []
