@@ -216,6 +216,7 @@ function signApplicationAsync (opts) {
  * @returns {Promise} Promise.
  */
 var signAsync = module.exports.signAsync = function (opts) {
+  debuglog('electron-osx-sign@0.4.6')
   return validateSignOptsAsync(opts)
     .then(function () {
       // Determine identity for signing

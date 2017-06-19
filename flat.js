@@ -78,6 +78,7 @@ function flatApplicationAsync (opts) {
  * @returns {Promise} Promise.
  */
 var flatAsync = module.exports.flatAsync = function (opts) {
+  debuglog('electron-osx-sign@0.4.6')
   return validateFlatOptsAsync(opts)
     .then(function () {
       var promise
