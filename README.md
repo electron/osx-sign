@@ -173,9 +173,10 @@ Default to `true`.
 The keychain name.
 Default to system default keychain.
 
-`ignore` - *String*
+`ignore` - *RegExp|Function|Array.<(RegExp|Function)>*
 
-Regex or function that signals ignoring a file before signing.
+Regex, function or an array of regex's and functions that signal to skip signing a file.
+Elements of other types are converted to `RegExp` automatically.
 Default to `undefined`.
 
 `platform` - *String*

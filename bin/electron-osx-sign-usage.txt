@@ -35,8 +35,8 @@ DESCRIPTION
   --identity-validation, --no-identity-validation
     Flag to enable/disable validation for the signing identity.
 
-  --ignore=regex
-    Regex that signals ignoring a file before signing.
+  --ignore=path
+    Path to skip signing.
 
   --keychain=keychain
     The keychain name.

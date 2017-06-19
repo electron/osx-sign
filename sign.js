@@ -49,8 +49,8 @@ function validateOptsBinariesAsync (opts) {
  * @returns {Promise} Promise.
  */
 function validateSignOptsAsync (opts) {
-  if (opts.ignore) {
-    if (typeof opts.ignore !== 'function' && typeof opts.ignore !== 'string') return Promise.reject(new Error('Ignore filter should be either a function or a string.'))
+  if (opts.ignore && !(opts.ignore instanceof Array)) {
+    opts.ignore = [opts.ignore]
   }
 
   if (opts['provisioning-profile']) {
@@ -122,11 +122,12 @@ function signApplicationAsync (opts) {
     .then(function (childPaths) {
       function ignoreFilePath (opts, filePath) {
         if (opts.ignore) {
-          if (typeof opts.ignore === 'function') {
-            return opts.ignore(filePath)
-          } else if (typeof opts.ignore === 'string') {
-            return filePath.match(opts.ignore)
-          }
+          return opts.ignore.some(function (ignore) {
+            if (typeof ignore === 'function') {
+              return ignore(filePath)
+            }
+            return filePath.match(ignore)
+          })
         }
         return false
       }
