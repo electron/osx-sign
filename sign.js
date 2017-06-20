@@ -9,6 +9,7 @@ const path = require('path')
 const Promise = require('bluebird')
 const compareVersion = require('compare-version')
 
+const pkg = require('./package.json')
 const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
@@ -216,6 +217,7 @@ function signApplicationAsync (opts) {
  * @returns {Promise} Promise.
  */
 var signAsync = module.exports.signAsync = function (opts) {
+  debuglog('electron-osx-sign@%s', pkg.version)
   return validateSignOptsAsync(opts)
     .then(function () {
       // Determine identity for signing

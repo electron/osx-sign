@@ -8,6 +8,7 @@ const path = require('path')
 
 const Promise = require('bluebird')
 
+const pkg = require('./package.json')
 const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
@@ -78,6 +79,7 @@ function flatApplicationAsync (opts) {
  * @returns {Promise} Promise.
  */
 var flatAsync = module.exports.flatAsync = function (opts) {
+  debuglog('electron-osx-sign@%s', pkg.version)
   return validateFlatOptsAsync(opts)
     .then(function () {
       var promise
