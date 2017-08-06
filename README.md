@@ -417,9 +417,9 @@ ok 21 app signed
 ok 22 app signed
 # defaults-test:v1.4.15-mas-x64
 ok 23 app signed
-# defaults-test:v1.6.8-darwin-x64
+# defaults-test:v1.6.11-darwin-x64
 ok 24 app signed
-# defaults-test:v1.6.8-mas-x64
+# defaults-test:v1.6.11-mas-x64
 ok 25 app signed
 # teardown
 
