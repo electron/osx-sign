@@ -6,13 +6,19 @@ Codesign Electron macOS apps
 
 [`electron-osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for like network access require additional work.
 
-It is worth noting as well that starting from [Electron] v1.1.1, a new mechanism was introduced to satisfy IPC communications (see [electron#5601](https://github.com/electron/electron/pull/5601)); wish to have full support of legacy Electron versions, please utilize `opts.version`, which option brings less hassle with making default settings among Electron builds.
+Check out [`electron-osx-sign` guide](https://mintkit.net/electron-userland/electron-osx-sign/guide/) for suggestions on setting up your environment and workflow for distribution or development.
 
-We are trying to keep updated to the Electron specifications; please [file us an issue](https://github.com/electron-userland/electron-osx-sign/issues/new) if having any suggestions or experiencing difficulties code signing your products.
+Please visit our [wiki](https://github.com/electron-userland/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with [`electron-packager`][electron-packager] and [`electron-osx-sign`][electron-osx-sign].
 
-Please visit our [Wiki](https://github.com/electron-userland/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with [`electron-packager`][electron-packager] and [`electron-osx-sign`][electron-osx-sign].
+*NB: Since [`electron-osx-sign`][electron-osx-sign] injects the entry `com.apple.security.application-groups` into the entitlements file as part of the pre-signing process, this would reportedly limit app transfer on iTunes Connect (see [#150](https://github.com/electron-userland/electron-osx-sign/issues/150)). However, opting out entitlements automation `opts['pre-auto-entitlements'] === false` may result in worse graphics performance.*
 
-*NB: The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
+*The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
+
+### [Electron]
+
+It is worth noting as well that starting from [Electron] v1.1.1, a new mechanism was introduced to allow IPC in App Sandbox (see [electron#5601](https://github.com/electron/electron/pull/5601)); wish to have full support of legacy Electron versions, please utilize `opts.version`, which option brings less hassle with making default settings among Electron builds.
+
+We are trying to keep updated to the latest [Electron] specs; please [file us an issue](https://github.com/electron-userland/electron-osx-sign/issues/new) if having any suggestions or experiencing difficulties code signing your products.
 
 ### An [OPEN Open Source Project](http://openopensource.org/)
 
@@ -39,8 +45,6 @@ npm install -g electron-osx-sign
 ## Usage
 
 ### electron-osx-sign
-
-Check out [`electron-osx-sign` guide](https://mintkit.net/electron-userland/electron-osx-sign/guide/) for suggestions on setting up your environment and workflow for distribution or development.
 
 #### From the Command Line
 
