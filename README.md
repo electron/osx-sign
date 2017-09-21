@@ -62,7 +62,7 @@ electron-osx-sign app [embedded-binary ...] [options ...]
 
 - It is recommended to place the provisioning profile(s) under the working directory for `electron-osx-sign` to pick up automatically; however, to specify provisioning profile to be embedded explicitly:
   ```sh
-  electron-osx-sign path/to/my.app --provisioning-profile=path/to/my.provisioningprofile
+  electron-osx-sign path/to/my.app --provisioning-profile=path/to/my.provisionprofile
   ```
 
 - To specify the entitlements file:
