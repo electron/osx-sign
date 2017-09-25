@@ -57,7 +57,7 @@ module.exports.preAutoEntitlements = function (opts) {
             }
             return writeFileAsync(appInfoPath, plist.build(appInfo), 'utf8')
               .then(function () {
-                debuglog('Entitlements file updated:', '\n',
+                debuglog('`Info.plist` updated:', '\n',
                   '> Info.plist:', appInfoPath)
               })
           }
