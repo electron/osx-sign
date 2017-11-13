@@ -4,11 +4,11 @@ Codesign Electron macOS apps
 
 ## About
 
-[`electron-osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for like network access require additional work.
+[`electron-osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for network access etc. require additional work.
 
 Check out [`electron-osx-sign` guide](https://mintkit.net/electron-userland/electron-osx-sign/guide/) for suggestions on setting up your environment and workflow for distribution or development.
 
-Please visit our [wiki](https://github.com/electron-userland/electron-osx-sign/wiki) hosted here on GitHub for walk-throughs and notes from past projects shipped with [`electron-packager`][electron-packager] and [`electron-osx-sign`][electron-osx-sign].
+Please visit our [wiki](https://github.com/electron-userland/electron-osx-sign/wiki) for walk-throughs, notes and [frequently asked questions](https://github.com/electron-userland/electron-osx-sign/wiki/FAQ) from past projects shipped with [`electron-packager`][electron-packager] and [`electron-osx-sign`][electron-osx-sign].
 
 *NB: Since [`electron-osx-sign`][electron-osx-sign] injects the entry `com.apple.security.application-groups` into the entitlements file as part of the pre-signing process, this would reportedly limit app transfer on iTunes Connect (see [#150](https://github.com/electron-userland/electron-osx-sign/issues/150)). However, opting out entitlements automation `opts['pre-auto-entitlements'] === false` may result in worse graphics performance.*
 
