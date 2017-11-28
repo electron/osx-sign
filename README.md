@@ -54,15 +54,23 @@ electron-osx-sign app [embedded-binary ...] [options ...]
 
 ##### Examples
 
+Since `electron-osx-sign` adds the entry `com.apple.developer.team-identifier` to a temporary copy of the specified entitlements file (with the default option `--pre-auto-entitlements`) distribution builds can no longer be run directly. To run the app codesigned for distribution locally after codesigning, you may manually add `ElectronTeamID` in your `Info.plist` and `com.apple.security.application-groups` in the entitlements file, and provide the flag `--no-pre-auto-entitlements` for `electron-osx-sign` to avoid this extra bit. Note that "certain features are only allowed across apps whose team-identifier value match" ([Technical Note TN2415](https://developer.apple.com/library/content/technotes/tn2415/_index.html#//apple_ref/doc/uid/DTS40016427-CH1-ENTITLEMENTSLIST)).
+
+The examples below assume that `--pre-auto-entitlements` is enabled.
+
 - To sign a distribution version by default:
   ```sh
   electron-osx-sign path/to/my.app
   ```
+  For distribution in the Mac App Store: Have the provisioning profile for distribution placed in the current working directory and the signing identity installed in the default keychain. *The app is not expected to run after codesigning since there is no provisioned device, and it is intended only for submission to iTunes Connect.*
+  For distribution outside the Mac App Store: Have the signing identity for distribution installed in the default keychain and optionally place the provisioning profile in the current working directory. By default App Sandbox is not enabled. *The app should run on all devices.*
 
 - To sign development version:
   ```sh
   electron-osx-sign path/to/my.app --type=development
   ```
+  For testing Mac App Store builds: Have the provisioning profile for development placed in the current working directory and the signing identity installed in the default keychain. *The app will only run on provisioned devices.*
+  For testing apps for distribution outside the Mac App Store, have the signing identity for development installed in the default keychain and optionally the provisioning profile placed in the current working directory. *The app will only run on provisioned devices.* However, you may prefer to just go with signing a distribution version because the app is expected to launch properly after codesigned.
 
 - It is recommended to place the provisioning profile(s) under the working directory for `electron-osx-sign` to pick up automatically; however, to specify provisioning profile to be embedded explicitly:
   ```sh
