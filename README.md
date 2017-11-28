@@ -187,8 +187,8 @@ Default to system default keychain.
 
 `ignore` - *RegExp|Function|Array.<(RegExp|Function)>*
 
-Regex, function or an array of regex's and functions that signal to skip signing a file.
-Elements of other types are converted to `RegExp` automatically.
+Regex, function or an array of regex's and functions that signal skipping signing a file.
+Elements of other types are treated as `RegExp`.
 Default to `undefined`.
 
 `platform` - *String*
