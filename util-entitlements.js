@@ -83,7 +83,7 @@ module.exports.preAutoEntitlements = function (opts) {
             entitlements['com.apple.security.application-groups'] = []
           }
           // Insert app group if not exists
-          if (entitlements['com.apple.security.application-groups'].indexOf(appIdentifier) === -1) {
+          if (Array.isArray(entitlements['com.apple.security.application-groups']) && entitlements['com.apple.security.application-groups'].indexOf(appIdentifier) === -1) {
             debuglog('`com.apple.security.application-groups` not found in entitlements file, new inserted: ' + appIdentifier)
             entitlements['com.apple.security.application-groups'].push(appIdentifier)
           } else {
