@@ -87,7 +87,7 @@ function verifySignApplicationAsync (opts) {
 
   var promise = execFileAsync('codesign', [
     '--verify',
-    '--deep',
+    '--deep'
   ]
     .concat(
       opts['strict-verify'] !== false &&
