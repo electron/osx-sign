@@ -59,6 +59,11 @@ DESCRIPTION
   --requirements=requirements
     Specify the criteria that you recommend to be used to evaluate the code signature.
 
+  --strict-verify, --strict-verify=options, --no-strict-verify
+    Flag to enable/disable ``--strict'' flag when verifying the signed application bundle.
+    Each component should be separated in ``options'' with comma (``,'').
+    Enabled by default.
+
   --timestamp=timestamp
     Specify the URL of the timestamp authority server, default to server provided by Apple.
     Disable the timestamp service with ``none''.

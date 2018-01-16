@@ -217,6 +217,13 @@ Specify the criteria that you recommend to be used to evaluate the code signatur
 See more info from https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
 Default to `undefined`.
 
+`strict-verify` - *Boolean|String|Array.<String>*
+
+Flag to enable/disable `--strict` flag when verifying the signed application bundle.
+If provided as a string, each component should be separated with comma (`,`).
+If provided as an array, each item should be a string corresponding to a component.
+Default to `true`.
+
 `timestamp` - *String*
 
 Specify the URL of the timestamp authority server, default to server provided by Apple. Please note that this default server may not support signatures not furnished by Apple.
