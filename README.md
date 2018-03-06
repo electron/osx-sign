@@ -380,10 +380,10 @@ A successful testing should look something like:
 ```
 $ npm test
 
-> electron-osx-sign@0.4.8 pretest electron-osx-sign
+> electron-osx-sign@0.4.9 pretest electron-osx-sign
 > rimraf test/work
 
-> electron-osx-sign@0.4.8 test electron-osx-sign
+> electron-osx-sign@0.4.9 test electron-osx-sign
 > standard && tape test
 
 Calling electron-download before running tests...
