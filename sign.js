@@ -150,7 +150,7 @@ function signApplicationAsync (opts) {
         args.push('--keychain', opts.keychain)
       }
       if (opts.requirements) {
-        args.push('--requirements', opts.requirements)
+        args.push('-r=' + opts.requirements)
       }
       if (opts.timestamp) {
         args.push('--timestamp=' + opts.timestamp)
