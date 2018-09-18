@@ -23,7 +23,7 @@
     "debug": "^2.6.8",
     "isbinaryfile": "^3.0.2",
     "minimist": "^1.2.0",
-    "plist": "^2.1.0"
+    "plist": "^3.0.1"
   },
   "devDependencies": {
     "electron-download": "^4.1.0",
