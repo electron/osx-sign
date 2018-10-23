@@ -24,6 +24,8 @@ const ProvisioningProfile = require('./util-provisioning-profiles').Provisioning
 const preEmbedProvisioningProfile = require('./util-provisioning-profiles').preEmbedProvisioningProfile
 const preAutoEntitlements = require('./util-entitlements').preAutoEntitlements
 
+const osRelease = require('os').release()
+
 /**
  * This function returns a promise validating opts.binaries, the additional binaries to be signed along with the discovered enclosed components.
  * @function
@@ -82,7 +84,6 @@ function validateSignOptsAsync (opts) {
 function verifySignApplicationAsync (opts) {
   // Verify with codesign
   var compareVersion = require('compare-version')
-  var osRelease = require('os').release()
   debuglog('Verifying application bundle with codesign...')
 
   var promise = execFileAsync('codesign', [
@@ -154,6 +155,14 @@ function signApplicationAsync (opts) {
       }
       if (opts.timestamp) {
         args.push('--timestamp=' + opts.timestamp)
+      }
+      if (opts.hardenedRuntime || opts['hardened-runtime']) {
+        // 17.7.0 === 10.13.6
+        if (compareVersion(osRelease, '17.7.0') >= 0) {
+          args.push('--options', 'runtime')
+        } else {
+          debuglog('Not enabling hardened runtime, current macOS version too low, requires 10.13.6 and higher')
+        }
       }
 
       var promise
