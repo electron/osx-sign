@@ -1,4 +1,9 @@
-node_modules
-test/work
-.idea/
-yarn.lock
+.DS_Store
+
+/.idea/
+
+/node_modules/
+
+/yarn.lock
+
+/test/work/
