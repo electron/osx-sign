@@ -168,6 +168,11 @@ Flag to enable/disable Gatekeeper assessment after signing the app. Disabling it
 Gatekeeper assessment is enabled by default on `darwin` platform.
 Default to `true`.
 
+`hardedRuntime` - *Boolean*
+
+Flag to enable the Mojave hardened runtime when signing the app.  Disabled by default, requires Xcode >= 10 and
+macOS >= 10.13.6.
+
 `identity` - *String*
 
 Name of certificate to use when signing.
