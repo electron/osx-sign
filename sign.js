@@ -330,7 +330,7 @@ var signAsync = module.exports.signAsync = function (opts) {
           '* Enable by setting `pre-embed-provisioning-profile` to `true`.')
       } else {
         debuglog('Pre-sign operation enabled for provisioning profile:', '\n',
-          '* Disable by setting `pre-embed-previsioning-profile` to `false`.')
+          '* Disable by setting `pre-embed-provisioning-profile` to `false`.')
         preSignOperations.push(preEmbedProvisioningProfile)
       }
 
