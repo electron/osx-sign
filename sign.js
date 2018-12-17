@@ -155,6 +155,8 @@ function signApplicationAsync (opts) {
       }
       if (opts.timestamp) {
         args.push('--timestamp=' + opts.timestamp)
+      } else {
+        args.push('--timestamp')
       }
       if (opts.hardenedRuntime || opts['hardened-runtime']) {
         // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
