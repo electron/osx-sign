@@ -92,7 +92,7 @@ function verifySignApplicationAsync (opts) {
   ]
     .concat(
       opts['strict-verify'] !== false &&
-      compareVersion(osRelease, '15.0.0') >= 0 // Only pass strict flag in El Capitan and later
+      compareVersion(osRelease, '15.0.0') >= 0 // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
         ? ['--strict' +
             (opts['strict-verify']
              ? '=' + opts['strict-verify'] // Array should be converted to a comma separated string
@@ -157,7 +157,7 @@ function signApplicationAsync (opts) {
         args.push('--timestamp=' + opts.timestamp)
       }
       if (opts.hardenedRuntime || opts['hardened-runtime']) {
-        // 17.7.0 === 10.13.6
+        // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
         if (compareVersion(osRelease, '17.7.0') >= 0) {
           args.push('--options', 'runtime')
         } else {
