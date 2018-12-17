@@ -250,17 +250,17 @@ var signAsync = module.exports.signAsync = function (opts) {
         promise = findIdentitiesAsync(opts, opts.identity)
       } else {
         debugwarn('No `identity` passed in arguments...')
-        if (opts.platform === 'mas') {
-          if (opts.type === 'distribution') {
-            debuglog('Finding `3rd Party Mac Developer Application` certificate for signing app distribution in the Mac App Store...')
+        if (opts.type === 'distribution') {
+          if (opts.platform === 'mas') {
+            debuglog('Finding `3rd Party Mac Developer Application` certificate to sign app for distribution in the Mac App Store...')
             promise = findIdentitiesAsync(opts, '3rd Party Mac Developer Application:')
           } else {
-            debuglog('Finding `Mac Developer` certificate for signing app in development for the Mac App Store signing...')
-            promise = findIdentitiesAsync(opts, 'Mac Developer:')
+            debuglog('Finding `Developer ID Application` certificate to sign app for distribution outside the Mac App Store...')
+            promise = findIdentitiesAsync(opts, 'Developer ID Application:')
           }
         } else {
-          debuglog('Finding `Developer ID Application` certificate for distribution outside the Mac App Store...')
-          promise = findIdentitiesAsync(opts, 'Developer ID Application:')
+          debuglog('Finding `Mac Developer` certificate to sign app for development...')
+          promise = findIdentitiesAsync(opts, 'Mac Developer:')
         }
       }
       return promise
