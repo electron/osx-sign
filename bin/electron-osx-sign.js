@@ -8,7 +8,8 @@ var args = require('minimist')(process.argv.slice(2), {
     'pre-auto-entitlements',
     'pre-embed-provisioning-profile',
     'gatekeeper-assess',
-    'hardened-runtime'
+    'hardened-runtime',
+    'restrict'
   ],
   'default': {
     'pre-auto-entitlements': true,

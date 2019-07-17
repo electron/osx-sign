@@ -156,13 +156,23 @@ function signApplicationAsync (opts) {
       if (opts.timestamp) {
         args.push('--timestamp=' + opts.timestamp)
       }
+      const optionsArguments = [];
+
       if (opts.hardenedRuntime || opts['hardened-runtime']) {
         // 17.7.0 === 10.13.6
         if (compareVersion(osRelease, '17.7.0') >= 0) {
-          args.push('--options', 'runtime')
+          optionsArguments.push('runtime')
         } else {
           debuglog('Not enabling hardened runtime, current macOS version too low, requires 10.13.6 and higher')
         }
+      }
+
+      if (opts.restrictMode || opts['restrict']){
+        optionsArguments.push('restrict')
+      }
+
+      if (optionsArguments.length) {
+        args.push('--options', optionsArguments.join(','))
       }
 
       var promise
