@@ -156,7 +156,7 @@ function signApplicationAsync (opts) {
       if (opts.timestamp) {
         args.push('--timestamp=' + opts.timestamp)
       }
-      const optionsArguments = [];
+      const optionsArguments = []
 
       if (opts.hardenedRuntime || opts['hardened-runtime']) {
         // 17.7.0 === 10.13.6
@@ -167,7 +167,7 @@ function signApplicationAsync (opts) {
         }
       }
 
-      if (opts.restrictMode || opts['restrict']){
+      if (opts.restrictMode || opts['restrict']) {
         optionsArguments.push('restrict')
       }
 
