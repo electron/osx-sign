@@ -167,7 +167,7 @@ function signApplicationAsync (opts) {
         }
       }
 
-      if (opts.restrictMode || opts['restrict']) {
+      if (opts['restrict']) {
         optionsArguments.push('restrict')
       }
 
