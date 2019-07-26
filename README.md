@@ -173,6 +173,10 @@ Default to `true`.
 Flag to enable the Mojave hardened runtime when signing the app.  Disabled by default, requires Xcode >= 10 and
 macOS >= 10.13.6.
 
+`restrict` - *Boolean*
+
+Restrict dyld loading. See doc about this [code signature flag](https://developer.apple.com/documentation/security/seccodesignatureflags/kseccodesignaturerestrict?language=objc) for more details. Disabled by default.
+
 `identity` - *String*
 
 Name of certificate to use when signing.
