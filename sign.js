@@ -26,6 +26,19 @@ const preAutoEntitlements = require('./util-entitlements').preAutoEntitlements
 
 const osRelease = require('os').release()
 
+const helperSuffixes = [
+  ' Helper.app',
+  ' Helper (Renderer).app',
+  ' Helper (GPU).app',
+  ' Helper (Plugin).app'
+];
+
+const isElectronHelperBundle = (filePath) => {
+  return filePath.split('/').some(segment => {
+    return helperSuffixes.some(suffix => segment.endsWith(suffix))
+  })
+}
+
 /**
  * This function returns a promise validating opts.binaries, the additional binaries to be signed along with the discovered enclosed components.
  * @function
@@ -183,11 +196,16 @@ function signApplicationAsync (opts) {
             debuglog('Skipped... ' + filePath)
             return
           }
+          if (isElectronHelperBundle(filePath)) {
+            debuglog('Signing Helper... ' + filePath)
+            return execFileAsync('codesign', args.concat('--entitlements', opts['entitlements-helper'], filePath))
+          }
+
           debuglog('Signing... ' + filePath)
           return execFileAsync('codesign', args.concat('--entitlements', opts['entitlements-inherit'], filePath))
         })
           .then(function () {
-            debuglog('Signing... ' + opts.app)
+            debuglog('Signing Primary Bundle... ' + opts.app)
             return execFileAsync('codesign', args.concat('--entitlements', opts.entitlements, opts.app))
           })
       } else {
@@ -308,6 +326,12 @@ var signAsync = module.exports.signAsync = function (opts) {
             '* Sandbox entitlements file for enclosing app files is default to:', filePath)
           opts['entitlements-inherit'] = filePath
         }
+        if (!opts['entitlements-helper']) {
+          filePath = path.join(__dirname, 'default.entitlements.mas.helper.plist')
+          debugwarn('No `entitlements-helper` passed in arguments:', '\n',
+            '* Entitlements file for enclosing helper app files is default to:', filePath)
+          opts['entitlements-helper'] = filePath
+        }
       } else {
         // Not necessary to have entitlements for non Mac App Store distribution
         if (!opts.entitlements) {
@@ -328,6 +352,12 @@ var signAsync = module.exports.signAsync = function (opts) {
               '* Sandbox entitlements file for enclosing app files is default to:', filePath)
             opts['entitlements-inherit'] = filePath
           }
+          if (!opts['entitlements-helper']) {
+            filePath = path.join(__dirname, 'default.entitlements.darwin.helper.plist')
+            debugwarn('No `entitlements-helper` passed in arguments:', '\n',
+              '* Entitlements file for enclosing helper app files is default to:', filePath)
+            opts['entitlements-helper'] = filePath
+          }
         }
       }
     })
@@ -340,7 +370,7 @@ var signAsync = module.exports.signAsync = function (opts) {
           '* Enable by setting `pre-embed-provisioning-profile` to `true`.')
       } else {
         debuglog('Pre-sign operation enabled for provisioning profile:', '\n',
-          '* Disable by setting `pre-embed-provisioning-profile` to `false`.')
+          '* Disable by setting `pre-embed-previsioning-profile` to `false`.')
         preSignOperations.push(preEmbedProvisioningProfile)
       }
 
