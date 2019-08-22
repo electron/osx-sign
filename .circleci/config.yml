@@ -1,0 +1,55 @@
+step-restore-cache: &step-restore-cache
+  restore_cache:
+    keys:
+      - v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
+      - v1-dependencies-{{ arch }}
+
+steps-test: &steps-test
+  steps:
+    - checkout
+    - *step-restore-cache
+    - run:
+        name: Setup NVM
+        command: |
+          curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash -s -- --no-use
+          echo 'export NVM_DIR=$HOME/.nvm' >> $BASH_ENV
+          echo 'source $NVM_DIR/nvm.sh' >> $BASH_ENV
+          echo 'nvm install $NODE_VERSION' >> $BASH_ENV
+          echo 'nvm alias default $NODE_VERSION' >> $BASH_ENV
+    - run: yarn --frozen-lockfile
+    - save_cache:
+        paths:
+          - node_modules
+        key: v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
+    - run: ./test/ci/generate-identity.sh
+    - run: yarn test
+
+version: 2
+jobs:
+  test-mac-8:
+    macos:
+      xcode: "11.0.0"
+    environment:
+      NODE_VERSION: "8"
+    <<: *steps-test
+
+  test-mac-10:
+    macos:
+      xcode: "11.0.0"
+    environment:
+      NODE_VERSION: "10"
+    <<: *steps-test
+
+  test-mac-12:
+    macos:
+      xcode: "11.0.0"
+    environment:
+      NODE_VERSION: "12"
+    <<: *steps-test
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test-mac-8
+      - test-mac-10
+      - test-mac-12
