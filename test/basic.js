@@ -10,7 +10,9 @@ function createDefaultsTest (release) {
     t.timeoutAfter(config.timeout)
 
     var opts = {
-      app: util.generateAppPath(release)
+      app: util.generateAppPath(release),
+      identity: 'codesign.electronjs.org',
+      'gatekeeper-assess': false
     } // test with no other options for self discovery
 
     waterfall([
