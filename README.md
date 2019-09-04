@@ -1,4 +1,4 @@
-# electron-osx-sign [![npm][npm_img]][npm_url] [![Build Status][travis_img]][travis_url]
+# electron-osx-sign [![npm][npm_img]][npm_url] [![Build Status][circleci_img]][circleci_url]
 
 Codesign Electron macOS apps
 
@@ -478,5 +478,5 @@ ok 29 app signed
 [electron-osx-sign]: https://github.com/electron-userland/electron-osx-sign
 [npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
 [npm_url]: https://npmjs.org/package/electron-osx-sign
-[travis_img]: https://travis-ci.org/electron-userland/electron-osx-sign.svg?branch=master
-[travis_url]: https://travis-ci.org/electron-userland/electron-osx-sign
+[circleci_img]: https://img.shields.io/circleci/build/github/electron/electron-osx-sign
+[circleci_url]: https://circleci.com/gh/electron/electron-osx-sign
