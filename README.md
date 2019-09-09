@@ -378,7 +378,7 @@ The project's configured to run automated tests on CircleCI.
 
 If you wish to manually test the module, first comment out `opts.identity` in `test/basic.js` to enable auto discovery. Then run the command `npm test` from the dev directory.
 
-When this command is run for the first time: `electron-download` will download all major releases of Electron available for macOS from 0.24.0, and save to `~/.electron/`, which might take up less than 1GB of disk space.
+When this command is run for the first time: `electron-download` will download macOS Electron releases defined in `test/config.json`, and save to `~/.electron/`, which might take up less than 1GB of disk space.
 
 A successful testing should look something like:
 
