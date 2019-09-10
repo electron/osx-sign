@@ -374,15 +374,11 @@ As of release v0.3.1, external module `debug` is used to display logs and messag
 
 ## Test
 
-As developer certificates are required for `codesign` on macOS, this module is difficult to be tested via online build services. If you wish to test out this module, enter:
+The project's configured to run automated tests on CircleCI.
 
-```
-npm test
-```
+If you wish to manually test the module, first comment out `opts.identity` in `test/basic.js` to enable auto discovery. Then run the command `npm test` from the dev directory.
 
-from the dev directory, and tell us if all tests should pass.
-
-When this command is fun for the first time: `electron-download` will download all major releases of Electron available for macOS from 0.24.0, and save to `~/.electron/`, which might take up less than 1GB of disk space.
+When this command is run for the first time: `electron-download` will download macOS Electron releases defined in `test/config.json`, and save to `~/.electron/`, which might take up less than 1GB of disk space.
 
 A successful testing should look something like:
 
@@ -399,69 +395,31 @@ Calling electron-download before running tests...
 Running tests...
 TAP version 13
 # setup
-# defaults-test:v0.29.2-darwin-x64
+# defaults-test:v7.0.0-beta.3-darwin-x64
 ok 1 app signed
-# defaults-test:v0.30.8-darwin-x64
+# defaults-test:v7.0.0-beta.3-mas-x64
 ok 2 app signed
-# defaults-test:v0.31.2-darwin-x64
+# defaults-test:v6.0.3-darwin-x64
 ok 3 app signed
-# defaults-test:v0.32.3-darwin-x64
+# defaults-test:v6.0.3-mas-x64
 ok 4 app signed
-# defaults-test:v0.33.9-darwin-x64
+# defaults-test:v5.0.10-darwin-x64
 ok 5 app signed
-# defaults-test:v0.34.5-darwin-x64
+# defaults-test:v5.0.10-mas-x64
 ok 6 app signed
-# defaults-test:v0.34.5-mas-x64
+# defaults-test:v4.2.9-darwin-x64
 ok 7 app signed
-# defaults-test:v0.35.6-darwin-x64
+# defaults-test:v4.2.9-mas-x64
 ok 8 app signed
-# defaults-test:v0.35.6-mas-x64
+# defaults-test:v3.1.2-darwin-x64
 ok 9 app signed
-# defaults-test:v0.36.12-darwin-x64
+# defaults-test:v3.1.2-mas-x64
 ok 10 app signed
-# defaults-test:v0.36.12-mas-x64
-ok 11 app signed
-# defaults-test:v0.37.8-darwin-x64
-ok 12 app signed
-# defaults-test:v0.37.8-mas-x64
-ok 13 app signed
-# defaults-test:v1.0.2-darwin-x64
-ok 14 app signed
-# defaults-test:v1.0.2-mas-x64
-ok 15 app signed
-# defaults-test:v1.1.3-darwin-x64
-ok 16 app signed
-# defaults-test:v1.1.3-mas-x64
-ok 17 app signed
-# defaults-test:v1.2.8-darwin-x64
-ok 18 app signed
-# defaults-test:v1.2.8-mas-x64
-ok 19 app signed
-# defaults-test:v1.3.7-darwin-x64
-ok 20 app signed
-# defaults-test:v1.3.7-mas-x64
-ok 21 app signed
-# defaults-test:v1.4.15-darwin-x64
-ok 22 app signed
-# defaults-test:v1.4.15-mas-x64
-ok 23 app signed
-# defaults-test:v1.6.17-darwin-x64
-ok 24 app signed
-# defaults-test:v1.6.17-mas-x64
-ok 25 app signed
-# defaults-test:v1.7.12-darwin-x64
-ok 26 app signed
-# defaults-test:v1.7.12-mas-x64
-ok 27 app signed
-# defaults-test:v1.8.3-darwin-x64
-ok 28 app signed
-# defaults-test:v1.8.3-mas-x64
-ok 29 app signed
 # teardown
 
-1..29
-# tests 29
-# pass  29
+1..10
+# tests 10
+# pass  10
 
 # ok
 ```
