@@ -29,9 +29,6 @@ DESCRIPTION
     Flag to enable the Mojave hardened runtime when signing the app.  Disabled by default, requires Xcode >= 10 and macOS
     >= 10.13.6.
 
-  --restrict
-    Flag to enable restrict mode. Disabled by default.
-
   --help
     Flag to display all commands.
 
@@ -65,6 +62,12 @@ DESCRIPTION
 
   --requirements=requirements
     Specify the criteria that you recommend to be used to evaluate the code signature.
+
+  --restrict
+    Flag to enable restrict mode. Disabled by default. (this will be deprecated soon, see --sign-flags)
+
+  --signature-flags=flags
+    code signature flags. Default to none
 
   --strict-verify, --strict-verify=options, --no-strict-verify
     Flag to enable/disable ``--strict'' flag when verifying the signed application bundle.

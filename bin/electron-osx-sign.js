@@ -3,6 +3,9 @@
 var fs = require('fs')
 var path = require('path')
 var args = require('minimist')(process.argv.slice(2), {
+  'string': [
+    'signature-flags'
+  ],
   'boolean': [
     'help',
     'pre-auto-entitlements',
