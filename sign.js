@@ -158,16 +158,20 @@ function signApplicationAsync (opts) {
       } else {
         args.push('--timestamp')
       }
-      var optionsArguments = []
+      let optionsArguments = []
 
       if (opts['signature-flags']) {
-        var flags = opts['signature-flags'].split(',').map(function (flag) { return flag.trim() })
-        flags.forEach(element => {
-          optionsArguments.push(element)
-        })
+        if (Array.isArray(opts['signature-flags'])) {
+          optionsArguments = [...opts['signature-flags']]
+        } else {
+          const flags = opts['signature-flags'].split(',').map(function (flag) { return flag.trim() })
+          flags.forEach(element => {
+            optionsArguments.push(element)
+          })
+        }
       }
 
-      if (opts.hardenedRuntime || opts['hardened-runtime' || optionsArguments.includes('runtime')]) {
+      if (opts.hardenedRuntime || opts['hardened-runtime'] || optionsArguments.includes('runtime')) {
         // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
         if (compareVersion(osRelease, '17.7.0') >= 0) {
           optionsArguments.push('runtime')

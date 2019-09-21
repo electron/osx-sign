@@ -226,8 +226,8 @@ Default to `undefined`.
 
 *** To be deprecated, see `signature-flags` *** Restrict dyld loading. See doc about this [code signature flag](https://developer.apple.com/documentation/security/seccodesignatureflags/kseccodesignaturerestrict?language=objc) for more details. Disabled by default.
 
-`signature-flags` - *String*
-comma separated string for [code signature flag](https://developer.apple.com/documentation/security/seccodesignatureflags?language=objc). Default is `underfined`
+`signature-flags` - *String|String[]*
+comma separated string or array for [code signature flag](https://developer.apple.com/documentation/security/seccodesignatureflags?language=objc). Default is `undefined`
 
 `strict-verify` - *Boolean|String|Array.<String>*
 

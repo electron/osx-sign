@@ -67,7 +67,7 @@ DESCRIPTION
     Flag to enable restrict mode. Disabled by default. (this will be deprecated soon, see --sign-flags)
 
   --signature-flags=flags
-    code signature flags. Default to none
+    Code signature flags. Default to none.
 
   --strict-verify, --strict-verify=options, --no-strict-verify
     Flag to enable/disable ``--strict'' flag when verifying the signed application bundle.
