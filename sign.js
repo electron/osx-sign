@@ -165,9 +165,7 @@ function signApplicationAsync (opts) {
           optionsArguments = [...opts['signature-flags']]
         } else {
           const flags = opts['signature-flags'].split(',').map(function (flag) { return flag.trim() })
-          flags.forEach(element => {
-            optionsArguments.push(element)
-          })
+          optionsArguments = [...flags]
         }
       }
 

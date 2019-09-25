@@ -64,7 +64,8 @@ DESCRIPTION
     Specify the criteria that you recommend to be used to evaluate the code signature.
 
   --restrict
-    Flag to enable restrict mode. Disabled by default. (this will be deprecated soon, see --sign-flags)
+    (This will be deprecated soon, see --sign-flags.)
+    Flag to enable restrict mode. Disabled by default. 
 
   --signature-flags=flags
     Code signature flags. Default to none.
