@@ -158,6 +158,7 @@ function signApplicationAsync (opts) {
       } else {
         args.push('--timestamp')
       }
+
       let optionsArguments = []
 
       if (opts['signature-flags']) {
@@ -182,7 +183,7 @@ function signApplicationAsync (opts) {
 
       if (opts['restrict']) {
         optionsArguments.push('restrict')
-        debugwarn('this flag is to be deprecated, consider using --signature-flags=restrict')
+        debugwarn('This flag is to be deprecated, consider using --signature-flags=restrict instead')
       }
 
       if (optionsArguments.length) {
