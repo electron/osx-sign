@@ -230,6 +230,9 @@ Restrict dyld loading. See doc about this [code signature flag](https://develope
 `signature-flags` - *String*
 Comma separated string or array for [code signature flag](https://developer.apple.com/documentation/security/seccodesignatureflags?language=objc). Default to `undefined`.
 
+`signature-size` - *Number*
+Provide a value to be passed to `codesign` along with the `--signature-size` flag, to work around the *Signature too large to embed* issue. A value of `12000` should do it - see the [FAQ](https://github.com/electron/electron-osx-sign/wiki/FAQ) for details. Default to `undefined`.
+
 `strict-verify` - *Boolean|String|Array.<String>*
 
 Flag to enable/disable `--strict` flag when verifying the signed application bundle.

@@ -70,6 +70,9 @@ DESCRIPTION
   --signature-flags=flags
     Code signature flags. Default to none.
 
+  --signature-size=size
+    Signature size. Default to none.
+
   --strict-verify, --strict-verify=options, --no-strict-verify
     Flag to enable/disable ``--strict'' flag when verifying the signed application bundle.
     Each component should be separated in ``options'' with comma (``,'').

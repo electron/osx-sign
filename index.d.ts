@@ -16,6 +16,7 @@ declare module "electron-osx-sign" {
     'pre-embed-provisioning-profile'?: boolean;
     'provisioning-profile'?: string;
     'requirements'?: string;
+    'signature-size'?: number;
     'type'?: string;
     version?: string;
     'identity-validation'?: boolean;

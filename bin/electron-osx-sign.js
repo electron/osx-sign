@@ -6,6 +6,9 @@ var args = require('minimist')(process.argv.slice(2), {
   'string': [
     'signature-flags'
   ],
+  'number': [
+    'signature-size'
+  ],
   'boolean': [
     'help',
     'pre-auto-entitlements',
