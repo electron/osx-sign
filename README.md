@@ -162,6 +162,12 @@ See [default.entitlements.mas.plist](https://github.com/electron-userland/electr
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with entitlements.*
 See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.inherit.plist) with respect to your platform.
 
+`entitlements-loginhelper` - *String*
+
+Path to login helper entitlement file. When using app sandboxing the inherited entitlement should not be used since this is a standalone executable. When not set, uses `entitlements-inherit` option.
+*This option only applies when signing with entitlements.*
+See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.inherit.plist) with respect to your platform.
+
 `gatekeeper-assess` - *Boolean*
 
 Flag to enable/disable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.

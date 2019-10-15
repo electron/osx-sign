@@ -206,7 +206,13 @@ function signApplicationAsync (opts) {
             return
           }
           debuglog('Signing... ' + filePath)
-          return execFileAsync('codesign', args.concat('--entitlements', opts['entitlements-inherit'], filePath))
+
+          let entitlementsFile = opts['entitlements-inherit'];
+          if (filePath.includes('Library/LoginItems')) {
+            entitlementsFile = opts['entitlements-loginhelper'];
+          }
+
+          return execFileAsync('codesign', args.concat('--entitlements', entitlementsFile, filePath))
         })
           .then(function () {
             debuglog('Signing... ' + opts.app)
@@ -330,6 +336,12 @@ var signAsync = module.exports.signAsync = function (opts) {
             '* Sandbox entitlements file for enclosing app files is default to:', filePath)
           opts['entitlements-inherit'] = filePath
         }
+        if (!opts['entitlements-loginhelper']) {
+          filePath = path.join(__dirname, 'default.entitlements.mas.inherit.plist')
+          debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
+            '* Sandbox entitlements file for login helper is default to:', filePath)
+          opts['entitlements-loginhelper'] = filePath
+        }
       } else {
         // Not necessary to have entitlements for non Mac App Store distribution
         if (!opts.entitlements) {
@@ -349,6 +361,12 @@ var signAsync = module.exports.signAsync = function (opts) {
             debugwarn('No `entitlements-inherit` passed in arguments:', '\n',
               '* Sandbox entitlements file for enclosing app files is default to:', filePath)
             opts['entitlements-inherit'] = filePath
+          }
+          if (!opts['entitlements-loginhelper']) {
+            filePath = path.join(__dirname, 'default.entitlements.darwin.inherit.plist')
+            debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
+              '* Sandbox entitlements file for enclosing app files is default to:', filePath)
+            opts['entitlements-loginhelper'] = filePath
           }
         }
       }
@@ -387,6 +405,7 @@ var signAsync = module.exports.signAsync = function (opts) {
         '> Platform:', opts.platform, '\n',
         '> Entitlements:', opts.entitlements, '\n',
         '> Child entitlements:', opts['entitlements-inherit'], '\n',
+        '> Login helper entitlement:', opts['entitlements-loginhelper'], '\n',
         '> Additional binaries:', opts.binaries, '\n',
         '> Identity:', opts.identity)
       return signApplicationAsync(opts)
