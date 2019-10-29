@@ -158,6 +158,13 @@ function signApplicationAsync (opts) {
       } else {
         args.push('--timestamp')
       }
+      if (opts['signature-size']) {
+        if (Number.isInteger(opts['signature-size']) && opts['signature-size'] > 0) {
+          args.push('--signature-size', opts['signature-size'])
+        } else {
+          debugwarn(`Invalid value provided for --signature-size (${opts['signature-size']}). Must be a positive integer.`)
+        }
+      }
 
       let optionsArguments = []
 
