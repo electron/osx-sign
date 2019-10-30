@@ -62,12 +62,12 @@ var getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = f
     'cms',
     '-D', // Decode a CMS message
     '-i', filePath // Use infile as source of data
-  ];
+  ]
 
   if (keychain) {
-    securityArgs.push('-k', keychain);
+    securityArgs.push('-k', keychain)
   }
-  
+
   return execFileAsync('security', securityArgs)
     .then(function (result) {
       var provisioningProfile = new ProvisioningProfile(filePath, plist.parse(result))
