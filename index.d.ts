@@ -12,6 +12,7 @@ declare module "electron-osx-sign" {
     'entitlements-inherit'?: string;
     'gatekeeper-assess'?: boolean;
     hardenedRuntime?: boolean;
+    'identity-validation'?: boolean;
     ignore?: string;
     'pre-auto-entitlements'?: boolean;
     'pre-embed-provisioning-profile'?: boolean;
@@ -20,7 +21,6 @@ declare module "electron-osx-sign" {
     'signature-size'?: number;
     'type'?: string;
     version?: string;
-    'identity-validation'?: boolean;
   }
 
   export function sign(opts: SignOptions, callback: (error: Error) => void): void;
@@ -28,6 +28,7 @@ declare module "electron-osx-sign" {
   export function signAsync(opts: SignOptions): Promise<any>;
 
   interface FlatOptions extends BaseSignOptions {
+    'identity-validation'?: boolean;
     install?: string;
     pkg?: string;
     scripts?: string;
