@@ -54,14 +54,21 @@ Object.defineProperty(ProvisioningProfile.prototype, 'type', {
  * Returns a promise resolving to a ProvisioningProfile instance based on file.
  * @function
  * @param {string} filePath - Path to provisioning profile.
+ * @param {string} keychain - Keychain to use when unlocking provisioning profile.
  * @returns {Promise} Promise.
  */
-var getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = function (filePath) {
-  return execFileAsync('security', [
+var getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = function (filePath, keychain = null) {
+  var securityArgs = [
     'cms',
     '-D', // Decode a CMS message
     '-i', filePath // Use infile as source of data
-  ])
+  ]
+
+  if (keychain) {
+    securityArgs.push('-k', keychain)
+  }
+
+  return execFileAsync('security', securityArgs)
     .then(function (result) {
       var provisioningProfile = new ProvisioningProfile(filePath, plist.parse(result))
       debuglog('Provisioning profile:', '\n',
@@ -144,7 +151,7 @@ module.exports.preEmbedProvisioningProfile = function (opts) {
     if (opts['provisioning-profile'] instanceof ProvisioningProfile) {
       return embedProvisioningProfile()
     } else {
-      return getProvisioningProfileAsync(opts['provisioning-profile'])
+      return getProvisioningProfileAsync(opts['provisioning-profile'], opts['keychain'])
         .then(function (provisioningProfile) {
           opts['provisioning-profile'] = provisioningProfile
         })
