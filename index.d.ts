@@ -11,6 +11,7 @@ declare module "electron-osx-sign" {
     entitlements?: string;
     'entitlements-inherit'?: string;
     'gatekeeper-assess'?: boolean;
+    hardenedRuntime?: boolean;
     'identity-validation'?: boolean;
     ignore?: string;
     'pre-auto-entitlements'?: boolean;
