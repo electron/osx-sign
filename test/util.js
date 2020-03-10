@@ -1,7 +1,7 @@
 var path = require('path')
 var test = require('tape')
 
-var download = require('electron-download')
+const { download } = require('@electron/get')
 var mkdirp = require('mkdirp')
 var rimraf = require('rimraf')
 var series = require('run-series')
@@ -45,10 +45,9 @@ exports.generateAppPath = function getExtractName (release) {
 exports.downloadElectrons = function downloadElectrons (callback) {
   series(releases.map(function (release) {
     return function (cb) {
-      download(release, function (err, zipPath) {
-        if (err) return callback(err)
-        extract(zipPath, {dir: path.join(WORK_CWD, exports.generateReleaseName(release))}, cb)
-      })
+      download(release)
+        .then(zipPath => extract(zipPath, {dir: path.join(WORK_CWD, exports.generateReleaseName(release))}, cb))
+        .catch(cb)
     }
   }), callback)
 }

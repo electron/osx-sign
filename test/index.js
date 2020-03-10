@@ -9,7 +9,7 @@ series([
     child.exec('which codesign', cb)
   },
   function (cb) {
-    console.log('Calling electron-download before running tests...')
+    console.log('Downloading Electron prebuilt binaries before running tests...')
     util.downloadElectrons(cb)
   }
 ], function (err) {
