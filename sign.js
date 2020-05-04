@@ -207,9 +207,9 @@ function signApplicationAsync (opts) {
           }
           debuglog('Signing... ' + filePath)
 
-          let entitlementsFile = opts['entitlements-inherit'];
+          let entitlementsFile = opts['entitlements-inherit']
           if (filePath.includes('Library/LoginItems')) {
-            entitlementsFile = opts['entitlements-loginhelper'];
+            entitlementsFile = opts['entitlements-loginhelper']
           }
 
           return execFileAsync('codesign', args.concat('--entitlements', entitlementsFile, filePath))
