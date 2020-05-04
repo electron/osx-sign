@@ -333,11 +333,12 @@ var signAsync = module.exports.signAsync = function (opts) {
         if (!opts['entitlements-inherit']) {
           filePath = path.join(__dirname, 'default.entitlements.mas.inherit.plist')
           debugwarn('No `entitlements-inherit` passed in arguments:', '\n',
-            '* Sandbox entitlements file for enclosing app files is default to:', filePath)
+            '* Sandbox entitlements file for enclosed app files is default to:', filePath)
           opts['entitlements-inherit'] = filePath
         }
         if (!opts['entitlements-loginhelper']) {
-          filePath = path.join(__dirname, 'default.entitlements.mas.inherit.plist')
+          // Default to App Sandbox enabled
+          filePath = path.join(__dirname, 'default.entitlements.mas.plist')
           debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
             '* Sandbox entitlements file for login helper is default to:', filePath)
           opts['entitlements-loginhelper'] = filePath
@@ -348,24 +349,25 @@ var signAsync = module.exports.signAsync = function (opts) {
           debugwarn('No `entitlements` passed in arguments:', '\n',
             '* Provide `entitlements` to specify entitlements file for codesign.')
         } else {
-          // If entitlements is provided as a flag, fallback to default
+          // If entitlements is provided as a boolean flag, fallback to default
           if (opts.entitlements === true) {
             filePath = path.join(__dirname, 'default.entitlements.darwin.plist')
             debugwarn('`entitlements` not specified in arguments:', '\n',
               '* Provide `entitlements` to specify entitlements file for codesign.', '\n',
-              '* Sandbox entitlements file for enclosing app files is default to:', filePath)
+              '* Entitlements file is default to:', filePath)
             opts.entitlements = filePath
           }
           if (!opts['entitlements-inherit']) {
             filePath = path.join(__dirname, 'default.entitlements.darwin.inherit.plist')
             debugwarn('No `entitlements-inherit` passed in arguments:', '\n',
-              '* Sandbox entitlements file for enclosing app files is default to:', filePath)
+              '* Entitlements file for enclosed app files is default to:', filePath)
             opts['entitlements-inherit'] = filePath
           }
           if (!opts['entitlements-loginhelper']) {
-            filePath = path.join(__dirname, 'default.entitlements.darwin.inherit.plist')
+            // Default to App Sandbox enabled
+            filePath = path.join(__dirname, 'default.entitlements.mas.plist')
             debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
-              '* Sandbox entitlements file for enclosing app files is default to:', filePath)
+              '* Entitlements file for login helper is default to:', filePath)
             opts['entitlements-loginhelper'] = filePath
           }
         }

@@ -164,9 +164,8 @@ See [default.entitlements.mas.inherit.plist](https://github.com/electron-userlan
 
 `entitlements-loginhelper` - *String*
 
-Path to login helper entitlement file. When using app sandboxing the inherited entitlement should not be used since this is a standalone executable. When not set, uses `entitlements-inherit` option.
-*This option only applies when signing with entitlements.*
-See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.inherit.plist) with respect to your platform.
+Path to login helper entitlement file. When using App Sandbox, the inherited entitlement should not be used since this is a standalone executable. *This option only applies when signing with entitlements.*
+Default to [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist).
 
 `gatekeeper-assess` - *Boolean*
 
