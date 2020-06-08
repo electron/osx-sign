@@ -336,13 +336,7 @@ var signAsync = module.exports.signAsync = function (opts) {
             '* Sandbox entitlements file for enclosed app files is default to:', filePath)
           opts['entitlements-inherit'] = filePath
         }
-        if (!opts['entitlements-loginhelper']) {
-          // Default to App Sandbox enabled
-          filePath = path.join(__dirname, 'default.entitlements.mas.plist')
-          debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
-            '* Sandbox entitlements file for login helper is default to:', filePath)
-          opts['entitlements-loginhelper'] = filePath
-        }
+        // The default value for opts['entitlements-file'] will be processed later
       } else {
         // Not necessary to have entitlements for non Mac App Store distribution
         if (!opts.entitlements) {
@@ -363,13 +357,7 @@ var signAsync = module.exports.signAsync = function (opts) {
               '* Entitlements file for enclosed app files is default to:', filePath)
             opts['entitlements-inherit'] = filePath
           }
-          if (!opts['entitlements-loginhelper']) {
-            // Default to App Sandbox enabled
-            filePath = path.join(__dirname, 'default.entitlements.mas.plist')
-            debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
-              '* Entitlements file for login helper is default to:', filePath)
-            opts['entitlements-loginhelper'] = filePath
-          }
+          // The default value for opts['entitlements-file'] will be processed later
         }
       }
     })
@@ -397,6 +385,20 @@ var signAsync = module.exports.signAsync = function (opts) {
         }
       }
 
+      // preAutoEntitlements may update opts.entitlements,
+      // so we wait after it's done before giving opts['entitlements-loginhelper'] its default value
+      preSignOperations.push(function (opts) {
+        if (opts.entitlements) {
+          if (!opts['entitlements-loginhelper']) {
+            // Default to App Sandbox enabled
+            const filePath = opts.entitlements
+            debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
+              '* Entitlements file for login helper is default to:', filePath)
+            opts['entitlements-loginhelper'] = filePath
+          }
+        }
+      })
+
       return Promise.mapSeries(preSignOperations, function (preSignOperation) {
         return preSignOperation(opts)
       })
@@ -407,7 +409,7 @@ var signAsync = module.exports.signAsync = function (opts) {
         '> Platform:', opts.platform, '\n',
         '> Entitlements:', opts.entitlements, '\n',
         '> Child entitlements:', opts['entitlements-inherit'], '\n',
-        '> Login helper entitlement:', opts['entitlements-loginhelper'], '\n',
+        '> Login helper entitlements:', opts['entitlements-loginhelper'], '\n',
         '> Additional binaries:', opts.binaries, '\n',
         '> Identity:', opts.identity)
       return signApplicationAsync(opts)
