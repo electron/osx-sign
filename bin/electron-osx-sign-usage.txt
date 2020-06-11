@@ -21,6 +21,10 @@ DESCRIPTION
     Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution.
     This option only applies when signing with entitlements.
 
+  --entitlements-loginhelper=file
+    Path to login helper entitlement file. When using App Sandbox, the inherited entitlement should not be used since this is a standalone executable.
+    This option only applies when signing with entitlements.
+
   --gatekeeper-assess, --no-gatekeeper-assess
     Flag to enable/disable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
     Gatekeeper assessment is enabled by default on ``darwin'' platform.

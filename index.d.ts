@@ -10,6 +10,7 @@ declare module "electron-osx-sign" {
     binaries?: string[];
     entitlements?: string;
     'entitlements-inherit'?: string;
+    'entitlements-loginhelper'?: string;
     'gatekeeper-assess'?: boolean;
     hardenedRuntime?: boolean;
     'identity-validation'?: boolean;

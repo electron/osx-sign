@@ -216,7 +216,13 @@ function signApplicationAsync (opts) {
             return
           }
           debuglog('Signing... ' + filePath)
-          return execFileAsync('codesign', args.concat('--entitlements', opts['entitlements-inherit'], filePath))
+
+          let entitlementsFile = opts['entitlements-inherit']
+          if (filePath.includes('Library/LoginItems')) {
+            entitlementsFile = opts['entitlements-loginhelper']
+          }
+
+          return execFileAsync('codesign', args.concat('--entitlements', entitlementsFile, filePath))
         })
           .then(function () {
             debuglog('Signing... ' + opts.app)
@@ -337,29 +343,31 @@ var signAsync = module.exports.signAsync = function (opts) {
         if (!opts['entitlements-inherit']) {
           filePath = path.join(__dirname, 'default.entitlements.mas.inherit.plist')
           debugwarn('No `entitlements-inherit` passed in arguments:', '\n',
-            '* Sandbox entitlements file for enclosing app files is default to:', filePath)
+            '* Sandbox entitlements file for enclosed app files is default to:', filePath)
           opts['entitlements-inherit'] = filePath
         }
+        // The default value for opts['entitlements-file'] will be processed later
       } else {
         // Not necessary to have entitlements for non Mac App Store distribution
         if (!opts.entitlements) {
           debugwarn('No `entitlements` passed in arguments:', '\n',
             '* Provide `entitlements` to specify entitlements file for codesign.')
         } else {
-          // If entitlements is provided as a flag, fallback to default
+          // If entitlements is provided as a boolean flag, fallback to default
           if (opts.entitlements === true) {
             filePath = path.join(__dirname, 'default.entitlements.darwin.plist')
             debugwarn('`entitlements` not specified in arguments:', '\n',
               '* Provide `entitlements` to specify entitlements file for codesign.', '\n',
-              '* Sandbox entitlements file for enclosing app files is default to:', filePath)
+              '* Entitlements file is default to:', filePath)
             opts.entitlements = filePath
           }
           if (!opts['entitlements-inherit']) {
             filePath = path.join(__dirname, 'default.entitlements.darwin.inherit.plist')
             debugwarn('No `entitlements-inherit` passed in arguments:', '\n',
-              '* Sandbox entitlements file for enclosing app files is default to:', filePath)
+              '* Entitlements file for enclosed app files is default to:', filePath)
             opts['entitlements-inherit'] = filePath
           }
+          // The default value for opts['entitlements-file'] will be processed later
         }
       }
     })
@@ -387,6 +395,20 @@ var signAsync = module.exports.signAsync = function (opts) {
         }
       }
 
+      // preAutoEntitlements may update opts.entitlements,
+      // so we wait after it's done before giving opts['entitlements-loginhelper'] its default value
+      preSignOperations.push(function (opts) {
+        if (opts.entitlements) {
+          if (!opts['entitlements-loginhelper']) {
+            // Default to App Sandbox enabled
+            const filePath = opts.entitlements
+            debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
+              '* Entitlements file for login helper is default to:', filePath)
+            opts['entitlements-loginhelper'] = filePath
+          }
+        }
+      })
+
       return Promise.mapSeries(preSignOperations, function (preSignOperation) {
         return preSignOperation(opts)
       })
@@ -397,6 +419,7 @@ var signAsync = module.exports.signAsync = function (opts) {
         '> Platform:', opts.platform, '\n',
         '> Entitlements:', opts.entitlements, '\n',
         '> Child entitlements:', opts['entitlements-inherit'], '\n',
+        '> Login helper entitlements:', opts['entitlements-loginhelper'], '\n',
         '> Additional binaries:', opts.binaries, '\n',
         '> Identity:', opts.identity)
       return signApplicationAsync(opts)
