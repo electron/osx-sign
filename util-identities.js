@@ -20,15 +20,19 @@ var Identity = module.exports.Identity = function (name, hash) {
 }
 
 /**
- * This function returns a promise checking the indentity proposed and updates the identity option to a exact finding from results.
+ * This function returns a promise of a list of matching indentities.
  * @function
  * @param {Object} opts - Options.
- * @param {string} identity - The proposed identity.
+ * @param {(string|string[])} identities - A proposed identity or a list of identities ordered by priority.
  * @returns {Promise} Promise.
  */
-module.exports.findIdentitiesAsync = function (opts, identity) {
+module.exports.findIdentitiesAsync = function (opts, identities) {
   // Only to look for valid identities, excluding those flagged with
   // CSSMERR_TP_CERT_EXPIRED or CSSMERR_TP_NOT_TRUSTED. Fixes #9
+
+  if (!Array.isArray(identities)) {
+    identities = [identities]
+  }
 
   var args = [
     'find-identity',
@@ -40,15 +44,18 @@ module.exports.findIdentitiesAsync = function (opts, identity) {
 
   return execFileAsync('security', args)
     .then(function (result) {
-      return result.split('\n').map(function (line) {
-        if (line.indexOf(identity) >= 0) {
-          var identityFound = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'))
-          var identityHashFound = line.substring(line.indexOf(')') + 2, line.indexOf('"') - 1)
-          debuglog('Identity:', '\n',
-            '> Name:', identityFound, '\n',
-            '> Hash:', identityHashFound)
-          return new Identity(identityFound, identityHashFound)
-        }
+      var resultLines = result.split('\n')
+      return identities.map(function (identity) {
+        return resultLines.map(function (line) {
+          if (line.indexOf(identity) >= 0) {
+            var identityFound = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'))
+            var identityHashFound = line.substring(line.indexOf(')') + 2, line.indexOf('"') - 1)
+            debuglog('Identity:', '\n',
+              '> Name:', identityFound, '\n',
+              '> Hash:', identityHashFound)
+            return new Identity(identityFound, identityHashFound)
+          }
+        })
       })
     })
     .then(flatList)
