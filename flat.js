@@ -15,7 +15,7 @@ const debugwarn = util.debugwarn
 const execFileAsync = util.execFileAsync
 const validateOptsAppAsync = util.validateOptsAppAsync
 const validateOptsPlatformAsync = util.validateOptsPlatformAsync
-const Identity = require('./util-identities').findIdentitiesAsync
+const Identity = require('./util-identities').Identity
 const findIdentitiesAsync = require('./util-identities').findIdentitiesAsync
 
 /**
