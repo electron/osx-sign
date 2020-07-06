@@ -181,9 +181,10 @@ macOS >= 10.13.6.
 `identity` - *String*
 
 Name of certificate to use when signing.
-Default to be selected with respect to `provisioning-profile` and `platform` from `keychain` or keychain by system default.
+Default to be auto-discovered in the specified `keychain` or the keychain by system default with respect to `type` and `platform`.
 
-Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)`, and platform `darwin` will look for `Developer ID Application: * (*)` by default.
+For development: Signing for platform `mas` will look for `Apple Development: * (*)` then `Mac Developer: * (*)`, and signing for platform `darwin` will look for `Developer ID Application: * (*)` by default.
+For distribution: Signing for platform `mas` will look for `Apple Distribution: * (*)` then `3rd Party Mac Developer Application: * (*)`, and signing for platform `darwin` will look for `Developer ID Application: * (*)` by default.
 
 `identity-validation` - *Boolean*
 
@@ -344,9 +345,9 @@ Needs file extension `.app`.
 `identity` - *String*
 
 Name of certificate to use when signing.
-Default to be selected with respect to `platform` from `keychain` or keychain by system default.
+Default to be auto-discovered in the specified `keychain` or the keychain by system default with respect to `platform`.
 
-Flattening platform `mas` will look for `3rd Party Mac Developer Installer: * (*)`, and platform `darwin` will look for `Developer ID Installer: * (*)` by default.
+Flattening for platform `mas` will look for `3rd Party Mac Developer Installer: * (*)`, and flattening for platform `darwin` will look for `Developer ID Installer: * (*)` by default.
 
 `identity-validation` - *Boolean*
 
@@ -388,7 +389,7 @@ As of release v0.3.1, external module `debug` is used to display logs and messag
 
 The project's configured to run automated tests on CircleCI.
 
-If you wish to manually test the module, first comment out `opts.identity` in `test/basic.js` to enable auto discovery. Then run the command `npm test` from the dev directory.
+If you wish to manually test the module, first comment out `opts.identity` in `test/basic.js` to enable auto-discovery. Then run the command `npm test` from the dev directory.
 
 When this command is run for the first time: `electron-download` will download macOS Electron releases defined in `test/config.json`, and save to `~/.electron/`, which might take up less than 1GB of disk space.
 

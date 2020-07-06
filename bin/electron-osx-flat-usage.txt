@@ -15,7 +15,7 @@ DESCRIPTION
 
   --identity=identity
     Name of certificate to use when signing.
-    Default to selected with respect to --platform from --keychain specified or keychain by system default.
+    Default to be auto-discovered in the specified --keychain or the keychain by system default with respect to --platform.
 
   --identity-validation, --no-identity-validation
     Flag to enable/disable validation for the signing identity.
