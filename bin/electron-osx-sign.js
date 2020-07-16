@@ -15,7 +15,8 @@ var args = require('minimist')(process.argv.slice(2), {
     'pre-embed-provisioning-profile',
     'gatekeeper-assess',
     'hardened-runtime',
-    'restrict'
+    'restrict',
+    'traverse-archives'
   ],
   'default': {
     'pre-auto-entitlements': true,
