@@ -250,6 +250,10 @@ Default to `true`.
 Specify the URL of the timestamp authority server, default to server provided by Apple. Please note that this default server may not support signatures not furnished by Apple.
 Disable the timestamp service with `none`.
 
+`traverse-archives` - *String*
+Flag to enable/disable automation of signing binaries inside zip-like archives.
+Default to `false`.
+
 `type` - *String*
 
 Specify whether to sign app for development or for distribution.
