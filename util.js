@@ -6,6 +6,7 @@
 
 const child = require('child_process')
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 
 const Promise = require('bluebird')
@@ -27,6 +28,56 @@ debugwarn.log = console.warn.bind(console)
 
 /** @function */
 const isBinaryFileAsync = module.exports.isBinaryFileAsync = Promise.promisify(require('isbinaryfile'))
+
+/**
+ * Reads the beginning of a file and returns whether it contains the signature.
+ * @function
+ * @param {string} filePath - Path to a file.
+ * @param {Buffer} signature - Binary signature in a Buffer.
+ * @returns {Promise} Whether the file starts with the signature.
+ */
+function testFileSignatureAsync (filePath, signature) {
+  // Based on isbinaryfile's implementation
+
+  return new Promise(function (resolve, reject) {
+    fs.stat(filePath, function (err, stat) {
+      if (err) return reject(err)
+      if (!stat.isFile()) return resolve(false)
+
+      fs.open(filePath, 'r', function (r_err, descriptor) {
+        if (r_err) return reject(r_err)
+        const bytes = Buffer.alloc(signature.length)
+        fs.read(descriptor, bytes, 0, bytes.length, 0, function (err, size, bytes) {
+          fs.close(descriptor, function (c_err) {
+            if (c_err) return reject(c_err)
+            // Match signature
+            resolve(size == signature.length && Buffer.compare(bytes, signature) == 0)
+          })
+        })
+      })
+    })
+  })
+}
+
+// Zip file signature taken from https://en.wikipedia.org/wiki/List_of_file_signatures
+const zipFileSignature = Buffer.from([0x50, 0x4B, 0x03, 0x04])
+
+/**
+ * Returns whether the file is a zip archive.
+ * @function
+ * @param {string} filePath - Path to a file.
+ * @returns {Promise} Whether the file is a zip archive.
+ */
+module.exports.isZipFileAsync = function (filePath) {
+  return testFileSignatureAsync(filePath, zipFileSignature)
+}
+
+let tempFileCounter = 0
+
+/** @function */
+module.exports.getTempFilePath = function (fileName) {
+  return path.join(os.tmpdir(), `tmp-${process.pid.toString(16)}-${(tempFileCounter++).toString(16)}-${fileName}`)
+}
 
 /** @function */
 const removePassword = function (input) {
@@ -66,6 +117,9 @@ module.exports.readFileAsync = Promise.promisify(fs.readFile)
 
 /** @function */
 module.exports.writeFileAsync = Promise.promisify(fs.writeFile)
+
+/** @function */
+const unlinkAsync = Promise.promisify(fs.unlink)
 
 /**
  * This function returns a flattened list of elements from an array of lists.
@@ -209,8 +263,6 @@ module.exports.validateOptsPlatformAsync = function (opts) {
  */
 module.exports.walkAsync = function (dirPath) {
   debuglog('Walking... ' + dirPath)
-
-  var unlinkAsync = Promise.promisify(fs.unlink)
 
   function _walkAsync (dirPath) {
     return readdirAsync(dirPath)

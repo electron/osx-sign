@@ -14,7 +14,9 @@ const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
 const getAppContentsPath = util.getAppContentsPath
+const getTempFilePath = util.getTempFilePath
 const execFileAsync = util.execFileAsync
+const isZipFileAsync = util.isZipFileAsync
 const validateOptsAppAsync = util.validateOptsAppAsync
 const validateOptsPlatformAsync = util.validateOptsPlatformAsync
 const walkAsync = util.walkAsync
@@ -121,6 +123,122 @@ function verifySignApplicationAsync (opts) {
 }
 
 /**
+ * Helper function to facilitate checking if to ignore signing a file.
+ * @function
+ * @param {Object} opts - Options.
+ * @param {string} filePath - The file path to check whether to ignore.
+ * @returns {boolean} Whether to ignore the file.
+ */
+function ignoreFilePath (opts, filePath) {
+  if (opts.ignore) {
+    return opts.ignore.some(function (ignore) {
+      if (typeof ignore === 'function') {
+        return ignore(filePath)
+      }
+      return filePath.match(ignore)
+    })
+  }
+  return false
+}
+
+/**
+ * Sign a zip-like archive child component of the app bundle. 
+ * This piece of automation helps to traverse zip-like archives and sign any enclosing binary files. See #229.
+ * @function
+ * @param {Object} opts - Options.
+ * @param {string[]} args - Command arguments for codesign excluding the file path.
+ * @param {string} archiveFilePath - The path to the archive. It may be outside of the app bundle.
+ * @param {string} humanReadableArchiveFilePath - A file path which may not exist but helps the user understand where it's located in the app bundle.
+ * @returns {Promise} Promise.
+ */
+function signArchiveComponentsAsync (opts, args, archiveFilePath, humanReadableArchiveFilePath = undefined) {
+  // Get temporary directory
+  const tempDir = getTempFilePath('uncompressed')
+  const tempArchive = getTempFilePath('recompressed.zip')
+
+  // Unzip the file to the temporary directory
+  debuglog(`Extracting... ${humanReadableArchiveFilePath} (real path: ${archiveFilePath}) to ${tempDir}`)
+  return execFileAsync('unzip', [
+    '-d', tempDir,
+    archiveFilePath
+  ])
+    .then(function () {
+      // Traverse the child components
+      return walkAsync(tempDir)
+    })
+    .then(function (childPaths) {
+      return Promise.mapSeries(childPaths, function (filePath) {
+        const relativePath = path.relative(tempDir, filePath)
+        const humanReadableFilePath = path.join(humanReadableArchiveFilePath, relativePath)
+        return signChildComponentAsync(opts, args, filePath, humanReadableFilePath)
+      })
+    })
+    .then(function () {
+      // Recompress a temporary archive
+      debuglog(`Recompressing temp archive... ${tempArchive}`)
+      return execFileAsync('zip', [
+        '-r',
+        tempArchive,
+        '.'
+      ], {
+        cwd: tempDir
+      })
+    })
+    .then(function () {
+      // Replace the original file
+      debuglog(`Replacing... ${humanReadableArchiveFilePath} (real path: ${archiveFilePath}) with updated archive`)
+      return execFileAsync('mv', [
+        '-f', 
+        tempArchive, 
+        archiveFilePath 
+      ])
+    })
+    .then(function () {
+      // Clean up
+      debuglog(`Removing temp directory... ${tempDir}`)
+      return execFileAsync('rm', [
+        '-rf',
+        tempDir
+      ])
+    })
+}
+
+/**
+ * Sign a child component of the app bundle.
+ * @function
+ * @param {Object} opts - Options.
+ * @param {string[]} args - Command arguments for codesign excluding the file path.
+ * @param {string} filePath - The file to codesign that must exist. It may be outside of the app bundle.
+ * @param {string} humanReadableFilePath - A file path which may not exist but helps the user understand where it's located in the app bundle. This could be a fake path to an image that's inside an archive in the app bundle, but needs uncompressing the archive first before reaching it.
+ * @returns {Promise} Promise.
+ */
+function signChildComponentAsync (opts, args, filePath, humanReadableFilePath = undefined) {
+  if (humanReadableFilePath === undefined) humanReadableFilePath = filePath
+
+  if (ignoreFilePath(opts, humanReadableFilePath)) {
+    debuglog('Skipped... ' + humanReadableFilePath)
+    return Promise.resolve()
+  }
+
+  var promise
+  if (opts['traverse-archives']) {
+    // Sign the child components if the file is an archive
+    promise = isZipFileAsync(filePath)
+      .then(function (archive) {
+        return archive ? signArchiveComponentsAsync(opts, args, filePath, humanReadableFilePath) : Promise.resolve()
+      })
+  } else {
+    promise = Promise.resolve()
+  }
+
+  return promise
+    .then(function () {
+      debuglog('Signing... ' + humanReadableFilePath)
+      return execFileAsync('codesign', args.concat(filePath))
+    })
+}
+
+/**
  * This function returns a promise codesigning only.
  * @function
  * @param {Object} opts - Options.
@@ -129,18 +247,6 @@ function verifySignApplicationAsync (opts) {
 function signApplicationAsync (opts) {
   return walkAsync(getAppContentsPath(opts))
     .then(function (childPaths) {
-      function ignoreFilePath (opts, filePath) {
-        if (opts.ignore) {
-          return opts.ignore.some(function (ignore) {
-            if (typeof ignore === 'function') {
-              return ignore(filePath)
-            }
-            return filePath.match(ignore)
-          })
-        }
-        return false
-      }
-
       if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
 
       var args = [
@@ -211,18 +317,11 @@ function signApplicationAsync (opts) {
       if (opts.entitlements) {
         // Sign with entitlements
         promise = Promise.mapSeries(childPaths, function (filePath) {
-          if (ignoreFilePath(opts, filePath)) {
-            debuglog('Skipped... ' + filePath)
-            return
-          }
-          debuglog('Signing... ' + filePath)
-
           let entitlementsFile = opts['entitlements-inherit']
           if (filePath.includes('Library/LoginItems')) {
             entitlementsFile = opts['entitlements-loginhelper']
           }
-
-          return execFileAsync('codesign', args.concat('--entitlements', entitlementsFile, filePath))
+          return signChildComponentAsync(opts, args.concat('--entitlements', entitlementsFile), filePath)
         })
           .then(function () {
             debuglog('Signing... ' + opts.app)
@@ -231,12 +330,7 @@ function signApplicationAsync (opts) {
       } else {
         // Otherwise normally
         promise = Promise.mapSeries(childPaths, function (filePath) {
-          if (ignoreFilePath(opts, filePath)) {
-            debuglog('Skipped... ' + filePath)
-            return
-          }
-          debuglog('Signing... ' + filePath)
-          return execFileAsync('codesign', args.concat(filePath))
+          return signChildComponentAsync(opts, args, filePath)
         })
           .then(function () {
             debuglog('Signing... ' + opts.app)

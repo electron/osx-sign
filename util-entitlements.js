@@ -12,6 +12,7 @@ const plist = require('plist')
 const util = require('./util')
 const debuglog = util.debuglog
 const getAppContentsPath = util.getAppContentsPath
+const getTempFilePath = util.getTempFilePath
 const readFileAsync = util.readFileAsync
 const writeFileAsync = util.writeFileAsync
 
@@ -90,7 +91,7 @@ module.exports.preAutoEntitlements = function (opts) {
             debuglog('`com.apple.security.application-groups` found in entitlements file: ' + appIdentifier)
           }
           // Create temporary entitlements file
-          const entitlementsPath = path.join(os.tmpdir(), `tmp-entitlements-${process.pid.toString(16)}-${(tmpFileCounter++).toString(16)}.plist`)
+          const entitlementsPath = getTempFilePath('entitlements.plist')
           opts.entitlements = entitlementsPath
           return writeFileAsync(entitlementsPath, plist.build(entitlements), 'utf8')
             .then(function () {
