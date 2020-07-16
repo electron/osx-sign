@@ -142,7 +142,7 @@ function ignoreFilePath (opts, filePath) {
 }
 
 /**
- * Sign a zip-like archive child component of the app bundle. 
+ * Sign a zip-like archive child component of the app bundle.
  * This piece of automation helps to traverse zip-like archives and sign any enclosing binary files. See #229.
  * @function
  * @param {Object} opts - Options.
@@ -188,9 +188,9 @@ function signArchiveComponentsAsync (opts, args, archiveFilePath, humanReadableA
       // Replace the original file
       debuglog(`Replacing... ${humanReadableArchiveFilePath} (real path: ${archiveFilePath}) with updated archive`)
       return execFileAsync('mv', [
-        '-f', 
-        tempArchive, 
-        archiveFilePath 
+        '-f',
+        tempArchive,
+        archiveFilePath
       ])
     })
     .then(function () {

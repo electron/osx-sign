@@ -44,14 +44,15 @@ function testFileSignatureAsync (filePath, signature) {
       if (err) return reject(err)
       if (!stat.isFile()) return resolve(false)
 
-      fs.open(filePath, 'r', function (r_err, descriptor) {
-        if (r_err) return reject(r_err)
+      fs.open(filePath, 'r', function (err, descriptor) {
+        if (err) return reject(err)
         const bytes = Buffer.alloc(signature.length)
         fs.read(descriptor, bytes, 0, bytes.length, 0, function (err, size, bytes) {
-          fs.close(descriptor, function (c_err) {
-            if (c_err) return reject(c_err)
+          if (err) return reject(err)
+          fs.close(descriptor, function (err) {
+            if (err) return reject(err)
             // Match signature
-            resolve(size == signature.length && Buffer.compare(bytes, signature) == 0)
+            resolve(size === signature.length && Buffer.compare(bytes, signature) === 0)
           })
         })
       })

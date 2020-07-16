@@ -4,7 +4,6 @@
 
 'use strict'
 
-const os = require('os')
 const path = require('path')
 
 const plist = require('plist')
@@ -15,8 +14,6 @@ const getAppContentsPath = util.getAppContentsPath
 const getTempFilePath = util.getTempFilePath
 const readFileAsync = util.readFileAsync
 const writeFileAsync = util.writeFileAsync
-
-let tmpFileCounter = 0
 
 /**
  * This function returns a promise completing the entitlements automation: The process includes checking in `Info.plist` for `ElectronTeamID` or setting parsed value from identity, and checking in entitlements file for `com.apple.security.application-groups` or inserting new into array. A temporary entitlements file may be created to replace the input for any changes introduced.
