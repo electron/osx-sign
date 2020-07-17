@@ -165,36 +165,39 @@ function signArchiveComponentsAsync (opts, args, archiveFilePath, humanReadableA
     .then(function () {
       // Traverse the child components
       return walkAsync(tempDir)
-    })
-    .then(function (childPaths) {
-      return Promise.mapSeries(childPaths, function (filePath) {
-        const relativePath = path.relative(tempDir, filePath)
-        const humanReadableFilePath = path.join(humanReadableArchiveFilePath, relativePath)
-        return signChildComponentAsync(opts, args, filePath, humanReadableFilePath)
-      })
+        .then(function (childPaths) {
+          return Promise.mapSeries(childPaths, function (filePath) {
+            const relativePath = path.relative(tempDir, filePath)
+            const humanReadableFilePath = path.join(humanReadableArchiveFilePath, relativePath)
+            return signChildComponentAsync(opts, args, filePath, humanReadableFilePath)
+          })
+        })
+        .then(function () {
+          // Recompress a temporary archive
+          debuglog(`Recompressing temp archive... ${tempArchive}`)
+          return execFileAsync('zip', [
+            '-r',
+            tempArchive,
+            '.'
+          ], {
+            cwd: tempDir
+          })
+        })
+        .then(function () {
+          // Replace the original file
+          debuglog(`Replacing... ${humanReadableArchiveFilePath} (real path: ${archiveFilePath}) with updated archive`)
+          return execFileAsync('mv', [
+            '-f',
+            tempArchive,
+            archiveFilePath
+          ])
+        })
+    }, function () {
+      // Error from extracting files
+      debuglog(`Failed to extract files from ${humanReadableArchiveFilePath} (real path: ${archiveFilePath}). The file probably isn't an unarchive?`)
     })
     .then(function () {
-      // Recompress a temporary archive
-      debuglog(`Recompressing temp archive... ${tempArchive}`)
-      return execFileAsync('zip', [
-        '-r',
-        tempArchive,
-        '.'
-      ], {
-        cwd: tempDir
-      })
-    })
-    .then(function () {
-      // Replace the original file
-      debuglog(`Replacing... ${humanReadableArchiveFilePath} (real path: ${archiveFilePath}) with updated archive`)
-      return execFileAsync('mv', [
-        '-f',
-        tempArchive,
-        archiveFilePath
-      ])
-    })
-    .then(function () {
-      // Clean up
+      // Final clean up
       debuglog(`Removing temp directory... ${tempDir}`)
       return execFileAsync('rm', [
         '-rf',
@@ -225,7 +228,11 @@ function signChildComponentAsync (opts, args, filePath, humanReadableFilePath = 
     // Sign the child components if the file is an archive
     promise = isZipFileAsync(filePath)
       .then(function (archive) {
-        return archive ? signArchiveComponentsAsync(opts, args, filePath, humanReadableFilePath) : Promise.resolve()
+        if (archive) {
+          debuglog(`File ${humanReadableFilePath} (real path: ${filePath}) identified as a potential archive for traversal.`)
+          return signArchiveComponentsAsync(opts, args, filePath, humanReadableFilePath)
+        }
+        return Promise.resolve()
       })
   } else {
     promise = Promise.resolve()

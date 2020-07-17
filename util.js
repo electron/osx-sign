@@ -64,7 +64,7 @@ function testFileSignatureAsync (filePath, signature) {
 const zipFileSignature = Buffer.from([0x50, 0x4B, 0x03, 0x04])
 
 /**
- * Returns whether the file is a zip archive.
+ * Returns whether the file begins with a zip file signature.
  * @function
  * @param {string} filePath - Path to a file.
  * @returns {Promise} Whether the file is a zip archive.
