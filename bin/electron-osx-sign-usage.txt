@@ -43,7 +43,7 @@ DESCRIPTION
   --identity-validation, --no-identity-validation
     Flag to enable/disable validation for the signing identity.
 
-  --ignore=path
+  --ignore=pattern/to/ignore/1,pattern/to/ignore/2
     Path to skip signing. The string will be treated as a regular expression when used to match the file paths.
 
   --keychain=keychain
@@ -86,8 +86,9 @@ DESCRIPTION
     Specify the URL of the timestamp authority server, default to server provided by Apple.
     Disable the timestamp service with ``none''.
 
-  --traverse-archives
-    Flag to enable/disable automation of signing binaries inside zip-like archives.
+  --traverse-archives, --traverse-archives=pattern/to/archive/1,pattern/to/archive/2
+    Option to enable automation of signing binaries inside zip-like archives.
+    Not specifying any pattern will lead to marking all binary files as potential zip-like archives.
     Disabled by default.
 
   --type=type

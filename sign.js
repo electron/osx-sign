@@ -68,6 +68,10 @@ function validateSignOptsAsync (opts) {
     opts['type'] = 'distribution'
   }
 
+  if (opts['traverse-archives'] && typeof opts['traverse-archives'] !== 'boolean' && !(opts['traverse-archives'] instanceof Array)) {
+    opts['traverse-archives'] = [opts['traverse-archives']]
+  }
+
   return Promise.map([
     validateOptsAppAsync,
     validateOptsPlatformAsync,
@@ -136,6 +140,26 @@ function ignoreFilePath (opts, filePath) {
         return ignore(filePath)
       }
       return filePath.match(ignore)
+    })
+  }
+  return false
+}
+
+/***
+ * Helper function to facilitate whether to consider traversing a potential archive.
+ * @function
+ * @param {Object} opts - Options.
+ * @param {string} humanReadableFilePath - The file path to check whether to include for traversal.
+ * @returns {boolean} Whether to consider the potential archive for traversal.
+ */
+function shouldConsiderTraversingArchive (opts, humanReadableFilePath) {
+  if (opts['traverse-archives']) {
+    if (opts['traverse-archives'] === true) return true
+    return opts['traverse-archives'].some(function (include) {
+      if (typeof include === 'function') {
+        return include(humanReadableFilePath)
+      }
+      return humanReadableFilePath.match(include)
     })
   }
   return false
@@ -224,7 +248,7 @@ function signChildComponentAsync (opts, args, filePath, humanReadableFilePath = 
   }
 
   var promise
-  if (opts['traverse-archives']) {
+  if (shouldConsiderTraversingArchive(opts, humanReadableFilePath)) {
     // Sign the child components if the file is an archive
     promise = isZipFileAsync(filePath)
       .then(function (archive) {

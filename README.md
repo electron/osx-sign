@@ -195,7 +195,7 @@ Default to `true`.
 The keychain name.
 Default to system default keychain.
 
-`ignore` - *RegExp|Function|Array.<(RegExp|Function)>*
+`ignore` - *String|RegExp|Function|Array.<(String|RegExp|Function)>*
 
 Regex, function or an array of regex's and functions that signal skipping signing a file.
 Elements of other types are treated as `RegExp`.
@@ -250,8 +250,9 @@ Default to `true`.
 Specify the URL of the timestamp authority server, default to server provided by Apple. Please note that this default server may not support signatures not furnished by Apple.
 Disable the timestamp service with `none`.
 
-`traverse-archives` - *String*
-Flag to enable/disable automation of signing binaries inside zip-like archives.
+`traverse-archives` - *Boolean|String|RegExp|Function|Array.<(String|RegExp|Function)>*
+Option to enable automation of signing binaries inside zip-like archives.
+Not specifying any pattern will lead to marking all binary files as potential zip-like archives.
 Default to `false`.
 
 `type` - *String*
