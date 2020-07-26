@@ -10,6 +10,7 @@ const path = require('path')
 
 const Promise = require('bluebird')
 const debug = require('debug')
+const { isBinaryFile } = require('isbinaryfile')
 
 /**
  * This callback is used across signing and flattening.
@@ -24,9 +25,6 @@ debuglog.log = console.log.bind(console)
 /** @function */
 const debugwarn = module.exports.debugwarn = debug('electron-osx-sign:warn')
 debugwarn.log = console.warn.bind(console)
-
-/** @function */
-const isBinaryFileAsync = module.exports.isBinaryFileAsync = Promise.promisify(require('isbinaryfile'))
 
 /** @function */
 const removePassword = function (input) {
@@ -154,11 +152,10 @@ var detectElectronPlatformAsync = module.exports.detectElectronPlatformAsync = f
  * @param {string} filePath - Path to file.
  * @returns {Promise} Promise resolving file path or undefined.
  */
-var getFilePathIfBinaryAsync = module.exports.getFilePathIfBinaryAsync = function (filePath) {
-  return isBinaryFileAsync(filePath)
-    .then(function (isBinary) {
-      return isBinary ? filePath : undefined
-    })
+async function getFilePathIfBinaryAsync (filePath) {
+  if (await isBinaryFile(filePath)) {
+    return filePath
+  }
 }
 
 /**

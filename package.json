@@ -21,7 +21,7 @@
     "bluebird": "^3.5.0",
     "compare-version": "^0.1.2",
     "debug": "^4.1.1",
-    "isbinaryfile": "^3.0.2",
+    "isbinaryfile": "^4.0.6",
     "minimist": "^1.2.0",
     "plist": "^3.0.1"
   },
