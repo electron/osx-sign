@@ -4,6 +4,7 @@
 
 'use strict'
 
+const { promises: fs } = require('fs')
 const path = require('path')
 
 const Promise = require('bluebird')
@@ -14,10 +15,7 @@ const debuglog = util.debuglog
 const debugwarn = util.debugwarn
 const getAppContentsPath = util.getAppContentsPath
 const flatList = util.flatList
-const copyFileAsync = util.copyFileAsync
 const execFileAsync = util.execFileAsync
-const lstatAsync = util.lstatAsync
-const readdirAsync = util.readdirAsync
 
 /**
  * @constructor
@@ -91,10 +89,10 @@ var findProvisioningProfilesAsync = module.exports.findProvisioningProfilesAsync
   return Promise.map([
     process.cwd() // Current working directory
   ], function (dirPath) {
-    return readdirAsync(dirPath)
+    return fs.readdir(dirPath)
       .map(function (name) {
         var filePath = path.join(dirPath, name)
-        return lstatAsync(filePath)
+        return fs.lstat(filePath)
           .then(function (stat) {
             if (stat.isFile()) {
               switch (path.extname(filePath)) {
@@ -129,7 +127,7 @@ module.exports.preEmbedProvisioningProfile = function (opts) {
     if (opts['provisioning-profile']) {
       debuglog('Looking for existing provisioning profile...')
       var embeddedFilePath = path.join(getAppContentsPath(opts), 'embedded.provisionprofile')
-      return lstatAsync(embeddedFilePath)
+      return fs.lstat(embeddedFilePath)
         .then(function (stat) {
           debuglog('Found embedded provisioning profile:', '\n',
             '* Please manually remove the existing file if not wanted.', '\n',
@@ -139,7 +137,7 @@ module.exports.preEmbedProvisioningProfile = function (opts) {
           if (err.code === 'ENOENT') {
             // File does not exist
             debuglog('Embedding provisioning profile...')
-            return copyFileAsync(opts['provisioning-profile'].filePath, embeddedFilePath)
+            return fs.copyFile(opts['provisioning-profile'].filePath, embeddedFilePath)
           } else throw err
         })
     }

@@ -5,7 +5,7 @@
 'use strict'
 
 const child = require('child_process')
-const fs = require('fs')
+const { promises: fs } = require('fs')
 const path = require('path')
 
 const Promise = require('bluebird')
@@ -53,18 +53,7 @@ module.exports.execFileAsync = function (file, args, options) {
   })
 }
 
-/** @function */
-const lstatAsync = module.exports.lstatAsync = Promise.promisify(fs.lstat)
-
-/** @function */
-const readdirAsync = module.exports.readdirAsync = Promise.promisify(fs.readdir)
-
-/** @function */
-module.exports.readFileAsync = Promise.promisify(fs.readFile)
-
-/** @function */
-module.exports.writeFileAsync = Promise.promisify(fs.writeFile)
-
+// TODO: Simplify with Array.prototype.flat when minimum Node version is >= 12
 /**
  * This function returns a flattened list of elements from an array of lists.
  * @function
@@ -106,44 +95,21 @@ var getAppFrameworksPath = module.exports.getAppFrameworksPath = function (opts)
 }
 
 /**
- * This function returns a promise copying a file from the source to the target.
- * @function
- * @param {string} source - Source path.
- * @param {string} target - Target path.
- * @returns {Promise} Promise.
- */
-module.exports.copyFileAsync = function (source, target) {
-  debuglog('Copying file...', '\n',
-    '> Source:', source, '\n',
-    '> Target:', target)
-  return new Promise(function (resolve, reject) {
-    var readStream = fs.createReadStream(source)
-    readStream.on('error', reject)
-    var writeStream = fs.createWriteStream(target)
-    writeStream.on('error', reject)
-    writeStream.on('close', resolve)
-    readStream.pipe(writeStream)
-  })
-}
-
-/**
  * This function returns a promise with platform resolved.
  * @function
  * @param {Object} opts - Options.
  * @returns {Promise} Promise resolving platform.
  */
-var detectElectronPlatformAsync = module.exports.detectElectronPlatformAsync = function (opts) {
-  return new Promise(function (resolve) {
-    var appFrameworksPath = getAppFrameworksPath(opts)
-    // The presence of Squirrel.framework identifies a Mac App Store build as used in https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md
-    return lstatAsync(path.join(appFrameworksPath, 'Squirrel.framework'))
-      .then(function () {
-        resolve('darwin')
-      })
-      .catch(function () {
-        resolve('mas')
-      })
-  })
+async function detectElectronPlatformAsync (opts) {
+  const appFrameworksPath = getAppFrameworksPath(opts)
+  // The presence of Squirrel.framework identifies a Mac App Store build, see
+  // https://github.com/electron/electron/blob/2fb14f53fe8c04397a49d32fb293547db27916ed/BUILD.gn#L484-L509
+  try {
+    await fs.lstat(path.join(appFrameworksPath, 'Squirrel.framework'))
+    return 'darwin'
+  } catch {
+    return 'mas'
+  }
 }
 
 /**
@@ -164,15 +130,15 @@ async function getFilePathIfBinaryAsync (filePath) {
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-module.exports.validateOptsAppAsync = function (opts) {
+module.exports.validateOptsAppAsync = async function (opts) {
   if (!opts.app) {
-    return Promise.reject(new Error('Path to aplication must be specified.'))
+    throw new Error('Path to application must be specified.')
   }
   if (path.extname(opts.app) !== '.app') {
-    return Promise.reject(new Error('Extension of application must be `.app`.'))
+    throw new Error('Extension of application must be `.app`.')
   }
-  return lstatAsync(opts.app)
-    .thenReturn()
+
+  await fs.lstat(opts.app)
 }
 
 /**
@@ -181,7 +147,7 @@ module.exports.validateOptsAppAsync = function (opts) {
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-module.exports.validateOptsPlatformAsync = function (opts) {
+module.exports.validateOptsPlatformAsync = async function (opts) {
   if (opts.platform) {
     if (opts.platform === 'mas' || opts.platform === 'darwin') {
       return Promise.resolve()
@@ -192,10 +158,7 @@ module.exports.validateOptsPlatformAsync = function (opts) {
     debugwarn('No `platform` passed in arguments, checking Electron platform...')
   }
 
-  return detectElectronPlatformAsync(opts)
-    .then(function (platform) {
-      opts.platform = platform
-    })
+  opts.platform = await detectElectronPlatformAsync(opts)
 }
 
 /**
@@ -207,20 +170,18 @@ module.exports.validateOptsPlatformAsync = function (opts) {
 module.exports.walkAsync = function (dirPath) {
   debuglog('Walking... ' + dirPath)
 
-  var unlinkAsync = Promise.promisify(fs.unlink)
-
   function _walkAsync (dirPath) {
-    return readdirAsync(dirPath)
+    return fs.readdir(dirPath)
       .then(function (names) {
         return Promise.map(names, function (name) {
           var filePath = path.join(dirPath, name)
-          return lstatAsync(filePath)
+          return fs.lstat(filePath)
             .then(function (stat) {
               if (stat.isFile()) {
                 switch (path.extname(filePath)) {
                   case '.cstemp': // Temporary file generated from past codesign
                     debuglog('Removing... ' + filePath)
-                    return unlinkAsync(filePath)
+                    return fs.unlink(filePath)
                       .thenReturn(undefined)
                   default:
                     return getFilePathIfBinaryAsync(filePath)

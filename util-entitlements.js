@@ -4,6 +4,7 @@
 
 'use strict'
 
+const { promises: fs } = require('fs')
 const os = require('os')
 const path = require('path')
 
@@ -12,8 +13,6 @@ const plist = require('plist')
 const util = require('./util')
 const debuglog = util.debuglog
 const getAppContentsPath = util.getAppContentsPath
-const readFileAsync = util.readFileAsync
-const writeFileAsync = util.writeFileAsync
 
 let tmpFileCounter = 0
 
@@ -32,7 +31,7 @@ module.exports.preAutoEntitlements = function (opts) {
   debuglog('Automating entitlement app group...', '\n',
     '> Info.plist:', appInfoPath, '\n',
     '> Entitlements:', opts.entitlements)
-  return readFileAsync(opts.entitlements, 'utf8')
+  return fs.readFile(opts.entitlements, 'utf8')
     .then(function (result) {
       entitlements = plist.parse(result)
       if (!entitlements['com.apple.security.app-sandbox']) {
@@ -40,7 +39,7 @@ module.exports.preAutoEntitlements = function (opts) {
         return
       }
 
-      return readFileAsync(appInfoPath, 'utf8')
+      return fs.readFile(appInfoPath, 'utf8')
         .then(function (result) {
           appInfo = plist.parse(result)
           // Use ElectronTeamID in Info.plist if already specified
@@ -55,7 +54,7 @@ module.exports.preAutoEntitlements = function (opts) {
               appInfo.ElectronTeamID = opts.identity.name.substring(opts.identity.name.indexOf('(') + 1, opts.identity.name.lastIndexOf(')'))
               debuglog('`ElectronTeamID` not found in `Info.plist`, use parsed from signing identity: ' + appInfo.ElectronTeamID)
             }
-            return writeFileAsync(appInfoPath, plist.build(appInfo), 'utf8')
+            return fs.writeFile(appInfoPath, plist.build(appInfo), 'utf8')
               .then(function () {
                 debuglog('`Info.plist` updated:', '\n',
                   '> Info.plist:', appInfoPath)
@@ -92,7 +91,7 @@ module.exports.preAutoEntitlements = function (opts) {
           // Create temporary entitlements file
           const entitlementsPath = path.join(os.tmpdir(), `tmp-entitlements-${process.pid.toString(16)}-${(tmpFileCounter++).toString(16)}.plist`)
           opts.entitlements = entitlementsPath
-          return writeFileAsync(entitlementsPath, plist.build(entitlements), 'utf8')
+          return fs.writeFile(entitlementsPath, plist.build(entitlements), 'utf8')
             .then(function () {
               debuglog('Entitlements file updated:', '\n',
                 '> Entitlements:', entitlementsPath)
