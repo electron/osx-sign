@@ -1,3 +1,4 @@
+const { callbackify } = require('util')
 var path = require('path')
 var test = require('tape')
 
@@ -6,7 +7,7 @@ var mkdirp = require('mkdirp')
 var rimraf = require('rimraf')
 var series = require('run-series')
 var compareVersion = require('compare-version')
-var extract = require('extract-zip')
+var extract = callbackify(require('extract-zip'))
 
 var config = require('./config')
 

@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "electron-download": "^4.1.0",
-    "extract-zip": "^1.6.5",
+    "extract-zip": "^2.0.1",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.6.1",
     "run-series": "^1.1.4",
@@ -46,6 +46,6 @@
     ]
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=10.17.0"
   }
 }
