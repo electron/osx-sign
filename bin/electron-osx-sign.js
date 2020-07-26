@@ -3,13 +3,13 @@
 var fs = require('fs')
 var path = require('path')
 var args = require('minimist')(process.argv.slice(2), {
-  'string': [
+  string: [
     'signature-flags'
   ],
-  'number': [
+  number: [
     'signature-size'
   ],
-  'boolean': [
+  boolean: [
     'help',
     'pre-auto-entitlements',
     'pre-embed-provisioning-profile',
@@ -17,7 +17,7 @@ var args = require('minimist')(process.argv.slice(2), {
     'hardened-runtime',
     'restrict'
   ],
-  'default': {
+  default: {
     'pre-auto-entitlements': true,
     'pre-embed-provisioning-profile': true,
     'gatekeeper-assess': true

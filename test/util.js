@@ -47,7 +47,7 @@ exports.downloadElectrons = function downloadElectrons (callback) {
     return function (cb) {
       download(release, function (err, zipPath) {
         if (err) return callback(err)
-        extract(zipPath, {dir: path.join(WORK_CWD, exports.generateReleaseName(release))}, cb)
+        extract(zipPath, { dir: path.join(WORK_CWD, exports.generateReleaseName(release)) }, cb)
       })
     }
   }), callback)

@@ -78,7 +78,7 @@ var flatList = module.exports.flatList = function (list) {
     if (!Array.isArray(list)) {
       result.push(list)
     } else if (list.length > 0) {
-      for (let item of list) if (item) populateResult(item)
+      for (const item of list) if (item) populateResult(item)
     }
   }
 

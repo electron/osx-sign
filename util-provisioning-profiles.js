@@ -31,7 +31,7 @@ var ProvisioningProfile = module.exports.ProvisioningProfile = function (filePat
 
 Object.defineProperty(ProvisioningProfile.prototype, 'name', {
   get: function () {
-    return this.message['Name']
+    return this.message.Name
   }
 })
 
@@ -151,7 +151,7 @@ module.exports.preEmbedProvisioningProfile = function (opts) {
     if (opts['provisioning-profile'] instanceof ProvisioningProfile) {
       return embedProvisioningProfile()
     } else {
-      return getProvisioningProfileAsync(opts['provisioning-profile'], opts['keychain'])
+      return getProvisioningProfileAsync(opts['provisioning-profile'], opts.keychain)
         .then(function (provisioningProfile) {
           opts['provisioning-profile'] = provisioningProfile
         })

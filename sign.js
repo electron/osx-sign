@@ -60,10 +60,10 @@ function validateSignOptsAsync (opts) {
     if (typeof opts['provisioning-profile'] !== 'string' && !(opts['provisioning-profile'] instanceof ProvisioningProfile)) return Promise.reject(new Error('Path to provisioning profile should be a string or a ProvisioningProfile object.'))
   }
 
-  if (opts['type']) {
-    if (opts['type'] !== 'development' && opts['type'] !== 'distribution') return Promise.reject(new Error('Type must be either `development` or `distribution`.'))
+  if (opts.type) {
+    if (opts.type !== 'development' && opts.type !== 'distribution') return Promise.reject(new Error('Type must be either `development` or `distribution`.'))
   } else {
-    opts['type'] = 'distribution'
+    opts.type = 'distribution'
   }
 
   return Promise.map([
@@ -95,8 +95,8 @@ function verifySignApplicationAsync (opts) {
       compareVersion(osRelease, '15.0.0') >= 0 // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
         ? ['--strict' +
             (opts['strict-verify']
-             ? '=' + opts['strict-verify'] // Array should be converted to a comma separated string
-             : '')]
+              ? '=' + opts['strict-verify'] // Array should be converted to a comma separated string
+              : '')]
         : [],
       ['--verbose=2', opts.app]))
 
@@ -188,7 +188,7 @@ function signApplicationAsync (opts) {
         }
       }
 
-      if (opts['restrict']) {
+      if (opts.restrict) {
         optionsArguments.push('restrict')
         debugwarn('This flag is to be deprecated, consider using --signature-flags=restrict instead')
       }
