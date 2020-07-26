@@ -28,7 +28,6 @@
   "devDependencies": {
     "electron-download": "^4.1.0",
     "extract-zip": "^2.0.1",
-    "mkdirp": "^0.5.1",
     "rimraf": "^2.6.1",
     "run-series": "^1.1.4",
     "run-waterfall": "^1.1.3",

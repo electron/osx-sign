@@ -3,7 +3,7 @@ var path = require('path')
 var test = require('tape')
 
 var download = require('electron-download')
-var mkdirp = require('mkdirp')
+const fs = require('fs')
 var rimraf = require('rimraf')
 var series = require('run-series')
 var compareVersion = require('compare-version')
@@ -56,7 +56,7 @@ exports.downloadElectrons = function downloadElectrons (callback) {
 
 exports.setup = function setup () {
   test('setup', function (t) {
-    mkdirp(WORK_CWD, function (err) {
+    fs.mkdir(WORK_CWD, { recursive: true }, function (err) {
       if (err) {
         t.end(err)
       } else {
