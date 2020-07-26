@@ -27,8 +27,6 @@
   },
   "devDependencies": {
     "electron-download": "^4.1.0",
-    "eslint": "^4.2.0",
-    "eslint-config-eslint": "^4.0.0",
     "extract-zip": "^1.6.5",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.6.1",
