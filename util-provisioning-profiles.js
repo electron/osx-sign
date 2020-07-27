@@ -10,36 +10,41 @@ const plist = require('plist')
 
 const { debuglog, debugwarn, execFileAsync, getAppContentsPath } = require('./util')
 
-/**
- * @constructor
- * @param {string} filePath - Path to provisioning profile.
- * @param {Object} message - Decoded message in provisioning profile.
- */
-var ProvisioningProfile = module.exports.ProvisioningProfile = function (filePath, message) {
-  this.filePath = filePath
-  this.message = message
-}
+class ProvisioningProfile {
+  /**
+   * @constructor
+   * @param {string} filePath - Path to provisioning profile.
+   * @param {Object} message - Decoded message in provisioning profile.
+   */
+  constructor(filePath, message) {
+    this.filePath = filePath
+    this.message = message
+  }
 
-Object.defineProperty(ProvisioningProfile.prototype, 'name', {
-  get: function () {
+  get name() {
     return this.message.Name
   }
-})
 
-Object.defineProperty(ProvisioningProfile.prototype, 'platforms', {
-  get: function () {
-    if ('ProvisionsAllDevices' in this.message) return ['darwin'] // Developer ID
-    else if (this.type === 'distribution') return ['mas'] // Mac App Store
-    else return ['darwin', 'mas'] // Mac App Development
+  get platforms() {
+    if ('ProvisionsAllDevices' in this.message) {
+      return ['darwin'] // Developer ID
+    } else if (this.type === 'distribution') {
+      return ['mas'] // Mac App Store
+    } else {
+      return ['darwin', 'mas'] // Mac App Development
+    }
   }
-})
 
-Object.defineProperty(ProvisioningProfile.prototype, 'type', {
-  get: function () {
-    if ('ProvisionedDevices' in this.message) return 'development' // Mac App Development
-    else return 'distribution' // Developer ID or Mac App Store
+  get type() {
+    if ('ProvisionedDevices' in this.message) {
+      return 'development' // Mac App Development
+    } else {
+      return 'distribution' // Developer ID or Mac App Store
+    }
   }
-})
+}
+
+module.exports.ProvisioningProfile = ProvisioningProfile
 
 /**
  * Returns a promise resolving to a ProvisioningProfile instance based on file.
