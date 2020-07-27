@@ -6,15 +6,9 @@
 
 const { promises: fs } = require('fs')
 const path = require('path')
-
-const Promise = require('bluebird')
 const plist = require('plist')
 
-const util = require('./util')
-const debuglog = util.debuglog
-const debugwarn = util.debugwarn
-const getAppContentsPath = util.getAppContentsPath
-const execFileAsync = util.execFileAsync
+const { debuglog, debugwarn, execFileAsync, getAppContentsPath } = require('./util')
 
 /**
  * @constructor
