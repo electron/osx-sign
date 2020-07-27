@@ -16,16 +16,16 @@ class ProvisioningProfile {
    * @param {string} filePath - Path to provisioning profile.
    * @param {Object} message - Decoded message in provisioning profile.
    */
-  constructor(filePath, message) {
+  constructor (filePath, message) {
     this.filePath = filePath
     this.message = message
   }
 
-  get name() {
+  get name () {
     return this.message.Name
   }
 
-  get platforms() {
+  get platforms () {
     if ('ProvisionsAllDevices' in this.message) {
       return ['darwin'] // Developer ID
     } else if (this.type === 'distribution') {
@@ -35,7 +35,7 @@ class ProvisioningProfile {
     }
   }
 
-  get type() {
+  get type () {
     if ('ProvisionedDevices' in this.message) {
       return 'development' // Mac App Development
     } else {
@@ -53,8 +53,8 @@ module.exports.ProvisioningProfile = ProvisioningProfile
  * @param {string} keychain - Keychain to use when unlocking provisioning profile.
  * @returns {Promise} Promise.
  */
-var getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = function (filePath, keychain = null) {
-  var securityArgs = [
+const getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = async function (filePath, keychain = null) {
+  const securityArgs = [
     'cms',
     '-D', // Decode a CMS message
     '-i', filePath // Use infile as source of data
@@ -64,17 +64,15 @@ var getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = f
     securityArgs.push('-k', keychain)
   }
 
-  return execFileAsync('security', securityArgs)
-    .then(function (result) {
-      var provisioningProfile = new ProvisioningProfile(filePath, plist.parse(result))
-      debuglog('Provisioning profile:', '\n',
-        '> Name:', provisioningProfile.name, '\n',
-        '> Platforms:', provisioningProfile.platforms, '\n',
-        '> Type:', provisioningProfile.type, '\n',
-        '> Path:', provisioningProfile.filePath, '\n',
-        '> Message:', provisioningProfile.message)
-      return provisioningProfile
-    })
+  const result = await execFileAsync('security', securityArgs)
+  const provisioningProfile = new ProvisioningProfile(filePath, plist.parse(result))
+  debuglog('Provisioning profile:', '\n',
+    '> Name:', provisioningProfile.name, '\n',
+    '> Platforms:', provisioningProfile.platforms, '\n',
+    '> Type:', provisioningProfile.type, '\n',
+    '> Path:', provisioningProfile.filePath, '\n',
+    '> Message:', provisioningProfile.message)
+  return provisioningProfile
 }
 
 /**
@@ -102,63 +100,58 @@ const findProvisioningProfilesAsync = module.exports.findProvisioningProfilesAsy
   return provisioningProfiles
 }
 
+async function embedProvisioningProfile (opts) {
+  if (opts['provisioning-profile']) {
+    debuglog('Looking for existing provisioning profile...')
+    const embeddedFilePath = path.join(getAppContentsPath(opts), 'embedded.provisionprofile')
+    try {
+      await fs.lstat(embeddedFilePath)
+      debuglog('Found embedded provisioning profile:', '\n',
+        '* Please manually remove the existing file if not wanted.', '\n',
+        '* Current file at:', embeddedFilePath)
+    } catch (err) {
+      if (err.code === 'ENOENT') { // File does not exist
+        debuglog('Embedding provisioning profile...')
+        await fs.copyFile(opts['provisioning-profile'].filePath, embeddedFilePath)
+      } else {
+        throw err
+      }
+    }
+  }
+}
+
 /**
  * Returns a promise embedding the provisioning profile in the app Contents folder.
  * @function
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-module.exports.preEmbedProvisioningProfile = function (opts) {
-  function embedProvisioningProfile () {
-    if (opts['provisioning-profile']) {
-      debuglog('Looking for existing provisioning profile...')
-      var embeddedFilePath = path.join(getAppContentsPath(opts), 'embedded.provisionprofile')
-      return fs.lstat(embeddedFilePath)
-        .then(function (stat) {
-          debuglog('Found embedded provisioning profile:', '\n',
-            '* Please manually remove the existing file if not wanted.', '\n',
-            '* Current file at:', embeddedFilePath)
-        })
-        .catch(function (err) {
-          if (err.code === 'ENOENT') {
-            // File does not exist
-            debuglog('Embedding provisioning profile...')
-            return fs.copyFile(opts['provisioning-profile'].filePath, embeddedFilePath)
-          } else throw err
-        })
-    }
-  }
-
+module.exports.preEmbedProvisioningProfile = async function (opts) {
   if (opts['provisioning-profile']) {
     // User input provisioning profile
     debuglog('`provisioning-profile` passed in arguments.')
     if (opts['provisioning-profile'] instanceof ProvisioningProfile) {
-      return embedProvisioningProfile()
+      await embedProvisioningProfile(opts)
     } else {
-      return getProvisioningProfileAsync(opts['provisioning-profile'], opts.keychain)
-        .then(function (provisioningProfile) {
-          opts['provisioning-profile'] = provisioningProfile
-        })
-        .then(embedProvisioningProfile)
+      opts['provisioning-profile'] = await getProvisioningProfileAsync(opts['provisioning-profile'], opts.keychain)
+      await embedProvisioningProfile(opts)
     }
   } else {
     // Discover provisioning profile
     debuglog('No `provisioning-profile` passed in arguments, will find in current working directory and in user library...')
-    return findProvisioningProfilesAsync(opts)
-      .then(function (provisioningProfiles) {
-        if (provisioningProfiles.length > 0) {
-          // Provisioning profile(s) found
-          if (provisioningProfiles.length > 1) {
-            debuglog('Multiple provisioning profiles found, will use the first discovered.')
-          } else {
-            debuglog('Found 1 provisioning profile.')
-          }
-          opts['provisioning-profile'] = provisioningProfiles[0]
-        } else {
-          // No provisioning profile found
-          debuglog('No provisioning profile found, will not embed profile in app contents.')
-        }
-      })
-      .then(embedProvisioningProfile)
+    const provisioningProfiles = await findProvisioningProfilesAsync(opts)
+    if (provisioningProfiles.length > 0) {
+      // Provisioning profile(s) found
+      if (provisioningProfiles.length > 1) {
+        debuglog('Multiple provisioning profiles found, will use the first discovered.')
+      } else {
+        debuglog('Found 1 provisioning profile.')
+      }
+      opts['provisioning-profile'] = provisioningProfiles[0]
+    } else {
+      // No provisioning profile found
+      debuglog('No provisioning profile found, will not embed profile in app contents.')
+    }
+    await embedProvisioningProfile(opts)
   }
 }
