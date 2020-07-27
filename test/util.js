@@ -17,7 +17,6 @@ var WORK_CWD = path.join(__dirname, 'work')
 var versions = config.versions
 var archs = ['x64']
 var platforms = ['darwin', 'mas']
-var slice = Array.prototype.slice
 
 var releases = []
 versions.forEach(function (version) {
@@ -80,12 +79,11 @@ exports.forEachRelease = function forEachRelease (cb) {
   releases.forEach(cb)
 }
 
-exports.testAllReleases = function testAllReleases (name, createTest /*, ...createTestArgs */) {
-  var args = slice.call(arguments, 2)
+exports.testAllReleases = function testAllReleases (name, createTest, ...createTestArgs) {
   exports.setup()
   exports.forEachRelease(function (release) {
     test(name + ':' + exports.generateReleaseName(release),
-      createTest.apply(null, [release].concat(args)))
+      createTest.apply(null, [release].concat(createTestArgs)))
   })
   exports.teardown()
 }
