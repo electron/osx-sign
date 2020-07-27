@@ -85,35 +85,23 @@ var getProvisioningProfileAsync = module.exports.getProvisioningProfileAsync = f
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-var findProvisioningProfilesAsync = module.exports.findProvisioningProfilesAsync = function (opts) {
-  return Promise.map([
-    process.cwd() // Current working directory
-  ], function (dirPath) {
-    return fs.readdir(dirPath)
-      .map(function (name) {
-        var filePath = path.join(dirPath, name)
-        return fs.lstat(filePath)
-          .then(function (stat) {
-            if (stat.isFile()) {
-              switch (path.extname(filePath)) {
-                case '.provisionprofile':
-                  return filePath
-              }
-            }
-            return undefined
-          })
-      })
-  })
-    .then(flatList)
-    .map(function (filePath) {
-      return getProvisioningProfileAsync(filePath)
-        .then(function (provisioningProfile) {
-          if (provisioningProfile.platforms.indexOf(opts.platform) >= 0 && provisioningProfile.type === opts.type) return provisioningProfile
-          debugwarn('Provisioning profile above ignored, not for ' + opts.platform + ' ' + opts.type + '.')
-          return undefined
-        })
-    })
-    .then(flatList)
+const findProvisioningProfilesAsync = module.exports.findProvisioningProfilesAsync = async function (opts) {
+  const provisioningProfiles = []
+  const dirPath = process.cwd()
+  for (const name of await fs.readdir(dirPath)) {
+    const filePath = path.join(dirPath, name)
+    const stat = await fs.lstat(filePath)
+    if (stat.isFile() && path.extname(filePath) === '.provisionprofile') {
+      const provisioningProfile = await getProvisioningProfileAsync(filePath)
+      if (provisioningProfile.platforms.includes(opts.platform) && provisioningProfile.type === opts.type) {
+        provisioningProfiles.push(provisioningProfile)
+      } else {
+        debugwarn(`Provisioning profile above ignored, not for ${opts.platform} ${opts.type}.`)
+      }
+    }
+  }
+
+  return provisioningProfiles
 }
 
 /**
