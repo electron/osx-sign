@@ -14,7 +14,6 @@ const util = require('./util')
 const debuglog = util.debuglog
 const debugwarn = util.debugwarn
 const getAppContentsPath = util.getAppContentsPath
-const flatList = util.flatList
 const execFileAsync = util.execFileAsync
 
 /**
