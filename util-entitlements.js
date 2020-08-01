@@ -10,9 +10,7 @@ const path = require('path')
 
 const plist = require('plist')
 
-const util = require('./util')
-const debuglog = util.debuglog
-const getAppContentsPath = util.getAppContentsPath
+const { debuglog, getAppContentsPath } = require('./util')
 
 let tmpFileCounter = 0
 

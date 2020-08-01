@@ -4,10 +4,7 @@
 
 'use strict'
 
-const util = require('./util')
-const debuglog = util.debuglog
-const flatList = util.flatList
-const execFileAsync = util.execFileAsync
+const { debuglog, execFileAsync, flatList } = require('./util')
 
 /**
  * @constructor

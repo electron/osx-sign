@@ -10,19 +10,10 @@ const Promise = require('bluebird')
 const compareVersion = require('compare-version')
 
 const pkg = require('./package.json')
-const util = require('./util')
-const debuglog = util.debuglog
-const debugwarn = util.debugwarn
-const getAppContentsPath = util.getAppContentsPath
-const execFileAsync = util.execFileAsync
-const validateOptsAppAsync = util.validateOptsAppAsync
-const validateOptsPlatformAsync = util.validateOptsPlatformAsync
-const walkAsync = util.walkAsync
-const Identity = require('./util-identities').Identity
-const findIdentitiesAsync = require('./util-identities').findIdentitiesAsync
-const ProvisioningProfile = require('./util-provisioning-profiles').ProvisioningProfile
-const preEmbedProvisioningProfile = require('./util-provisioning-profiles').preEmbedProvisioningProfile
-const preAutoEntitlements = require('./util-entitlements').preAutoEntitlements
+const { debuglog, debugwarn, getAppContentsPath, execFileAsync, validateOptsAppAsync, validateOptsPlatformAsync, walkAsync } = require('./util')
+const { findIdentitiesAsync, Identity } = require('./util-identities')
+const { preAutoEntitlements } = require('./util-entitlements')
+const { preEmbedProvisioningProfile, ProvisioningProfile } = require('./util-provisioning-profiles')
 
 const osRelease = require('os').release()
 

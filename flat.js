@@ -9,14 +9,8 @@ const path = require('path')
 const Promise = require('bluebird')
 
 const pkg = require('./package.json')
-const util = require('./util')
-const debuglog = util.debuglog
-const debugwarn = util.debugwarn
-const execFileAsync = util.execFileAsync
-const validateOptsAppAsync = util.validateOptsAppAsync
-const validateOptsPlatformAsync = util.validateOptsPlatformAsync
-const Identity = require('./util-identities').findIdentitiesAsync
-const findIdentitiesAsync = require('./util-identities').findIdentitiesAsync
+const { debuglog, debugwarn, execFileAsync, validateOptsAppAsync, validateOptsPlatformAsync } = require('./util')
+const { findIdentitiesAsync, Identity } = require('./util-identities')
 
 /**
  * This function returns a promise validating all options passed in opts.
