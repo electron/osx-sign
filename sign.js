@@ -88,11 +88,10 @@ async function verifySignApplicationAsync (opts) {
   await execFileAsync('codesign', [
     '--verify',
     '--deep',
-    ...strictVerifyArgs(opts),
+    ...strictVerifyArg(opts),
     '--verbose=2',
     opts.app
-  ]
-)
+  ])
 
   // Additionally test Gatekeeper acceptance for darwin platform
   if (opts.platform === 'darwin' && opts['gatekeeper-assess'] !== false) {
