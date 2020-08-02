@@ -66,49 +66,46 @@ function validateSignOptsAsync (opts) {
   })
 }
 
+function strictVerifyArg (opts) {
+  // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
+  if (opts['strict-verify'] !== false && compareVersion(osRelease, '15.0.0') >= 0) {
+    // strict-verify Array value should be converted to a comma-separated string
+    return [opts['strict-verify'] ? `--strict=${opts['strict-verify']}` : '--strict']
+  }
+
+  return []
+}
+
 /**
  * This function returns a promise verifying the code sign of application bundle.
  * @function
  * @param {Object} opts - Options.
  * @returns {Promise} Promise resolving output.
  */
-function verifySignApplicationAsync (opts) {
-  // Verify with codesign
-  var compareVersion = require('compare-version')
+async function verifySignApplicationAsync (opts) {
   debuglog('Verifying application bundle with codesign...')
 
-  var promise = execFileAsync('codesign', [
+  await execFileAsync('codesign', [
     '--verify',
-    '--deep'
+    '--deep',
+    ...strictVerifyArgs(opts),
+    '--verbose=2',
+    opts.app
   ]
-    .concat(
-      opts['strict-verify'] !== false &&
-      compareVersion(osRelease, '15.0.0') >= 0 // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
-        ? ['--strict' +
-            (opts['strict-verify']
-              ? '=' + opts['strict-verify'] // Array should be converted to a comma separated string
-              : '')]
-        : [],
-      ['--verbose=2', opts.app]))
+)
 
   // Additionally test Gatekeeper acceptance for darwin platform
   if (opts.platform === 'darwin' && opts['gatekeeper-assess'] !== false) {
-    promise = promise
-      .then(function () {
-        debuglog('Verifying Gatekeeper acceptance for darwin platform...')
-        return execFileAsync('spctl', [
-          '--assess',
-          '--type', 'execute',
-          '--verbose',
-          '--ignore-cache',
-          '--no-cache',
-          opts.app
-        ])
-      })
+    debuglog('Verifying Gatekeeper acceptance for darwin platform...')
+    await execFileAsync('spctl', [
+      '--assess',
+      '--type', 'execute',
+      '--verbose',
+      '--ignore-cache',
+      '--no-cache',
+      opts.app
+    ])
   }
-
-  return promise
-    .thenReturn()
 }
 
 function ignoreFilePath (opts, filePath) {
