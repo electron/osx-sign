@@ -111,159 +111,149 @@ function verifySignApplicationAsync (opts) {
     .thenReturn()
 }
 
+function ignoreFilePath (opts, filePath) {
+  if (opts.ignore) {
+    return opts.ignore.some(function (ignore) {
+      if (typeof ignore === 'function') {
+        return ignore(filePath)
+      }
+      return filePath.match(ignore)
+    })
+  }
+  return false
+}
+
+/**
+ * Parse signature flags if it is given as a comma-delimited string.
+ */
+function parseSignatureFlags (signatureFlags) {
+  if (Array.isArray(signatureFlags)) {
+    return signatureFlags
+  } else {
+    return signatureFlags.split(',').map(flag => flag.trim())
+  }
+}
+
+function determineEntitlementsFile (opts, filePath) {
+  if (filePath.includes('Library/LoginItems')) {
+    return opts['entitlements-loginhelper']
+  } else {
+    return opts['entitlements-inherit']
+  }
+}
+
+/**
+ * Generate the codesign args for signing a file and the app, depending on whether entitlements
+ * were provided.
+ */
+function generateCodesignArgs (baseArgs, pathToSign, opts) {
+  if (opts.entitlements) {
+    return baseArgs.concat('--entitlements', determineEntitlementsFile(opts, pathToSign), pathToSign)
+  } else {
+    return baseArgs.concat(pathToSign)
+  }
+}
+
 /**
  * This function returns a promise codesigning only.
  * @function
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-function signApplicationAsync (opts) {
-  return pathsToSignAsync(getAppContentsPath(opts))
-    .then(function (childPaths) {
-      function ignoreFilePath (opts, filePath) {
-        if (opts.ignore) {
-          return opts.ignore.some(function (ignore) {
-            if (typeof ignore === 'function') {
-              return ignore(filePath)
-            }
-            return filePath.match(ignore)
-          })
-        }
-        return false
-      }
+async function signApplicationAsync (opts) {
+  let childPaths = await pathsToSignAsync(getAppContentsPath(opts))
+  if (opts.binaries) {
+    childPaths.push.apply(childPaths, opts.binaries)
+  }
 
-      if (opts.binaries) childPaths = childPaths.concat(opts.binaries)
+  const args = [
+    '--sign', opts.identity.hash || opts.identity.name,
+    '--force'
+  ]
+  if (opts.keychain) {
+    args.push('--keychain', opts.keychain)
+  }
+  if (opts.requirements) {
+    args.push('--requirements', opts.requirements)
+  }
+  if (opts.timestamp) {
+    args.push('--timestamp=' + opts.timestamp)
+  } else {
+    args.push('--timestamp')
+  }
+  if (opts['signature-size']) {
+    if (Number.isInteger(opts['signature-size']) && opts['signature-size'] > 0) {
+      args.push('--signature-size', opts['signature-size'])
+    } else {
+      debugwarn(`Invalid value provided for --signature-size (${opts['signature-size']}). Must be a positive integer.`)
+    }
+  }
 
-      var args = [
-        '--sign', opts.identity.hash || opts.identity.name,
-        '--force'
-      ]
-      if (opts.keychain) {
-        args.push('--keychain', opts.keychain)
-      }
-      if (opts.requirements) {
-        args.push('--requirements', opts.requirements)
-      }
-      if (opts.timestamp) {
-        args.push('--timestamp=' + opts.timestamp)
-      } else {
-        args.push('--timestamp')
-      }
-      if (opts['signature-size']) {
-        if (Number.isInteger(opts['signature-size']) && opts['signature-size'] > 0) {
-          args.push('--signature-size', opts['signature-size'])
-        } else {
-          debugwarn(`Invalid value provided for --signature-size (${opts['signature-size']}). Must be a positive integer.`)
-        }
-      }
+  let optionsArguments = []
 
-      let optionsArguments = []
+  if (opts['signature-flags']) {
+    optionsArguments.push.apply(optionsArguments, parseSignatureFlags(opts['signature-flags']))
+  }
 
-      if (opts['signature-flags']) {
-        if (Array.isArray(opts['signature-flags'])) {
-          optionsArguments = [...opts['signature-flags']]
-        } else {
-          const flags = opts['signature-flags'].split(',').map(function (flag) { return flag.trim() })
-          optionsArguments = [...flags]
-        }
-      }
+  if (opts.hardenedRuntime || opts['hardened-runtime'] || optionsArguments.includes('runtime')) {
+    // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
+    if (compareVersion(osRelease, '17.7.0') >= 0) {
+      optionsArguments.push('runtime')
+    } else {
+      // Remove runtime if passed in with --signature-flags
+      debuglog('Not enabling hardened runtime, current macOS version too low, requires 10.13.6 and higher')
+      optionsArguments = optionsArguments.filter(function (element, index) { return element !== 'runtime' })
+    }
+  }
 
-      if (opts.hardenedRuntime || opts['hardened-runtime'] || optionsArguments.includes('runtime')) {
-        // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
-        if (compareVersion(osRelease, '17.7.0') >= 0) {
-          optionsArguments.push('runtime')
-        } else {
-          // Remove runtime if passed in with --signature-flags
-          debuglog('Not enabling hardened runtime, current macOS version too low, requires 10.13.6 and higher')
-          optionsArguments = optionsArguments.filter(function (element, index) { return element !== 'runtime' })
-        }
-      }
+  if (opts.restrict) {
+    optionsArguments.push('restrict')
+    debugwarn('This flag is to be deprecated, consider using --signature-flags=restrict instead')
+  }
 
-      if (opts.restrict) {
-        optionsArguments.push('restrict')
-        debugwarn('This flag is to be deprecated, consider using --signature-flags=restrict instead')
-      }
+  if (optionsArguments.length) {
+    args.push('--options', [...new Set(optionsArguments)].join(','))
+  }
 
-      if (optionsArguments.length) {
-        args.push('--options', [...new Set(optionsArguments)].join(','))
-      }
+  /**
+   * Sort the child paths by how deep they are in the file tree.  Some arcane apple
+   * logic expects the deeper files to be signed first otherwise strange errors get
+   * thrown our way
+   */
+  childPaths = childPaths.sort((a, b) => {
+    const aDepth = a.split(path.sep).length
+    const bDepth = b.split(path.sep).length
+    return bDepth - aDepth
+  })
 
-      var promise
-      /**
-       * Sort the child paths by how deep they are in the file tree.  Some arcane apple
-       * logic expects the deeper files to be signed first otherwise strange errors get
-       * thrown our way
-       */
-      childPaths = childPaths.sort((a, b) => {
-        const aDepth = a.split(path.sep).length
-        const bDepth = b.split(path.sep).length
-        return bDepth - aDepth
-      })
-      if (opts.entitlements) {
-        // Sign with entitlements
-        promise = Promise.mapSeries(childPaths, function (filePath) {
-          if (ignoreFilePath(opts, filePath)) {
-            debuglog('Skipped... ' + filePath)
-            return
-          }
-          debuglog('Signing... ' + filePath)
+  for (const filePath of childPaths) {
+    if (ignoreFilePath(opts, filePath)) {
+      debuglog(`Skipped... ${filePath}`)
+      return
+    }
 
-          let entitlementsFile = opts['entitlements-inherit']
-          if (filePath.includes('Library/LoginItems')) {
-            entitlementsFile = opts['entitlements-loginhelper']
-          }
+    debuglog(`Signing... ${filePath}`)
+    await execFileAsync('codesign', generateCodesignArgs(args, filePath, opts))
+  }
 
-          return execFileAsync('codesign', args.concat('--entitlements', entitlementsFile, filePath))
-        })
-          .then(function () {
-            debuglog('Signing... ' + opts.app)
-            return execFileAsync('codesign', args.concat('--entitlements', opts.entitlements, opts.app))
-          })
-      } else {
-        // Otherwise normally
-        promise = Promise.mapSeries(childPaths, function (filePath) {
-          if (ignoreFilePath(opts, filePath)) {
-            debuglog('Skipped... ' + filePath)
-            return
-          }
-          debuglog('Signing... ' + filePath)
-          return execFileAsync('codesign', args.concat(filePath))
-        })
-          .then(function () {
-            debuglog('Signing... ' + opts.app)
-            return execFileAsync('codesign', args.concat(opts.app))
-          })
-      }
+  debuglog(`Signing... ${opts.app}`)
+  await execFileAsync('codesign', generateCodesignArgs(args, opts.app, opts))
 
-      return promise
-        .then(function () {
-          // Verify code sign
-          debuglog('Verifying...')
-          var promise = verifySignApplicationAsync(opts)
-            .then(function (result) {
-              debuglog('Verified.')
-            })
+  // Verify code sign
+  debuglog('Verifying...')
+  await verifySignApplicationAsync(opts)
+  debuglog('Verified.')
 
-          // Check entitlements if applicable
-          if (opts.entitlements) {
-            promise = promise
-              .then(function () {
-                debuglog('Displaying entitlements...')
-                return execFileAsync('codesign', [
-                  '--display',
-                  '--entitlements', ':-', // Write to standard output and strip off the blob header
-                  opts.app
-                ])
-              })
-              .then(function (result) {
-                debuglog('Entitlements:', '\n',
-                  result)
-              })
-          }
-
-          return promise
-        })
-    })
+  // Check entitlements if applicable
+  if (opts.entitlements) {
+    debuglog('Displaying entitlements...')
+    const result = await execFileAsync('codesign', [
+      '--display',
+      '--entitlements', ':-', // Write to standard output and strip off the blob header
+      opts.app
+    ])
+    debuglog('Entitlements:\n', result)
+  }
 }
 
 /**
