@@ -18,22 +18,17 @@ const { preEmbedProvisioningProfile, ProvisioningProfile } = require('./util-pro
 const osRelease = require('os').release()
 
 /**
- * This function returns a promise validating opts.binaries, the additional binaries to be signed along with the discovered enclosed components.
+ * Validates opts.binaries, the additional binaries to be signed along with the discovered enclosed components.
  * @function
  * @param {Object} opts - Options.
- * @returns {Promise} Promise.
  */
-function validateOptsBinariesAsync (opts) {
-  return new Promise(function (resolve, reject) {
-    if (opts.binaries) {
-      if (!Array.isArray(opts.binaries)) {
-        reject(new Error('Additional binaries should be an Array.'))
-        return
-      }
-      // TODO: Presence check for binary files, reject if any does not exist
+function validateOptsBinaries (opts) {
+  if (opts.binaries) {
+    if (!Array.isArray(opts.binaries)) {
+      throw new Error('Additional binaries should be an Array.')
     }
-    resolve()
-  })
+    // TODO: Presence check for binary files, reject if any does not exist
+  }
 }
 
 /**
@@ -42,28 +37,26 @@ function validateOptsBinariesAsync (opts) {
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-function validateSignOptsAsync (opts) {
+async function validateSignOptsAsync (opts) {
   if (opts.ignore && !(opts.ignore instanceof Array)) {
     opts.ignore = [opts.ignore]
   }
 
-  if (opts['provisioning-profile']) {
-    if (typeof opts['provisioning-profile'] !== 'string' && !(opts['provisioning-profile'] instanceof ProvisioningProfile)) return Promise.reject(new Error('Path to provisioning profile should be a string or a ProvisioningProfile object.'))
+  if (opts['provisioning-profile'] && typeof opts['provisioning-profile'] !== 'string' && !(opts['provisioning-profile'] instanceof ProvisioningProfile)) {
+    throw new Error('Path to provisioning profile should be a string or a ProvisioningProfile object.')
   }
 
   if (opts.type) {
-    if (opts.type !== 'development' && opts.type !== 'distribution') return Promise.reject(new Error('Type must be either `development` or `distribution`.'))
+    if (opts.type !== 'development' && opts.type !== 'distribution') {
+      throw new Error('Type must be either `development` or `distribution`.')
+    }
   } else {
     opts.type = 'distribution'
   }
 
-  return Promise.map([
-    validateOptsAppAsync,
-    validateOptsPlatformAsync,
-    validateOptsBinariesAsync
-  ], function (validate) {
-    return validate(opts)
-  })
+  await validateOptsAppAsync(opts)
+  await validateOptsPlatformAsync(opts)
+  validateOptsBinaries(opts)
 }
 
 function strictVerifyArg (opts) {
