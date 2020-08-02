@@ -48,3 +48,16 @@ module.exports.findIdentitiesAsync = async function (opts, identity) {
 
   return identities
 }
+
+module.exports.determineIdentityForSigning = async function (identities) {
+  switch (identities.length) {
+    case 0: throw new Error('No identity found for signing.')
+    case 1:
+      debuglog('Found 1 identity.')
+      break
+    default:
+      debugwarn('Multiple identities found, will use the first discovered.')
+      break
+  }
+  return identities[0]
+}

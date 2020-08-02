@@ -9,7 +9,7 @@ const path = require('path')
 
 const pkg = require('./package.json')
 const { debuglog, debugwarn, getAppContentsPath, execFileAsync, pathsToSignAsync, validateOptsAppAsync, validateOptsPlatformAsync } = require('./util')
-const { findIdentitiesAsync, Identity } = require('./util-identities')
+const { determineIdentityForSigning, findIdentitiesAsync, Identity } = require('./util-identities')
 const { preAutoEntitlements } = require('./util-entitlements')
 const { preEmbedProvisioningProfile, ProvisioningProfile } = require('./util-provisioning-profiles')
 
@@ -250,6 +250,7 @@ async function determineIdentitiesForSigning (opts) {
       if (!(opts.identity instanceof Identity)) {
         opts.identity = new Identity(opts.identity)
       }
+      return [opts.identity]
     }
     return findIdentitiesAsync(opts, opts.identity)
   } else {
@@ -257,30 +258,16 @@ async function determineIdentitiesForSigning (opts) {
     if (opts.platform === 'mas') {
       if (opts.type === 'distribution') {
         debuglog('Finding `3rd Party Mac Developer Application` certificate for signing app distribution in the Mac App Store...')
-        await findIdentitiesAsync(opts, '3rd Party Mac Developer Application:')
+        return findIdentitiesAsync(opts, '3rd Party Mac Developer Application:')
       } else {
         debuglog('Finding `Mac Developer` certificate for signing app in development for the Mac App Store signing...')
-        await findIdentitiesAsync(opts, 'Mac Developer:')
+        return findIdentitiesAsync(opts, 'Mac Developer:')
       }
     } else {
       debuglog('Finding `Developer ID Application` certificate for distribution outside the Mac App Store...')
-      await findIdentitiesAsync(opts, 'Developer ID Application:')
+      return findIdentitiesAsync(opts, 'Developer ID Application:')
     }
   }
-}
-
-async function determineIdentityForSigning (opts) {
-  const identities = await determineIdentitiesForSigning(opts)
-  switch (identities.length) {
-    case 0: throw new Error('No identity found for signing.')
-    case 1:
-      debuglog('Found 1 identity.')
-      break
-    default:
-      debugwarn('Multiple identities found, will use the first discovered.')
-      break
-  }
-  return identities[0]
 }
 
 function setupEntitlementsForSigning (opts) {
@@ -370,7 +357,7 @@ async function executePreSignOperations (opts) {
 const signAsync = module.exports.signAsync = async function (opts) {
   debuglog('electron-osx-sign@%s', pkg.version)
   await validateSignOptsAsync(opts)
-  opts.identity = await determineIdentityForSigning(opts)
+  opts.identity = await determineIdentityForSigning(await determineIdentitiesForSigning(opts))
   setupEntitlementsForSigning(opts)
   await executePreSignOperations(opts)
   debuglog('Signing application...', '\n',
