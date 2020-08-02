@@ -60,17 +60,17 @@ module.exports.execFileAsync = function (file, args, options) {
  * @param {*} list - List.
  * @returns Flattened list.
  */
-module.exports.flatList = function (list) {
-  function populateResult (list) {
-    if (!Array.isArray(list)) {
-      result.push(list)
-    } else if (list.length > 0) {
-      for (const item of list) if (item) populateResult(item)
+const flatList = module.exports.flatList = function (list, result = []) {
+  if (Array.isArray(list)) {
+    for (const item of list) {
+      if (item) {
+        flatList(item, result)
+      }
     }
+  } else {
+    result.push(list)
   }
 
-  var result = []
-  populateResult(list)
   return result
 }
 
