@@ -155,7 +155,7 @@ module.exports.validateOptsPlatformAsync = async function (opts) {
  * @param {string} dirPath - The directory to search.
  * @returns {Promise<string[]>} The child paths needing signing in depth-first order.
  */
-module.exports.pathsToSignAsync = async function (dirPath) {
+const pathsToSignAsync = module.exports.pathsToSignAsync = async function (dirPath) {
   debuglog(`Walking... ${dirPath}`)
   const pathsToSign = []
 
