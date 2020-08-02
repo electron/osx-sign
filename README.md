@@ -111,7 +111,7 @@ sign({
 })
 ```
 
-From release v0.4.0-beta, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
+From release v0.4.0-beta, Promises are introduced for better async method calls; the following is also available for use.
 
 ```javascript
 var signAsync = require('electron-osx-sign').signAsync
@@ -306,7 +306,7 @@ flat({
 })
 ```
 
-From release v0.4.0-beta, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
+From release v0.4.0-beta, Promises are introduced for better async method calls; the following is also available for use.
 
 ```javascript
 var flatAsync = require('electron-osx-sign').flatAsync
@@ -441,7 +441,6 @@ ok 10 app signed
 - [electron-packager] - Package your electron app in OS executables (.app, .exe, etc) via JS or CLI
 - [electron-builder] - A complete solution to package and build a ready for distribution Electron app with “auto update” support out of the box
 
-[Bluebird]: https://github.com/petkaantonov/bluebird
 [Electron]: https://github.com/electron/electron
 [electron-builder]: https://github.com/electron-userland/electron-builder
 [electron-packager]: https://github.com/electron-userland/electron-packager

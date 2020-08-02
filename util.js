@@ -5,12 +5,10 @@
 'use strict'
 
 const child = require('child_process')
-const { promises: fs } = require('fs')
-const path = require('path')
-
-const Promise = require('bluebird')
 const debug = require('debug')
 const { isBinaryFile } = require('isbinaryfile')
+const { promises: fs } = require('fs')
+const path = require('path')
 
 /**
  * This callback is used across signing and flattening.
