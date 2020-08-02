@@ -60,7 +60,7 @@ module.exports.execFileAsync = function (file, args, options) {
  * @param {*} list - List.
  * @returns Flattened list.
  */
-var flatList = module.exports.flatList = function (list) {
+module.exports.flatList = function (list) {
   function populateResult (list) {
     if (!Array.isArray(list)) {
       result.push(list)
@@ -113,18 +113,6 @@ async function detectElectronPlatformAsync (opts) {
 }
 
 /**
- * This function returns a promise resolving the file path if file binary.
- * @function
- * @param {string} filePath - Path to file.
- * @returns {Promise} Promise resolving file path or undefined.
- */
-async function getFilePathIfBinaryAsync (filePath) {
-  if (await isBinaryFile(filePath)) {
-    return filePath
-  }
-}
-
-/**
  * This function returns a promise validating opts.app, the application to be signed or flattened.
  * @function
  * @param {Object} opts - Options.
@@ -162,46 +150,35 @@ module.exports.validateOptsPlatformAsync = async function (opts) {
 }
 
 /**
- * This function returns a promise resolving all child paths within the directory specified.
+ * Finds all of the subpaths that need to be signed.
  * @function
- * @param {string} dirPath - Path to directory.
- * @returns {Promise} Promise resolving child paths needing signing in order.
+ * @param {string} dirPath - The directory to search.
+ * @returns {Promise<string[]>} The child paths needing signing in depth-first order.
  */
-module.exports.walkAsync = function (dirPath) {
-  debuglog('Walking... ' + dirPath)
+module.exports.pathsToSignAsync = async function (dirPath) {
+  debuglog(`Walking... ${dirPath}`)
+  const pathsToSign = []
 
-  function _walkAsync (dirPath) {
-    return fs.readdir(dirPath)
-      .then(function (names) {
-        return Promise.map(names, function (name) {
-          var filePath = path.join(dirPath, name)
-          return fs.lstat(filePath)
-            .then(function (stat) {
-              if (stat.isFile()) {
-                switch (path.extname(filePath)) {
-                  case '.cstemp': // Temporary file generated from past codesign
-                    debuglog('Removing... ' + filePath)
-                    return fs.unlink(filePath)
-                      .thenReturn(undefined)
-                  default:
-                    return getFilePathIfBinaryAsync(filePath)
-                }
-              } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
-                return _walkAsync(filePath)
-                  .then(function (result) {
-                    switch (path.extname(filePath)) {
-                      case '.app': // Application
-                      case '.framework': // Framework
-                        result.push(filePath)
-                    }
-                    return result
-                  })
-              }
-            })
-        })
-      })
+  for (const name of await fs.readdir(dirPath)) {
+    const filePath = path.join(dirPath, name)
+    const stat = await fs.lstat(filePath)
+    if (stat.isFile()) {
+      if (path.extname(filePath) === '.cstemp') {
+        // Temporary file generated from past codesign
+        debuglog('Removing... ' + filePath)
+        await fs.unlink(filePath)
+      } else if (await isBinaryFile(filePath)) {
+        pathsToSign.push(filePath)
+      }
+    } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
+      pathsToSign.push.apply(pathsToSign, await pathsToSignAsync(filePath))
+      switch (path.extname(filePath)) {
+        case '.app': // Application
+        case '.framework': // Framework
+          pathsToSign.push(filePath)
+      }
+    }
   }
 
-  return _walkAsync(dirPath)
-    .then(flatList)
+  return pathsToSign
 }
