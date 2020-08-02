@@ -4,10 +4,8 @@
 
 'use strict'
 
-const path = require('path')
-
-const Promise = require('bluebird')
 const compareVersion = require('compare-version')
+const path = require('path')
 
 const pkg = require('./package.json')
 const { debuglog, debugwarn, getAppContentsPath, execFileAsync, pathsToSignAsync, validateOptsAppAsync, validateOptsPlatformAsync } = require('./util')
@@ -245,159 +243,147 @@ async function signApplicationAsync (opts) {
   }
 }
 
+async function determineIdentitiesForSigning (opts) {
+  if (opts.identity) {
+    debuglog('`identity` passed in arguments.')
+    if (opts['identity-validation'] === false) {
+      if (!(opts.identity instanceof Identity)) {
+        opts.identity = new Identity(opts.identity)
+      }
+    }
+    return findIdentitiesAsync(opts, opts.identity)
+  } else {
+    debugwarn('No `identity` passed in arguments...')
+    if (opts.platform === 'mas') {
+      if (opts.type === 'distribution') {
+        debuglog('Finding `3rd Party Mac Developer Application` certificate for signing app distribution in the Mac App Store...')
+        await findIdentitiesAsync(opts, '3rd Party Mac Developer Application:')
+      } else {
+        debuglog('Finding `Mac Developer` certificate for signing app in development for the Mac App Store signing...')
+        await findIdentitiesAsync(opts, 'Mac Developer:')
+      }
+    } else {
+      debuglog('Finding `Developer ID Application` certificate for distribution outside the Mac App Store...')
+      await findIdentitiesAsync(opts, 'Developer ID Application:')
+    }
+  }
+}
+
+async function determineIdentityForSigning (opts) {
+  const identities = await determineIdentitiesForSigning(opts)
+  switch (identities.length) {
+    case 0: throw new Error('No identity found for signing.')
+    case 1:
+      debuglog('Found 1 identity.')
+      break
+    default:
+      debugwarn('Multiple identities found, will use the first discovered.')
+      break
+  }
+  return identities[0]
+}
+
+function setupEntitlementsForSigning (opts) {
+  // Determine entitlements for code signing
+  if (opts.platform === 'mas') {
+    // To sign apps for Mac App Store, an entitlements file is required, especially for app sandboxing (as well some other services).
+    // Fallback entitlements for sandboxing by default: Note this may cause troubles while running an signed app due to missing keys special to the project.
+    // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
+    if (!opts.entitlements) {
+      const filePath = path.join(__dirname, 'default.entitlements.mas.plist')
+      debugwarn('No `entitlements` passed in arguments:', '\n',
+        '* Sandbox entitlements are required for Mac App Store distribution, your codesign entitlements file is default to:', filePath)
+      opts.entitlements = filePath
+    }
+    if (!opts['entitlements-inherit']) {
+      const filePath = path.join(__dirname, 'default.entitlements.mas.inherit.plist')
+      debugwarn('No `entitlements-inherit` passed in arguments:', '\n',
+        '* Sandbox entitlements file for enclosed app files is default to:', filePath)
+      opts['entitlements-inherit'] = filePath
+    }
+    // The default value for opts['entitlements-file'] will be processed later
+  } else {
+    // Not necessary to have entitlements for non Mac App Store distribution
+    if (!opts.entitlements) {
+      debugwarn('No `entitlements` passed in arguments:', '\n',
+        '* Provide `entitlements` to specify entitlements file for codesign.')
+    } else {
+      // If entitlements is provided as a boolean flag, fallback to default
+      if (opts.entitlements === true) {
+        const filePath = path.join(__dirname, 'default.entitlements.darwin.plist')
+        debugwarn('`entitlements` not specified in arguments:', '\n',
+          '* Provide `entitlements` to specify entitlements file for codesign.', '\n',
+          '* Entitlements file is default to:', filePath)
+        opts.entitlements = filePath
+      }
+      if (!opts['entitlements-inherit']) {
+        const filePath = path.join(__dirname, 'default.entitlements.darwin.inherit.plist')
+        debugwarn('No `entitlements-inherit` passed in arguments:', '\n',
+          '* Entitlements file for enclosed app files is default to:', filePath)
+        opts['entitlements-inherit'] = filePath
+      }
+      // The default value for opts['entitlements-file'] will be processed later
+    }
+  }
+}
+
+async function executePreSignOperations (opts) {
+  if (opts['pre-embed-provisioning-profile'] === false) {
+    debugwarn('Pre-sign operation disabled for provisioning profile embedding:', '\n',
+      '* Enable by setting `pre-embed-provisioning-profile` to `true`.')
+  } else {
+    debuglog('Pre-sign operation enabled for provisioning profile:', '\n',
+      '* Disable by setting `pre-embed-provisioning-profile` to `false`.')
+    await preEmbedProvisioningProfile(opts)
+  }
+
+  if (opts['pre-auto-entitlements'] === false) {
+    debugwarn('Pre-sign operation disabled for entitlements automation.')
+  } else {
+    debuglog('Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`:', '\n',
+      '* Disable by setting `pre-auto-entitlements` to `false`.')
+    if (opts.entitlements && (!opts.version || compareVersion(opts.version, '1.1.1') >= 0)) {
+      // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
+      await preAutoEntitlements(opts)
+    }
+  }
+
+  // preAutoEntitlements may update opts.entitlements,
+  // so we wait after it's done before giving opts['entitlements-loginhelper'] its default value
+  if (opts.entitlements) {
+    if (!opts['entitlements-loginhelper']) {
+      // Default to App Sandbox enabled
+      const filePath = opts.entitlements
+      debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
+        '* Entitlements file for login helper is default to:', filePath)
+      opts['entitlements-loginhelper'] = filePath
+    }
+  }
+}
+
 /**
  * This function returns a promise signing the application.
  * @function
  * @param {mixed} opts - Options.
  * @returns {Promise} Promise.
  */
-var signAsync = module.exports.signAsync = function (opts) {
+const signAsync = module.exports.signAsync = async function (opts) {
   debuglog('electron-osx-sign@%s', pkg.version)
-  return validateSignOptsAsync(opts)
-    .then(function () {
-      // Determine identity for signing
-      var promise
-      if (opts.identity) {
-        debuglog('`identity` passed in arguments.')
-        if (opts['identity-validation'] === false) {
-          if (!(opts.identity instanceof Identity)) {
-            opts.identity = new Identity(opts.identity)
-          }
-          return Promise.resolve()
-        }
-        promise = findIdentitiesAsync(opts, opts.identity)
-      } else {
-        debugwarn('No `identity` passed in arguments...')
-        if (opts.platform === 'mas') {
-          if (opts.type === 'distribution') {
-            debuglog('Finding `3rd Party Mac Developer Application` certificate for signing app distribution in the Mac App Store...')
-            promise = findIdentitiesAsync(opts, '3rd Party Mac Developer Application:')
-          } else {
-            debuglog('Finding `Mac Developer` certificate for signing app in development for the Mac App Store signing...')
-            promise = findIdentitiesAsync(opts, 'Mac Developer:')
-          }
-        } else {
-          debuglog('Finding `Developer ID Application` certificate for distribution outside the Mac App Store...')
-          promise = findIdentitiesAsync(opts, 'Developer ID Application:')
-        }
-      }
-      return promise
-        .then(function (identities) {
-          if (identities.length > 0) {
-            // Identity(/ies) found
-            if (identities.length > 1) {
-              debugwarn('Multiple identities found, will use the first discovered.')
-            } else {
-              debuglog('Found 1 identity.')
-            }
-            opts.identity = identities[0]
-          } else {
-            // No identity found
-            return Promise.reject(new Error('No identity found for signing.'))
-          }
-        })
-    })
-    .then(function () {
-      // Determine entitlements for code signing
-      var filePath
-      if (opts.platform === 'mas') {
-        // To sign apps for Mac App Store, an entitlements file is required, especially for app sandboxing (as well some other services).
-        // Fallback entitlements for sandboxing by default: Note this may cause troubles while running an signed app due to missing keys special to the project.
-        // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
-        if (!opts.entitlements) {
-          filePath = path.join(__dirname, 'default.entitlements.mas.plist')
-          debugwarn('No `entitlements` passed in arguments:', '\n',
-            '* Sandbox entitlements are required for Mac App Store distribution, your codesign entitlements file is default to:', filePath)
-          opts.entitlements = filePath
-        }
-        if (!opts['entitlements-inherit']) {
-          filePath = path.join(__dirname, 'default.entitlements.mas.inherit.plist')
-          debugwarn('No `entitlements-inherit` passed in arguments:', '\n',
-            '* Sandbox entitlements file for enclosed app files is default to:', filePath)
-          opts['entitlements-inherit'] = filePath
-        }
-        // The default value for opts['entitlements-file'] will be processed later
-      } else {
-        // Not necessary to have entitlements for non Mac App Store distribution
-        if (!opts.entitlements) {
-          debugwarn('No `entitlements` passed in arguments:', '\n',
-            '* Provide `entitlements` to specify entitlements file for codesign.')
-        } else {
-          // If entitlements is provided as a boolean flag, fallback to default
-          if (opts.entitlements === true) {
-            filePath = path.join(__dirname, 'default.entitlements.darwin.plist')
-            debugwarn('`entitlements` not specified in arguments:', '\n',
-              '* Provide `entitlements` to specify entitlements file for codesign.', '\n',
-              '* Entitlements file is default to:', filePath)
-            opts.entitlements = filePath
-          }
-          if (!opts['entitlements-inherit']) {
-            filePath = path.join(__dirname, 'default.entitlements.darwin.inherit.plist')
-            debugwarn('No `entitlements-inherit` passed in arguments:', '\n',
-              '* Entitlements file for enclosed app files is default to:', filePath)
-            opts['entitlements-inherit'] = filePath
-          }
-          // The default value for opts['entitlements-file'] will be processed later
-        }
-      }
-    })
-    .then(function () {
-      // Pre-sign operations
-      var preSignOperations = []
-
-      if (opts['pre-embed-provisioning-profile'] === false) {
-        debugwarn('Pre-sign operation disabled for provisioning profile embedding:', '\n',
-          '* Enable by setting `pre-embed-provisioning-profile` to `true`.')
-      } else {
-        debuglog('Pre-sign operation enabled for provisioning profile:', '\n',
-          '* Disable by setting `pre-embed-provisioning-profile` to `false`.')
-        preSignOperations.push(preEmbedProvisioningProfile)
-      }
-
-      if (opts['pre-auto-entitlements'] === false) {
-        debugwarn('Pre-sign operation disabled for entitlements automation.')
-      } else {
-        debuglog('Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`:', '\n',
-          '* Disable by setting `pre-auto-entitlements` to `false`.')
-        if (opts.entitlements && (!opts.version || compareVersion(opts.version, '1.1.1') >= 0)) {
-          // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
-          preSignOperations.push(preAutoEntitlements)
-        }
-      }
-
-      // preAutoEntitlements may update opts.entitlements,
-      // so we wait after it's done before giving opts['entitlements-loginhelper'] its default value
-      preSignOperations.push(function (opts) {
-        if (opts.entitlements) {
-          if (!opts['entitlements-loginhelper']) {
-            // Default to App Sandbox enabled
-            const filePath = opts.entitlements
-            debugwarn('No `entitlements-loginhelper` passed in arguments:', '\n',
-              '* Entitlements file for login helper is default to:', filePath)
-            opts['entitlements-loginhelper'] = filePath
-          }
-        }
-      })
-
-      return Promise.mapSeries(preSignOperations, function (preSignOperation) {
-        return preSignOperation(opts)
-      })
-    })
-    .then(function () {
-      debuglog('Signing application...', '\n',
-        '> Application:', opts.app, '\n',
-        '> Platform:', opts.platform, '\n',
-        '> Entitlements:', opts.entitlements, '\n',
-        '> Child entitlements:', opts['entitlements-inherit'], '\n',
-        '> Login helper entitlements:', opts['entitlements-loginhelper'], '\n',
-        '> Additional binaries:', opts.binaries, '\n',
-        '> Identity:', opts.identity)
-      return signApplicationAsync(opts)
-    })
-    .then(function () {
-      // Post-sign operations
-      debuglog('Application signed.')
-    })
+  await validateSignOptsAsync(opts)
+  opts.identity = await determineIdentityForSigning(opts)
+  setupEntitlementsForSigning(opts)
+  await executePreSignOperations(opts)
+  debuglog('Signing application...', '\n',
+    '> Application:', opts.app, '\n',
+    '> Platform:', opts.platform, '\n',
+    '> Entitlements:', opts.entitlements, '\n',
+    '> Child entitlements:', opts['entitlements-inherit'], '\n',
+    '> Login helper entitlements:', opts['entitlements-loginhelper'], '\n',
+    '> Additional binaries:', opts.binaries, '\n',
+    '> Identity:', opts.identity)
+  await signApplicationAsync(opts)
+  // Post-sign operations
+  debuglog('Application signed.')
 }
 
 /**
@@ -408,11 +394,11 @@ var signAsync = module.exports.signAsync = function (opts) {
  */
 module.exports.sign = function (opts, cb) {
   signAsync(opts)
-    .then(function () {
+    .then(() => {
       debuglog('Application signed: ' + opts.app)
       if (cb) cb()
     })
-    .catch(function (err) {
+    .catch(err => {
       debuglog('Sign failed:')
       if (err.message) debuglog(err.message)
       else if (err.stack) debuglog(err.stack)
