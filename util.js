@@ -53,27 +53,6 @@ module.exports.execFileAsync = function (file, args, options) {
   })
 }
 
-// TODO: Simplify with Array.prototype.flat when minimum Node version is >= 12
-/**
- * This function returns a flattened list of elements from an array of lists.
- * @function
- * @param {*} list - List.
- * @returns Flattened list.
- */
-const flatList = module.exports.flatList = function (list, result = []) {
-  if (Array.isArray(list)) {
-    for (const item of list) {
-      if (item) {
-        flatList(item, result)
-      }
-    }
-  } else {
-    result.push(list)
-  }
-
-  return result
-}
-
 /**
  * This function returns the path to app contents.
  * @function
