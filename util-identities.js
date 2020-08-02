@@ -4,14 +4,14 @@
 
 'use strict'
 
-const { debuglog, execFileAsync, flatList } = require('./util')
+const { debuglog, execFileAsync } = require('./util')
 
 /**
  * @constructor
  * @param {string} name - Name of the signing identity.
  * @param {String} hash - SHA-1 hash of the identity.
  */
-var Identity = module.exports.Identity = function (name, hash) {
+const Identity = module.exports.Identity = function (name, hash) {
   this.name = name
   this.hash = hash
 }
@@ -23,11 +23,10 @@ var Identity = module.exports.Identity = function (name, hash) {
  * @param {string} identity - The proposed identity.
  * @returns {Promise} Promise.
  */
-module.exports.findIdentitiesAsync = function (opts, identity) {
+module.exports.findIdentitiesAsync = async function (opts, identity) {
   // Only to look for valid identities, excluding those flagged with
   // CSSMERR_TP_CERT_EXPIRED or CSSMERR_TP_NOT_TRUSTED. Fixes #9
-
-  var args = [
+  const args = [
     'find-identity',
     '-v'
   ]
@@ -35,18 +34,17 @@ module.exports.findIdentitiesAsync = function (opts, identity) {
     args.push(opts.keychain)
   }
 
-  return execFileAsync('security', args)
-    .then(function (result) {
-      return result.split('\n').map(function (line) {
-        if (line.indexOf(identity) >= 0) {
-          var identityFound = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'))
-          var identityHashFound = line.substring(line.indexOf(')') + 2, line.indexOf('"') - 1)
-          debuglog('Identity:', '\n',
-            '> Name:', identityFound, '\n',
-            '> Hash:', identityHashFound)
-          return new Identity(identityFound, identityHashFound)
-        }
-      })
-    })
-    .then(flatList)
+  const identities = []
+  for (const line of (await execFileAsync('security', args)).split('\n')) {
+    if (line.includes(identity)) {
+      const identityFound = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'))
+      const identityHashFound = line.substring(line.indexOf(')') + 2, line.indexOf('"') - 1)
+      debuglog('Identity:', '\n',
+        '> Name:', identityFound, '\n',
+        '> Hash:', identityHashFound)
+      identities.push(new Identity(identityFound, identityHashFound))
+    }
+  }
+
+  return identities
 }
