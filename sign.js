@@ -10,7 +10,7 @@ const Promise = require('bluebird')
 const compareVersion = require('compare-version')
 
 const pkg = require('./package.json')
-const { debuglog, debugwarn, getAppContentsPath, execFileAsync, validateOptsAppAsync, validateOptsPlatformAsync, walkAsync } = require('./util')
+const { debuglog, debugwarn, getAppContentsPath, execFileAsync, pathsToSignAsync, validateOptsAppAsync, validateOptsPlatformAsync } = require('./util')
 const { findIdentitiesAsync, Identity } = require('./util-identities')
 const { preAutoEntitlements } = require('./util-entitlements')
 const { preEmbedProvisioningProfile, ProvisioningProfile } = require('./util-provisioning-profiles')
@@ -118,7 +118,7 @@ function verifySignApplicationAsync (opts) {
  * @returns {Promise} Promise.
  */
 function signApplicationAsync (opts) {
-  return walkAsync(getAppContentsPath(opts))
+  return pathsToSignAsync(getAppContentsPath(opts))
     .then(function (childPaths) {
       function ignoreFilePath (opts, filePath) {
         if (opts.ignore) {
