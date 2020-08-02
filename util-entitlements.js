@@ -7,12 +7,28 @@
 const { promises: fs } = require('fs')
 const os = require('os')
 const path = require('path')
-
 const plist = require('plist')
 
 const { debuglog, getAppContentsPath } = require('./util')
 
-let tmpFileCounter = 0
+async function createTemporaryEntitlementsFile (opts, entitlements) {
+  const tmpEntitlementsDir = await fs.mkdtemp(path.join(os.tmpdir(), 'electron-osx-sign-entitlements-'))
+  opts.entitlements = path.join(tmpEntitlementsDir, 'entitlements.plist')
+
+  await fs.writeFile(opts.entitlements, plist.build(entitlements), 'utf8')
+  debuglog('Entitlements file updated:', '\n',
+    '> Entitlements:', opts.entitlements)
+}
+
+function setDefaultEntitlementValue (entitlements, keySuffix, defaultValue) {
+  const key = `com.apple.${keySuffix}`
+  if (entitlements[key]) {
+    debuglog(`'${key}' found in entitlements file`, entitlements[key])
+  } else {
+    debuglog(`'${key]' not found in entitlements file, setting to:`, defaultValue)
+    entitlements[key] = defaultValue
+  }
+}
 
 /**
  * This function returns a promise completing the entitlements automation: The process includes checking in `Info.plist` for `ElectronTeamID` or setting parsed value from identity, and checking in entitlements file for `com.apple.security.application-groups` or inserting new into array. A temporary entitlements file may be created to replace the input for any changes introduced.
@@ -20,80 +36,52 @@ let tmpFileCounter = 0
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-module.exports.preAutoEntitlements = function (opts) {
+module.exports.preAutoEntitlements = async function (opts) {
   // If entitlements file not provided, default will be used. Fixes #41
-  var appInfoPath = path.join(getAppContentsPath(opts), 'Info.plist')
-  var appInfo
-  var entitlements
+  const appInfoPath = path.join(getAppContentsPath(opts), 'Info.plist')
 
   debuglog('Automating entitlement app group...', '\n',
     '> Info.plist:', appInfoPath, '\n',
     '> Entitlements:', opts.entitlements)
-  return fs.readFile(opts.entitlements, 'utf8')
-    .then(function (result) {
-      entitlements = plist.parse(result)
-      if (!entitlements['com.apple.security.app-sandbox']) {
-        // Only automate when app sandbox enabled by user
-        return
-      }
+  const entitlements = plist.parse(await fs.readFile(opts.entitlements, 'utf8'))
+  if (!entitlements['com.apple.security.app-sandbox']) {
+    // Only automate when app sandbox enabled by user
+    return
+  }
 
-      return fs.readFile(appInfoPath, 'utf8')
-        .then(function (result) {
-          appInfo = plist.parse(result)
-          // Use ElectronTeamID in Info.plist if already specified
-          if (appInfo.ElectronTeamID) {
-            debuglog('`ElectronTeamID` found in `Info.plist`: ' + appInfo.ElectronTeamID)
-          } else {
-            // The team identifier in signing identity should not be trusted
-            if (opts['provisioning-profile']) {
-              appInfo.ElectronTeamID = opts['provisioning-profile'].message.Entitlements['com.apple.developer.team-identifier']
-              debuglog('`ElectronTeamID` not found in `Info.plist`, use parsed from provisioning profile: ' + appInfo.ElectronTeamID)
-            } else {
-              appInfo.ElectronTeamID = opts.identity.name.substring(opts.identity.name.indexOf('(') + 1, opts.identity.name.lastIndexOf(')'))
-              debuglog('`ElectronTeamID` not found in `Info.plist`, use parsed from signing identity: ' + appInfo.ElectronTeamID)
-            }
-            return fs.writeFile(appInfoPath, plist.build(appInfo), 'utf8')
-              .then(function () {
-                debuglog('`Info.plist` updated:', '\n',
-                  '> Info.plist:', appInfoPath)
-              })
-          }
-        })
-        .then(function () {
-          var appIdentifier = appInfo.ElectronTeamID + '.' + appInfo.CFBundleIdentifier
-          // Insert application identifier if not exists
-          if (entitlements['com.apple.application-identifier']) {
-            debuglog('`com.apple.application-identifier` found in entitlements file: ' + entitlements['com.apple.application-identifier'])
-          } else {
-            debuglog('`com.apple.application-identifier` not found in entitlements file, new inserted: ' + appIdentifier)
-            entitlements['com.apple.application-identifier'] = appIdentifier
-          }
-          // Insert developer team identifier if not exists
-          if (entitlements['com.apple.developer.team-identifier']) {
-            debuglog('`com.apple.developer.team-identifier` found in entitlements file: ' + entitlements['com.apple.developer.team-identifier'])
-          } else {
-            debuglog('`com.apple.developer.team-identifier` not found in entitlements file, new inserted: ' + appInfo.ElectronTeamID)
-            entitlements['com.apple.developer.team-identifier'] = appInfo.ElectronTeamID
-          }
-          // Init entitlements app group key to array if not exists
-          if (!entitlements['com.apple.security.application-groups']) {
-            entitlements['com.apple.security.application-groups'] = []
-          }
-          // Insert app group if not exists
-          if (Array.isArray(entitlements['com.apple.security.application-groups']) && entitlements['com.apple.security.application-groups'].indexOf(appIdentifier) === -1) {
-            debuglog('`com.apple.security.application-groups` not found in entitlements file, new inserted: ' + appIdentifier)
-            entitlements['com.apple.security.application-groups'].push(appIdentifier)
-          } else {
-            debuglog('`com.apple.security.application-groups` found in entitlements file: ' + appIdentifier)
-          }
-          // Create temporary entitlements file
-          const entitlementsPath = path.join(os.tmpdir(), `tmp-entitlements-${process.pid.toString(16)}-${(tmpFileCounter++).toString(16)}.plist`)
-          opts.entitlements = entitlementsPath
-          return fs.writeFile(entitlementsPath, plist.build(entitlements), 'utf8')
-            .then(function () {
-              debuglog('Entitlements file updated:', '\n',
-                '> Entitlements:', entitlementsPath)
-            })
-        })
-    })
+  const appInfo = plist.parse(await fs.readFile(appInfoPath, 'utf8'))
+  // Use ElectronTeamID in Info.plist if already specified
+  if (appInfo.ElectronTeamID) {
+    debuglog('`ElectronTeamID` found in `Info.plist`', appInfo.ElectronTeamID)
+  } else {
+    // The team identifier in signing identity should not be trusted
+    if (opts['provisioning-profile']) {
+      appInfo.ElectronTeamID = opts['provisioning-profile'].message.Entitlements['com.apple.developer.team-identifier']
+      debuglog('`ElectronTeamID` not found in `Info.plist`, use parsed from provisioning profile', appInfo.ElectronTeamID)
+    } else {
+      appInfo.ElectronTeamID = opts.identity.name.substring(opts.identity.name.indexOf('(') + 1, opts.identity.name.lastIndexOf(')'))
+      debuglog('`ElectronTeamID` not found in `Info.plist`, use parsed from signing identity', appInfo.ElectronTeamID)
+    }
+    await fs.writeFile(appInfoPath, plist.build(appInfo), 'utf8')
+    debuglog('`Info.plist` updated:', '\n',
+      '> Info.plist:', appInfoPath)
+  }
+
+  const appIdentifier = `${appInfo.ElectronTeamID}.${appInfo.CFBundleIdentifier}`
+  setDefaultEntitlementValue(entitlements, 'application-identifier', appIdentifier)
+  setDefaultEntitlementValue(entitlements, 'developer.team-identifier', appInfo.ElectronTeamID)
+
+  // Init entitlements app group key to array if not exists
+  if (!entitlements['com.apple.security.application-groups']) {
+    entitlements['com.apple.security.application-groups'] = []
+  }
+  // Insert app group if not exists
+  if (Array.isArray(entitlements['com.apple.security.application-groups']) && !entitlements['com.apple.security.application-groups'].includes(appIdentifier)) {
+    debuglog('`com.apple.security.application-groups` not found in entitlements file, new inserted:', appIdentifier)
+    entitlements['com.apple.security.application-groups'].push(appIdentifier)
+  } else {
+    debuglog('`com.apple.security.application-groups` found in entitlements file:', appIdentifier)
+  }
+
+  await createTemporaryEntitlementsFile(opts, entitlements)
 }
