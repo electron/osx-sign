@@ -25,7 +25,7 @@ function setDefaultEntitlementValue (entitlements, keySuffix, defaultValue) {
   if (entitlements[key]) {
     debuglog(`'${key}' found in entitlements file`, entitlements[key])
   } else {
-    debuglog(`'${key]' not found in entitlements file, setting to:`, defaultValue)
+    debuglog(`'${key}' not found in entitlements file, setting to:`, defaultValue)
     entitlements[key] = defaultValue
   }
 }

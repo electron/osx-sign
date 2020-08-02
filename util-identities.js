@@ -4,7 +4,7 @@
 
 'use strict'
 
-const { debuglog, execFileAsync } = require('./util')
+const { debuglog, debugwarn, execFileAsync } = require('./util')
 
 /**
  * @constructor

@@ -84,7 +84,7 @@ async function determineIdentitiesForSigning (opts) {
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-const flatAsync = module.exports.flatAsync = function (opts) {
+const flatAsync = module.exports.flatAsync = async function (opts) {
   debuglog('electron-osx-sign@%s', pkg.version)
   await validateFlatOptsAsync(opts)
   opts.identity = await determineIdentityForSigning(await determineIdentitiesForSigning(opts))
