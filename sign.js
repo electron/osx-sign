@@ -287,7 +287,7 @@ var signAsync = module.exports.signAsync = function (opts) {
     .then(function () {
       // Determine identity for signing
       var promise
-      opts.app.replace(' ', '\ ')
+      opts.app.replace(' ', '\\ ')
       if (opts.identity) {
         debuglog('`identity` passed in arguments.')
         if (opts['identity-validation'] === false) {
