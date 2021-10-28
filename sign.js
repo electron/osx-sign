@@ -166,37 +166,6 @@ function signApplicationAsync (opts) {
         }
       }
 
-      let optionsArguments = []
-
-      if (opts['signature-flags']) {
-        if (Array.isArray(opts['signature-flags'])) {
-          optionsArguments = [...opts['signature-flags']]
-        } else {
-          const flags = opts['signature-flags'].split(',').map(function (flag) { return flag.trim() })
-          optionsArguments = [...flags]
-        }
-      }
-
-      if (opts.hardenedRuntime || opts['hardened-runtime'] || optionsArguments.includes('runtime')) {
-        // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
-        if (compareVersion(osRelease, '17.7.0') >= 0) {
-          optionsArguments.push('runtime')
-        } else {
-          // Remove runtime if passed in with --signature-flags
-          debuglog('Not enabling hardened runtime, current macOS version too low, requires 10.13.6 and higher')
-          optionsArguments = optionsArguments.filter(function (element, index) { return element !== 'runtime' })
-        }
-      }
-
-      if (opts['restrict']) {
-        optionsArguments.push('restrict')
-        debugwarn('This flag is to be deprecated, consider using --signature-flags=restrict instead')
-      }
-
-      if (optionsArguments.length) {
-        args.push('--options', [...new Set(optionsArguments)].join(','))
-      }
-
       var promise
       /**
        * Sort the child paths by how deep they are in the file tree.  Some arcane apple
@@ -216,6 +185,40 @@ function signApplicationAsync (opts) {
             return
           }
           debuglog('Signing... ' + filePath)
+
+          let optionsArguments = []
+
+          if (opts['signature-flags']) {
+            if (Array.isArray(opts['signature-flags'])) {
+              optionsArguments = [...opts['signature-flags']]
+            } else if (typeof opts['signature-flags'] === 'function') {
+              const flags = opts['signature-flags'](filePath)
+              optionsArguments = [...flags]
+            } else {
+              const flags = opts['signature-flags'].split(',').map(function (flag) { return flag.trim() })
+              optionsArguments = [...flags]
+            }
+          }
+
+          if (opts.hardenedRuntime || opts['hardened-runtime'] || optionsArguments.includes('runtime')) {
+            // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
+            if (compareVersion(osRelease, '17.7.0') >= 0) {
+              optionsArguments.push('runtime')
+            } else {
+              // Remove runtime if passed in with --signature-flags
+              debuglog('Not enabling hardened runtime, current macOS version too low, requires 10.13.6 and higher')
+              optionsArguments = optionsArguments.filter(function (element, index) { return element !== 'runtime' })
+            }
+          }
+
+          if (opts['restrict']) {
+            optionsArguments.push('restrict')
+            debugwarn('This flag is to be deprecated, consider using --signature-flags=restrict instead')
+          }
+
+          if (optionsArguments.length) {
+            args.push('--options', [...new Set(optionsArguments)].join(','))
+          }
 
           let entitlementsFile = opts['entitlements-inherit']
           if (filePath.includes('Library/LoginItems')) {
