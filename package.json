@@ -1,6 +1,6 @@
 {
   "name": "electron-osx-sign",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Codesign Electron macOS apps",
   "main": "index.js",
   "bin": {
