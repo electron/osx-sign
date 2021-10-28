@@ -225,7 +225,7 @@ function signApplicationAsync (opts) {
             entitlementsFile = opts['entitlements-loginhelper']
           }
 
-          const clonedArgs = args.concat([]);
+          const clonedArgs = args.concat([])
           if (opts.entitlementsForFile) {
             entitlementsFile = opts.entitlementsForFile(filePath, clonedArgs) || entitlementsFile
           }
@@ -235,13 +235,13 @@ function signApplicationAsync (opts) {
           .then(function () {
             debuglog('Signing... ' + opts.app)
 
-            const clonedArgs = args.concat([]);
+            const clonedArgs = args.concat([])
             let entitlementsFile = opts.entitlements
             if (opts.entitlementsForFile) {
-              entitlementsFile = opts.entitlementsForFile(opts.app, clonedArgs) || entitlementsFile;
+              entitlementsFile = opts.entitlementsForFile(opts.app, clonedArgs) || entitlementsFile
             }
 
-            return execFileAsync('codesign', clonedArgs.concat('--entitlements', opts.entitlements, opts.app))
+            return execFileAsync('codesign', clonedArgs.concat('--entitlements', entitlementsFile, opts.app))
           })
       } else {
         // Otherwise normally
