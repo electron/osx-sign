@@ -14,14 +14,16 @@ declare module "electron-osx-sign" {
     'gatekeeper-assess'?: boolean;
     hardenedRuntime?: boolean;
     'identity-validation'?: boolean;
-    ignore?: string;
+    ignore?: string | ((file: string) => boolean);
     'pre-auto-entitlements'?: boolean;
     'pre-embed-provisioning-profile'?: boolean;
     'provisioning-profile'?: string;
     'requirements'?: string;
+    'signature-flags'?: string | ((file: string) => string[]);
     'signature-size'?: number;
     'type'?: string;
     version?: string;
+    entitlementsForFile?: (file: string, codeSignArgs: string[]) => string | null;
   }
 
   export function sign(opts: SignOptions, callback: (error: Error) => void): void;
