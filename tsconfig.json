@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2017",
+    "lib": [
+      "es2017"
+    ],
+    "sourceMap": true,
+    "strict": true,
+    "outDir": "dist/cjs",
+    "types": [
+      "node",
+    ],
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "declaration": true
+  },
+  "include": [
+    "src"
+  ]
+}
