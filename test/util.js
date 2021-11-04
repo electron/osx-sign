@@ -1,24 +1,24 @@
-var path = require('path')
-var test = require('tape')
+const path = require('path');
+const test = require('tape');
 
-var download = require('electron-download')
-var mkdirp = require('mkdirp')
-var rimraf = require('rimraf')
-var series = require('run-series')
-var compareVersion = require('compare-version')
-var extract = require('extract-zip')
+const download = require('electron-download');
+const mkdirp = require('mkdirp');
+const rimraf = require('rimraf');
+const series = require('run-series');
+const compareVersion = require('compare-version');
+const extract = require('extract-zip');
 
-var config = require('./config')
+const config = require('./config');
 
-var ORIGINAL_CWD = process.cwd()
-var WORK_CWD = path.join(__dirname, 'work')
+const ORIGINAL_CWD = process.cwd();
+const WORK_CWD = path.join(__dirname, 'work');
 
-var versions = config.versions
-var archs = ['x64']
-var platforms = ['darwin', 'mas']
-var slice = Array.prototype.slice
+const versions = config.versions;
+const archs = ['x64'];
+const platforms = ['darwin', 'mas'];
+const slice = Array.prototype.slice;
 
-var releases = []
+const releases = [];
 versions.forEach(function (version) {
   archs.forEach(function (arch) {
     platforms.forEach(function (platform) {
@@ -28,63 +28,69 @@ versions.forEach(function (version) {
           arch: arch,
           platform: platform,
           version: version
-        })
+        });
       }
-    })
-  })
-})
+    });
+  });
+});
 
 exports.generateReleaseName = function getExtractName (release) {
-  return 'v' + release.version + '-' + release.platform + '-' + release.arch
-}
+  return 'v' + release.version + '-' + release.platform + '-' + release.arch;
+};
 
 exports.generateAppPath = function getExtractName (release) {
-  return path.join(exports.generateReleaseName(release), 'Electron.app')
-}
+  return path.join(exports.generateReleaseName(release), 'Electron.app');
+};
 
 exports.downloadElectrons = function downloadElectrons (callback) {
-  series(releases.map(function (release) {
-    return function (cb) {
-      download(release, function (err, zipPath) {
-        if (err) return callback(err)
-        extract(zipPath, {dir: path.join(WORK_CWD, exports.generateReleaseName(release))}, cb)
-      })
-    }
-  }), callback)
-}
+  console.log('Downloading...');
+  series(
+    releases.map(function (release) {
+      console.log('Getting r', release);
+      return function (cb) {
+        download(release, function (err, zipPath) {
+          console.log('Got r:', release, err);
+          if (err) return callback(err);
+          extract(zipPath, { dir: path.join(WORK_CWD, exports.generateReleaseName(release)) })
+            .then(() => cb())
+            .catch(cb);
+        });
+      };
+    }),
+    callback
+  );
+};
 
 exports.setup = function setup () {
   test('setup', function (t) {
-    mkdirp(WORK_CWD, function (err) {
-      if (err) {
-        t.end(err)
-      } else {
-        process.chdir(WORK_CWD)
-        t.end()
-      }
-    })
-  })
-}
+    mkdirp(WORK_CWD).then(() => {
+      process.chdir(WORK_CWD);
+      t.end();
+    }).catch((err) => t.end(err));
+  });
+};
 
 exports.teardown = function teardown () {
   test('teardown', function (t) {
-    process.chdir(ORIGINAL_CWD)
+    process.chdir(ORIGINAL_CWD);
     rimraf(WORK_CWD, function (err) {
-      t.end(err)
-    })
-  })
-}
+      t.end(err);
+    });
+  });
+};
 
 exports.forEachRelease = function forEachRelease (cb) {
-  releases.forEach(cb)
-}
+  releases.forEach(cb);
+};
 
 exports.testAllReleases = function testAllReleases (name, createTest /*, ...createTestArgs */) {
-  var args = slice.call(arguments, 2)
-  exports.setup()
+  const args = slice.call(arguments, 2);
+  exports.setup();
   exports.forEachRelease(function (release) {
-    test(name + ':' + exports.generateReleaseName(release),
-      createTest.apply(null, [release].concat(args)))
-  })
-  exports.teardown()
-}
+    test(
+      name + ':' + exports.generateReleaseName(release),
+      createTest.apply(null, [release].concat(args))
+    );
+  });
+  exports.teardown();
+};

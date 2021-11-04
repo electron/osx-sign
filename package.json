@@ -60,7 +60,7 @@
   },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.esm.json",
-    "lint": "eslint --ext .ts,.js src bin",
+    "lint": "eslint --ext .ts,.js src bin test",
     "pretest": "rimraf test/work",
     "test": "yarn lint && tape test"
   },
