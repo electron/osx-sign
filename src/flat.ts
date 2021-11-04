@@ -138,7 +138,7 @@ export async function buildPkg (_opts: FlatOptions) {
 
 /**
  * This function is exported with normal callback implementation.
- * 
+ *
  * @deprecated Please use the promise based "buildPkg" method
  */
 export const flat = (opts: FlatOptions, cb?: (error?: Error) => void) => {
