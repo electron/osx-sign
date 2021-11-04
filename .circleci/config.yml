@@ -26,18 +26,18 @@ steps-test: &steps-test
 
 version: 2
 jobs:
-  test-mac-8:
+  test-mac-16:
     macos:
       xcode: "11.0.0"
     environment:
-      NODE_VERSION: "8"
+      NODE_VERSION: "16"
     <<: *steps-test
 
-  test-mac-10:
+  test-mac-14:
     macos:
       xcode: "11.0.0"
     environment:
-      NODE_VERSION: "10"
+      NODE_VERSION: "14"
     <<: *steps-test
 
   test-mac-12:
@@ -50,6 +50,6 @@ workflows:
   version: 2
   test:
     jobs:
-      - test-mac-8
-      - test-mac-10
+      - test-mac-16
+      - test-mac-14
       - test-mac-12
