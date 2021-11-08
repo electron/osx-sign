@@ -46,10 +46,8 @@ exports.downloadElectrons = function downloadElectrons (callback) {
   console.log('Downloading...');
   series(
     releases.map(function (release) {
-      console.log('Getting r', release);
       return function (cb) {
         download(release, function (err, zipPath) {
-          console.log('Got r:', release, err);
           if (err) return callback(err);
           extract(zipPath, { dir: path.join(WORK_CWD, exports.generateReleaseName(release)) })
             .then(() => cb())
