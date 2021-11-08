@@ -47,7 +47,7 @@ function validateOptsEntitlements (opts: SignOptions, platform: ElectronMacPlatf
     'entitlements-inherit': opts['entitlements-inherit']
   };
 
-  const entitlementsFolder = path.resolve(__dirname, '..', 'entitlements');
+  const entitlementsFolder = path.resolve(__dirname, '..', '..', 'entitlements');
 
   if (platform === 'mas') {
     // To sign apps for Mac App Store, an entitlements file is required, especially for app sandboxing (as well some other services).
