@@ -22,7 +22,7 @@ steps-test: &steps-test
           - node_modules
         key: v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
     - run: ./test/ci/generate-identity.sh
-    - run: yarn test
+    - run: yarn build && yarn test
 
 version: 2
 jobs:
