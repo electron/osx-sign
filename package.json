@@ -55,7 +55,7 @@
     "run-series": "^1.1.9",
     "run-waterfall": "^1.1.7",
     "standard": "^16.0.4",
-    "tape": "^5.3.1",
+    "tape": "^4.7.1",
     "typescript": "^4.4.4"
   },
   "scripts": {
