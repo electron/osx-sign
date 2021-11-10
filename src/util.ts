@@ -99,7 +99,7 @@ async function getFilePathIfBinary (filePath: string) {
  */
 export async function validateOptsApp (opts: BaseSignOptions): Promise<void> {
   if (!opts.app) {
-    throw new Error('Path to aplication must be specified.');
+    throw new Error('Path to application must be specified.');
   }
   if (path.extname(opts.app) !== '.app') {
     throw new Error('Extension of application must be `.app`.');
