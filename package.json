@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/electron/electron-osx-sign",
   "dependencies": {
-    "bluebird": "^3.7.2",
     "compare-version": "^0.1.2",
     "debug": "^4.3.2",
     "isbinaryfile": "^4.0.8",
