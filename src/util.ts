@@ -46,7 +46,7 @@ export async function execFileAsync (
 type DeepListItem<T> = null | T | DeepListItem<T>[];
 type DeepList<T> = DeepListItem<T>[];
 
-export function flatList<T> (list: DeepList<T>): T[] {
+export function compactFlattenedList<T> (list: DeepList<T>): T[] {
   const result: T[] = [];
 
   function populateResult (list: DeepListItem<T>) {
@@ -166,5 +166,5 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
   }
 
   const allPaths = await _walkAsync(dirPath);
-  return flatList(allPaths);
+  return compactFlattenedList(allPaths);
 }

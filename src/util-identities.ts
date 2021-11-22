@@ -1,4 +1,4 @@
-import { debugLog, flatList, execFileAsync } from './util';
+import { debugLog, compactFlattenedList, execFileAsync } from './util';
 
 export class Identity {
   constructor (public name: string, public hash?: string) {}
@@ -30,5 +30,5 @@ export async function findIdentities (keychain: string | null, identity: string)
     return null;
   });
 
-  return flatList(identities);
+  return compactFlattenedList(identities);
 }

@@ -3,7 +3,7 @@ import * as path from 'path';
 import plist from 'plist';
 
 import { ElectronMacPlatform, ValidatedSignOptions } from './types';
-import { debugLog, debugWarn, getAppContentsPath, flatList, execFileAsync } from './util';
+import { debugLog, debugWarn, getAppContentsPath, compactFlattenedList, execFileAsync } from './util';
 
 export class ProvisioningProfile {
   constructor (public filePath: string, public message: any) {}
@@ -75,7 +75,7 @@ export async function getProvisioningProfile (filePath: string, keychain: string
 export async function findProvisioningProfiles (opts: ValidatedSignOptions) {
   const cwd = process.cwd();
   const children = await fs.readdir(cwd);
-  const foundProfiles = flatList(
+  const foundProfiles = compactFlattenedList(
     await Promise.all(
       children.map(async (child) => {
         const filePath = path.resolve(cwd, child);
@@ -88,7 +88,7 @@ export async function findProvisioningProfiles (opts: ValidatedSignOptions) {
     )
   );
 
-  return flatList(
+  return compactFlattenedList(
     await Promise.all(
       foundProfiles.map(async (filePath) => {
         const profile = await getProvisioningProfile(filePath);
