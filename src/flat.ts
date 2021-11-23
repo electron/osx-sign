@@ -77,7 +77,7 @@ export async function buildPkg (_opts: FlatOptions) {
 
   if (validatedOptions.identity) {
     debugLog('`identity` passed in arguments.');
-    if (validatedOptions['identity-validation'] === false) {
+    if (validatedOptions.identityValidation === false) {
       // Do nothing
     } else {
       identities = await findIdentities(validatedOptions.keychain || null, validatedOptions.identity);

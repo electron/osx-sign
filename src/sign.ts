@@ -9,15 +9,12 @@ import {
   execFileAsync,
   validateOptsApp,
   validateOptsPlatform,
-  walkAsync
+  walkAsync,
 } from './util';
 import { Identity, findIdentities } from './util-identities';
-import {
-  preEmbedProvisioningProfile,
-  getProvisioningProfile
-} from './util-provisioning-profiles';
+import { preEmbedProvisioningProfile, getProvisioningProfile } from './util-provisioning-profiles';
 import { preAutoEntitlements } from './util-entitlements';
-import { ElectronMacPlatform, SignOptions, ValidatedSignOptions } from './types';
+import { ElectronMacPlatform, PerFileSignOptions, SignOptions, ValidatedSignOptions } from './types';
 
 const pkgVersion: string = require('../../package.json').version;
 
@@ -26,7 +23,7 @@ const osRelease = os.release();
 /**
  * This function returns a promise validating opts.binaries, the additional binaries to be signed along with the discovered enclosed components.
  */
-async function validateOptsBinaries (opts: SignOptions) {
+async function validateOptsBinaries(opts: SignOptions) {
   if (opts.binaries) {
     if (!Array.isArray(opts.binaries)) {
       throw new Error('Additional binaries should be an Array.');
@@ -35,99 +32,20 @@ async function validateOptsBinaries (opts: SignOptions) {
   }
 }
 
-function validateOptsIgnore (ignore: SignOptions['ignore']): ValidatedSignOptions['ignore'] {
+function validateOptsIgnore(ignore: SignOptions['ignore']): ValidatedSignOptions['ignore'] {
   if (ignore && !(ignore instanceof Array)) {
     return [ignore];
   }
 }
 
-function validateOptsEntitlements (opts: SignOptions, platform: ElectronMacPlatform) {
-  const entitlementOptions = {
-    entitlements: opts.entitlements,
-    'entitlements-inherit': opts['entitlements-inherit']
-  };
-
-  const entitlementsFolder = path.resolve(__dirname, '..', '..', 'entitlements');
-
-  if (platform === 'mas') {
-    // To sign apps for Mac App Store, an entitlements file is required, especially for app sandboxing (as well some other services).
-    // Fallback entitlements for sandboxing by default: Note this may cause troubles while running an signed app due to missing keys special to the project.
-    // Further reading: https://developer.apple.com/library/mac/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
-    if (!entitlementOptions.entitlements) {
-      const entitlementsPath = path.resolve(entitlementsFolder, 'default.entitlements.mas.plist');
-      debugWarn(
-        'No `entitlements` passed in arguments:',
-        '\n',
-        '* Sandbox entitlements are required for Mac App Store distribution, your codesign entitlements file is default to:',
-        entitlementsPath
-      );
-      entitlementOptions.entitlements = entitlementsPath;
-    }
-    if (!entitlementOptions['entitlements-inherit']) {
-      const entitlementsPath = path.join(
-        entitlementsFolder,
-        'default.entitlements.mas.inherit.plist'
-      );
-      debugWarn(
-        'No `entitlements-inherit` passed in arguments:',
-        '\n',
-        '* Sandbox entitlements file for enclosed app files is default to:',
-        entitlementsPath
-      );
-      entitlementOptions['entitlements-inherit'] = entitlementsPath;
-    }
-  } else {
-    // Not necessary to have entitlements for non Mac App Store distribution
-    if (!opts.entitlements) {
-      debugWarn(
-        'No `entitlements` passed in arguments:',
-        '\n',
-        '* Provide `entitlements` to specify entitlements file for codesign.'
-      );
-    } else {
-      // If entitlements is provided as a boolean flag, fallback to default
-      if ((entitlementOptions.entitlements as any) === true) {
-        const entitlementsPath = path.join(entitlementsFolder, 'default.entitlements.darwin.plist');
-        debugWarn(
-          '`entitlements` not specified in arguments:',
-          '\n',
-          '* Provide `entitlements` to specify entitlements file for codesign.',
-          '\n',
-          '* Entitlements file is default to:',
-          entitlementsPath
-        );
-        entitlementOptions.entitlements = entitlementsPath;
-      }
-      if (!opts['entitlements-inherit']) {
-        const entitlementsPath = path.join(
-          entitlementsFolder,
-          'default.entitlements.darwin.inherit.plist'
-        );
-        debugWarn(
-          'No `entitlements-inherit` passed in arguments:',
-          '\n',
-          '* Entitlements file for enclosed app files is default to:',
-          entitlementsPath
-        );
-        entitlementOptions['entitlements-inherit'] = entitlementsPath;
-      }
-    }
-  }
-
-  return entitlementOptions as {
-    entitlements: string;
-    'entitlements-inherit': string;
-  };
-}
-
 /**
  * This function returns a promise validating all options passed in opts.
  */
-async function validateSignOpts (opts: SignOptions): Promise<Readonly<ValidatedSignOptions>> {
+async function validateSignOpts(opts: SignOptions): Promise<Readonly<ValidatedSignOptions>> {
   await validateOptsBinaries(opts);
   await validateOptsApp(opts);
 
-  if (opts['provisioning-profile'] && typeof opts['provisioning-profile'] !== 'string') {
+  if (opts.provisioningProfile && typeof opts.provisioningProfile !== 'string') {
     throw new Error('Path to provisioning profile should be a string.');
   }
 
@@ -138,10 +56,9 @@ async function validateSignOpts (opts: SignOptions): Promise<Readonly<ValidatedS
   const platform = await validateOptsPlatform(opts);
   const cloned: ValidatedSignOptions = {
     ...opts,
-    ...validateOptsEntitlements(opts, platform),
     ignore: validateOptsIgnore(opts.ignore),
     type: opts.type || 'distribution',
-    platform
+    platform,
   };
   return cloned;
 }
@@ -149,45 +66,92 @@ async function validateSignOpts (opts: SignOptions): Promise<Readonly<ValidatedS
 /**
  * This function returns a promise verifying the code sign of application bundle.
  */
-async function verifySignApplication (opts: ValidatedSignOptions) {
+async function verifySignApplication(opts: ValidatedSignOptions) {
   // Verify with codesign
   debugLog('Verifying application bundle with codesign...');
 
   await execFileAsync(
     'codesign',
     ['--verify', '--deep'].concat(
-      opts['strict-verify'] !== false && compareVersion(osRelease, '15.0.0') >= 0 // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
+      opts.strictVerify !== false && compareVersion(osRelease, '15.0.0') >= 0 // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
         ? [
             '--strict' +
-              (opts['strict-verify']
-                ? '=' + opts['strict-verify'] // Array should be converted to a comma separated string
-                : '')
+              (opts.strictVerify
+                ? '=' + opts.strictVerify // Array should be converted to a comma separated string
+                : ''),
           ]
         : [],
-      ['--verbose=2', opts.app]
-    )
+      ['--verbose=2', opts.app],
+    ),
   );
+}
 
-  // Additionally test Gatekeeper acceptance for darwin platform
-  if (opts.platform === 'darwin' && opts['gatekeeper-assess'] !== false) {
-    debugLog('Verifying Gatekeeper acceptance for darwin platform...');
-    await execFileAsync('spctl', [
-      '--assess',
-      '--type',
-      'execute',
-      '--verbose',
-      '--ignore-cache',
-      '--no-cache',
-      opts.app
-    ]);
+function defaultOptionsForFile(filePath: string, platform: ElectronMacPlatform) {
+  const entitlementsFolder = path.resolve(__dirname, '..', '..', 'entitlements');
+
+  let entitlementsFile: string;
+  if (platform === 'darwin') {
+    // Default Entitlements
+    // c.f. https://source.chromium.org/chromium/chromium/src/+/main:chrome/app/app-entitlements.plist
+    // Also include JIT for main process V8
+    entitlementsFile = path.resolve(entitlementsFolder, 'default.darwin.plist');
+    // Plugin helper
+    // c.f. https://source.chromium.org/chromium/chromium/src/+/main:chrome/app/helper-plugin-entitlements.plist
+    if (filePath.includes('(Plugin).app')) {
+      entitlementsFile = path.resolve(entitlementsFolder, 'default.darwin.plugin.plist');
+    // GPU Helper
+    // c.f. https://source.chromium.org/chromium/chromium/src/+/main:chrome/app/helper-gpu-entitlements.plist
+    } else if (filePath.includes('(GPU).app')) {
+      entitlementsFile = path.resolve(entitlementsFolder, 'default.darwin.gpu.plist');
+    // Renderer Helper
+    // c.f. https://source.chromium.org/chromium/chromium/src/+/main:chrome/app/helper-renderer-entitlements.plist
+    } else if (filePath.includes('(Renderer).app')) {
+      entitlementsFile = path.resolve(entitlementsFolder, 'default.darwin.renderer.plist');
+    }
+  } else {
+    // Default entitlements
+    // TODO: Can these be more scoped like the non-mas variant?
+    entitlementsFile = path.resolve(entitlementsFolder, 'default.mas.plist');
+
+    // If it is not the top level app bundle, we sign with inherit
+    if (filePath.includes('.app/')) {
+      entitlementsFile = path.resolve(entitlementsFolder, 'default.mas.child.plist');
+    }
   }
+
+  return {
+    entitlements: entitlementsFile,
+    hardenedRuntime: true,
+    requirements: undefined as string | undefined,
+    signatureFlags: undefined as string | string[] | undefined,
+    timestamp: undefined as string | undefined,
+  };
+}
+
+function mergeOptionsForFile(
+  opts: PerFileSignOptions | null,
+  defaults: ReturnType<typeof defaultOptionsForFile>,
+) {
+  const mergedPerFileOptions = { ...defaults };
+  if (opts) {
+    if (opts.entitlements !== undefined) mergedPerFileOptions.entitlements = opts.entitlements;
+    if (opts.hardenedRuntime !== undefined) {
+      mergedPerFileOptions.hardenedRuntime = opts.hardenedRuntime;
+    }
+    if (opts.requirements !== undefined) mergedPerFileOptions.requirements = opts.requirements;
+    if (opts.signatureFlags !== undefined) {
+      mergedPerFileOptions.signatureFlags = opts.signatureFlags;
+    }
+    if (opts.timestamp !== undefined) mergedPerFileOptions.timestamp = opts.timestamp;
+  }
+  return mergedPerFileOptions;
 }
 
 /**
  * This function returns a promise codesigning only.
  */
-async function signApplication (opts: ValidatedSignOptions, identity: Identity) {
-  function shouldIgnoreFilePath (filePath: string) {
+async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
+  function shouldIgnoreFilePath(filePath: string) {
     if (opts.ignore) {
       return opts.ignore.some(function (ignore) {
         if (typeof ignore === 'function') {
@@ -207,23 +171,6 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
   if (opts.keychain) {
     args.push('--keychain', opts.keychain);
   }
-  if (opts.requirements) {
-    args.push('--requirements', opts.requirements);
-  }
-  if (opts.timestamp) {
-    args.push('--timestamp=' + opts.timestamp);
-  } else {
-    args.push('--timestamp');
-  }
-  if (opts['signature-size']) {
-    if (Number.isInteger(opts['signature-size']) && opts['signature-size'] > 0) {
-      args.push('--signature-size', `${opts['signature-size']}`);
-    } else {
-      debugWarn(
-        `Invalid value provided for --signature-size (${opts['signature-size']}). Must be a positive integer.`
-      );
-    }
-  }
 
   /**
    * Sort the child paths by how deep they are in the file tree.  Some arcane apple
@@ -235,105 +182,90 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
     const bDepth = b.split(path.sep).length;
     return bDepth - aDepth;
   });
-  if (opts.entitlements) {
-    // Sign with entitlements
-    // promise = Promise.mapSeries(childPaths, function (filePath) {
-    for (const filePath of children) {
-      if (shouldIgnoreFilePath(filePath)) {
-        debugLog('Skipped... ' + filePath);
-        continue;
-      }
 
-      debugLog('Signing... ' + filePath);
-
-      let optionsArguments: string[] = [];
-
-      if (opts['signature-flags']) {
-        if (Array.isArray(opts['signature-flags'])) {
-          optionsArguments.push(...opts['signature-flags']);
-        } else if (typeof opts['signature-flags'] === 'function') {
-          const flags = opts['signature-flags'](filePath);
-          optionsArguments.push(...flags);
-        } else {
-          const flags = opts['signature-flags'].split(',').map(function (flag) {
-            return flag.trim();
-          });
-          optionsArguments.push(...flags);
-        }
-      }
-
-      if (
-        opts.hardenedRuntime ||
-        opts['hardened-runtime'] ||
-        optionsArguments.includes('runtime')
-      ) {
-        // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
-        if (compareVersion(osRelease, '17.7.0') >= 0) {
-          optionsArguments.push('runtime');
-        } else {
-          // Remove runtime if passed in with --signature-flags
-          debugLog(
-            'Not enabling hardened runtime, current macOS version too low, requires 10.13.6 and higher'
-          );
-          optionsArguments = optionsArguments.filter((arg) => {
-            return arg !== 'runtime';
-          });
-        }
-      }
-
-      if (opts.restrict) {
-        optionsArguments.push('restrict');
-        debugWarn(
-          'This flag is to be deprecated, consider using --signature-flags=restrict instead'
-        );
-      }
-
-      if (optionsArguments.length) {
-        args.push('--options', [...new Set(optionsArguments)].join(','));
-      }
-
-      let entitlementsFile = opts['entitlements-inherit'];
-      if (filePath.includes('Library/LoginItems')) {
-        entitlementsFile = opts['entitlements-loginhelper']!;
-      }
-
-      const clonedArgs = args.concat([]);
-      if (opts.entitlementsForFile) {
-        entitlementsFile = opts.entitlementsForFile(filePath, clonedArgs) || entitlementsFile;
-      }
-
-      await execFileAsync(
-        'codesign',
-        clonedArgs.concat('--entitlements', entitlementsFile, filePath)
-      );
+  for (const filePath of [...children, opts.app]) {
+    if (shouldIgnoreFilePath(filePath)) {
+      debugLog('Skipped... ' + filePath);
+      continue;
     }
 
-    // Sign the actual app now
-    debugLog('Signing... ' + opts.app);
+    const perFileOptions = mergeOptionsForFile(
+      opts.optionsForFile ? opts.optionsForFile(filePath) : null,
+      defaultOptionsForFile(filePath, opts.platform),
+    );
 
-    const clonedArgs = args.concat([]);
-    let entitlementsFile = opts.entitlements;
-    if (opts.entitlementsForFile) {
-      entitlementsFile = opts.entitlementsForFile(opts.app, clonedArgs) || entitlementsFile;
+    if (opts.preAutoEntitlements === false) {
+      debugWarn('Pre-sign operation disabled for entitlements automation.');
+    } else {
+      debugLog(
+        'Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`:',
+        '\n',
+        '* Disable by setting `pre-auto-entitlements` to `false`.',
+      );
+      if (!opts.version || compareVersion(opts.version, '1.1.1') >= 0) {
+        // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
+        const newEntitlements = await preAutoEntitlements(opts, perFileOptions, {
+          identity,
+          provisioningProfile: opts.provisioningProfile
+            ? await getProvisioningProfile(opts.provisioningProfile, opts.keychain)
+            : undefined,
+        });
+
+        // preAutoEntitlements may provide us new entitlements, if so we update our options
+        // and ensure that entitlements-loginhelper has a correct default value
+        if (newEntitlements) {
+          perFileOptions.entitlements = newEntitlements;
+        }
+      }
+    }
+
+    debugLog('Signing... ' + filePath);
+
+    if (perFileOptions.requirements) {
+      args.push('--requirements', perFileOptions.requirements);
+    }
+    if (perFileOptions.timestamp) {
+      args.push('--timestamp=' + perFileOptions.timestamp);
+    } else {
+      args.push('--timestamp');
+    }
+
+    let optionsArguments: string[] = [];
+
+    if (perFileOptions.signatureFlags) {
+      if (Array.isArray(perFileOptions.signatureFlags)) {
+        optionsArguments.push(...perFileOptions.signatureFlags);
+      } else {
+        const flags = perFileOptions.signatureFlags.split(',').map(function (flag) {
+          return flag.trim();
+        });
+        optionsArguments.push(...flags);
+      }
+    }
+
+    if (perFileOptions.hardenedRuntime || optionsArguments.includes('runtime')) {
+      // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
+      if (compareVersion(osRelease, '17.7.0') >= 0) {
+        optionsArguments.push('runtime');
+      } else {
+        // Remove runtime if passed in with --signature-flags
+        debugLog(
+          'Not enabling hardened runtime, current macOS version too low, requires 10.13.6 and higher',
+        );
+        optionsArguments = optionsArguments.filter((arg) => {
+          return arg !== 'runtime';
+        });
+      }
+    }
+
+    if (optionsArguments.length) {
+      args.push('--options', [...new Set(optionsArguments)].join(','));
     }
 
     await execFileAsync(
       'codesign',
-      clonedArgs.concat('--entitlements', entitlementsFile, opts.app)
+      args.concat('--entitlements', perFileOptions.entitlements, filePath),
     );
-  } else {
-    // Otherwise normally
-    for (const filePath of children) {
-      if (shouldIgnoreFilePath(filePath)) {
-        debugLog('Skipped... ' + filePath);
-        continue;
-      }
-
-      await execFileAsync('codesign', args.concat(filePath));
-    }
-
-    debugLog('Signing... ' + opts.app);
-    await execFileAsync('codesign', args.concat(opts.app));
   }
 
   // Verify code sign
@@ -342,32 +274,30 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
   debugLog('Verified.');
 
   // Check entitlements if applicable
-  if (opts.entitlements) {
-    debugLog('Displaying entitlements...');
-    const result = await execFileAsync('codesign', [
-      '--display',
-      '--entitlements',
-      ':-', // Write to standard output and strip off the blob header
-      opts.app
-    ]);
+  debugLog('Displaying entitlements...');
+  const result = await execFileAsync('codesign', [
+    '--display',
+    '--entitlements',
+    ':-', // Write to standard output and strip off the blob header
+    opts.app,
+  ]);
 
-    debugLog('Entitlements:', '\n', result);
-  }
+  debugLog('Entitlements:', '\n', result);
 }
 
 /**
  * This function returns a promise signing the application.
  */
-export async function signApp (_opts: SignOptions) {
+export async function signApp(_opts: SignOptions) {
   debugLog('electron-osx-sign@%s', pkgVersion);
-  let validatedOpts = await validateSignOpts(_opts);
+  const validatedOpts = await validateSignOpts(_opts);
   let identities: Identity[] = [];
   let identityInUse: Identity | null = null;
 
   // Determine identity for signing
   if (validatedOpts.identity) {
     debugLog('`identity` passed in arguments.');
-    if (validatedOpts['identity-validation'] === false) {
+    if (validatedOpts.identityValidation === false) {
       identityInUse = new Identity(validatedOpts.identity);
     } else {
       identities = await findIdentities(validatedOpts.keychain || null, validatedOpts.identity);
@@ -377,25 +307,25 @@ export async function signApp (_opts: SignOptions) {
     if (validatedOpts.platform === 'mas') {
       if (validatedOpts.type === 'distribution') {
         debugLog(
-          'Finding `3rd Party Mac Developer Application` certificate for signing app distribution in the Mac App Store...'
+          'Finding `3rd Party Mac Developer Application` certificate for signing app distribution in the Mac App Store...',
         );
         identities = await findIdentities(
           validatedOpts.keychain || null,
-          '3rd Party Mac Developer Application:'
+          '3rd Party Mac Developer Application:',
         );
       } else {
         debugLog(
-          'Finding `Mac Developer` certificate for signing app in development for the Mac App Store signing...'
+          'Finding `Mac Developer` certificate for signing app in development for the Mac App Store signing...',
         );
         identities = await findIdentities(validatedOpts.keychain || null, 'Mac Developer:');
       }
     } else {
       debugLog(
-        'Finding `Developer ID Application` certificate for distribution outside the Mac App Store...'
+        'Finding `Developer ID Application` certificate for distribution outside the Mac App Store...',
       );
       identities = await findIdentities(
         validatedOpts.keychain || null,
-        'Developer ID Application:'
+        'Developer ID Application:',
       );
     }
   }
@@ -416,62 +346,24 @@ export async function signApp (_opts: SignOptions) {
   }
 
   // Pre-sign operations
-  if (validatedOpts['pre-embed-provisioning-profile'] === false) {
+  if (validatedOpts.preEmbedProvisioningProfile === false) {
     debugWarn(
       'Pre-sign operation disabled for provisioning profile embedding:',
       '\n',
-      '* Enable by setting `pre-embed-provisioning-profile` to `true`.'
+      '* Enable by setting `pre-embed-provisioning-profile` to `true`.',
     );
   } else {
     debugLog(
       'Pre-sign operation enabled for provisioning profile:',
       '\n',
-      '* Disable by setting `pre-embed-provisioning-profile` to `false`.'
+      '* Disable by setting `pre-embed-provisioning-profile` to `false`.',
     );
     await preEmbedProvisioningProfile(
       validatedOpts,
-      validatedOpts['provisioning-profile']
-        ? await getProvisioningProfile(
-          validatedOpts['provisioning-profile'],
-          validatedOpts.keychain
-        )
-        : null
+      validatedOpts.provisioningProfile
+        ? await getProvisioningProfile(validatedOpts.provisioningProfile, validatedOpts.keychain)
+        : null,
     );
-  }
-
-  if (validatedOpts['pre-auto-entitlements'] === false) {
-    debugWarn('Pre-sign operation disabled for entitlements automation.');
-  } else {
-    debugLog(
-      'Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`:',
-      '\n',
-      '* Disable by setting `pre-auto-entitlements` to `false`.'
-    );
-    if (
-      validatedOpts.entitlements &&
-      (!validatedOpts.version || compareVersion(validatedOpts.version, '1.1.1') >= 0)
-    ) {
-      // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
-      const newEntitlements = await preAutoEntitlements(validatedOpts, {
-        identity: identityInUse,
-        provisioningProfile: validatedOpts['provisioning-profile']
-          ? await getProvisioningProfile(
-            validatedOpts['provisioning-profile'],
-            validatedOpts.keychain
-          )
-          : undefined
-      });
-
-      // preAutoEntitlements may provide us new entitlements, if so we update our options
-      // and ensure that entitlements-loginhelper has a correct default value
-      if (newEntitlements) {
-        validatedOpts = {
-          ...validatedOpts,
-          entitlements: newEntitlements,
-          'entitlements-loginhelper': validatedOpts['entitlements-loginhelper'] || newEntitlements
-        };
-      }
-    }
   }
 
   debugLog(
@@ -483,20 +375,11 @@ export async function signApp (_opts: SignOptions) {
     '> Platform:',
     validatedOpts.platform,
     '\n',
-    '> Entitlements:',
-    validatedOpts.entitlements,
-    '\n',
-    '> Child entitlements:',
-    validatedOpts['entitlements-inherit'],
-    '\n',
-    '> Login helper entitlements:',
-    validatedOpts['entitlements-loginhelper'],
-    '\n',
     '> Additional binaries:',
     validatedOpts.binaries,
     '\n',
     '> Identity:',
-    validatedOpts.identity
+    validatedOpts.identity,
   );
   await signApplication(validatedOpts, identityInUse);
 

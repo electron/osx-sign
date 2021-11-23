@@ -6,21 +6,16 @@ const args = require('minimist')(process.argv.slice(2), {
   string: [
     'signature-flags'
   ],
-  number: [
-    'signature-size'
-  ],
   boolean: [
     'help',
     'pre-auto-entitlements',
     'pre-embed-provisioning-profile',
-    'gatekeeper-assess',
     'hardened-runtime',
     'restrict'
   ],
   default: {
     'pre-auto-entitlements': true,
-    'pre-embed-provisioning-profile': true,
-    'gatekeeper-assess': true
+    'pre-embed-provisioning-profile': true
   }
 });
 const usage = fs.readFileSync(path.join(__dirname, 'electron-osx-sign-usage.txt')).toString();
