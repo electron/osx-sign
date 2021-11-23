@@ -13,10 +13,6 @@ DESCRIPTION
   embedded-binary ...
     Path to additional binaries that will be signed along with built-ins of Electron, spaced.
 
-  --hardenedRuntime
-    Flag to enable the Mojave hardened runtime when signing the app.  Disabled by default, requires Xcode >= 10 and macOS
-    >= 10.13.6.
-
   --help
     Flag to display all commands.
 
@@ -48,20 +44,10 @@ DESCRIPTION
   --provisioning-profile=file
     Path to provisioning profile.
 
-  --requirements=requirements
-    Specify the criteria that you recommend to be used to evaluate the code signature.
-
-  --signature-flags=flags
-    Code signature flags. Default to none.
-
   --strictVerify, --strictVerify=options, --no-strictVerify
     Flag to enable/disable ``--strict'' flag when verifying the signed application bundle.
     Each component should be separated in ``options'' with comma (``,'').
     Enabled by default.
-
-  --timestamp=timestamp
-    Specify the URL of the timestamp authority server, default to server provided by Apple.
-    Disable the timestamp service with ``none''.
 
   --type=type
     Specify whether to sign app for development or for distribution.

@@ -167,10 +167,6 @@ object this function returns can include any of the following optional keys.
 
 **Note:** Only available via the JS API
 
-Flag to enable/disable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
-Gatekeeper assessment is enabled by default on `darwin` platform.
-Default to `true`.
-
 `hardenedRuntime` or `hardened-runtime` - *Boolean*
 
 Flag to enable the Mojave hardened runtime when signing the app.  Disabled by default, requires Xcode >= 10 and

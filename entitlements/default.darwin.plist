@@ -11,7 +11,7 @@
     <key>com.apple.security.device.camera</key>
     <true/>
     <key>com.apple.security.device.print</key>
-	  <true/>
+    <true/>
     <key>com.apple.security.device.usb</key>
     <true/>
     <key>com.apple.security.personal-information.location</key>
