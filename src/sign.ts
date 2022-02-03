@@ -189,11 +189,16 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
   /**
    * Sort the child paths by how deep they are in the file tree.  Some arcane apple
    * logic expects the deeper files to be signed first otherwise strange errors get
-   * thrown our way
+   * thrown our way (This also includes files with longer names)
    */
   children.sort((a, b) => {
-    const aDepth = a.split(path.sep).length;
-    const bDepth = b.split(path.sep).length;
+    const aList = a.split(path.sep);
+    const bList = b.split(path.sep);
+    const aDepth = aList.length;
+    const bDepth = bList.length;
+    if (bDepth - aDepth === 0) {
+      return bList[bDepth - 1].length - aList[aDepth - 1].length;
+    }
     return bDepth - aDepth;
   });
 
