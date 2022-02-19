@@ -155,12 +155,12 @@ Default to `undefined`.
 
 Path to entitlements file for signing the app.
 Default to built-in entitlements file, Sandbox enabled for Mac App Store platform.
-See [default.entitlements.mas.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/default.entitlements.mas.plist) or [default.entitlements.darwin.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/default.entitlements.darwin.plist) with respect to your platform.
+See [default.entitlements.mas.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/entitlements/default.entitlements.mas.plist) or [default.entitlements.darwin.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/entitlements/default.entitlements.darwin.plist) with respect to your platform.
 
 `entitlements-inherit` - *String*
 
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with entitlements.*
-See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/default.entitlements.darwin.inherit.plist) with respect to your platform.
+See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/entitlements/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/entitlements/default.entitlements.darwin.inherit.plist) with respect to your platform.
 
 `entitlements-loginhelper` - *String*
 
