@@ -1,31 +1,40 @@
-var sign = require('..')
+const sign = require('..');
 
-var waterfall = require('run-waterfall')
+const waterfall = require('run-waterfall');
 
-var config = require('./config')
-var util = require('./util')
+const config = require('./config');
+const util = require('./util');
 
 function createDefaultsTest (release) {
   return function (t) {
-    t.timeoutAfter(config.timeout)
+    t.timeoutAfter(config.timeout);
 
-    var opts = {
+    const opts = {
       app: util.generateAppPath(release),
       identity: 'codesign.electronjs.org',
       'gatekeeper-assess': false
-    } // test with no other options for self discovery
+    }; // test with no other options for self discovery
 
-    waterfall([
-      function (cb) {
-        sign(Object.create(opts), cb)
-      }, function (cb) {
-        t.pass('app signed')
-        cb()
+    waterfall(
+      [
+        function (cb) {
+          sign(
+            {
+              ...opts
+            },
+            cb
+          );
+        },
+        function (cb) {
+          t.pass('app signed');
+          cb();
+        }
+      ],
+      function (err) {
+        t.end(err);
       }
-    ], function (err) {
-      t.end(err)
-    })
-  }
+    );
+  };
 }
 
-util.testAllReleases('defaults-test', createDefaultsTest)
+util.testAllReleases('defaults-test', createDefaultsTest);

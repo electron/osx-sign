@@ -167,6 +167,12 @@ See [default.entitlements.mas.inherit.plist](https://github.com/electron-userlan
 Path to login helper entitlement file. When using App Sandbox, the inherited entitlement should not be used since this is a standalone executable. *This option only applies when signing with entitlements.*
 Default to the same entitlements file used for signing the app bundle.
 
+`entitlementsForFile` - *Function*
+
+Function that receives the path to a file and the current codesign arguments as parameters.  If you wish to override the entitlements used for this file path this function should return the absolute path to a different entitlements file.
+
+**Note:** Only available via the JS API
+
 `gatekeeper-assess` - *Boolean*
 
 Flag to enable/disable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
