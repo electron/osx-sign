@@ -12,7 +12,7 @@ Please visit our [wiki](https://github.com/electron-userland/electron-osx-sign/w
 
 *NB: Since [`electron-osx-sign`][electron-osx-sign] injects the entry `com.apple.security.application-groups` into the entitlements file as part of the pre-signing process, this would reportedly limit app transfer on iTunes Connect (see [#150](https://github.com/electron-userland/electron-osx-sign/issues/150)). However, opting out entitlements automation `opts['pre-auto-entitlements'] === false` may result in worse graphics performance.*
 
-*The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
+*The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/main/docs/tutorial/mac-app-store-submission-guide.md).*
 
 ### [Electron]
 
@@ -87,7 +87,7 @@ The examples below assume that `--pre-auto-entitlements` is enabled.
   electron-osx-sign path/to/my.app --version=0.34.0
   ```
 
-Run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt) for CLI-specific options.
+Run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/main/bin/electron-osx-sign-usage.txt) for CLI-specific options.
 
 #### From the API
 
@@ -155,12 +155,12 @@ Default to `undefined`.
 
 Path to entitlements file for signing the app.
 Default to built-in entitlements file, Sandbox enabled for Mac App Store platform.
-See [default.entitlements.mas.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.plist) or [default.entitlements.darwin.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.plist) with respect to your platform.
+See [default.entitlements.mas.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/default.entitlements.mas.plist) or [default.entitlements.darwin.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/default.entitlements.darwin.plist) with respect to your platform.
 
 `entitlements-inherit` - *String*
 
 Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with entitlements.*
-See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.inherit.plist) with respect to your platform.
+See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/main/default.entitlements.darwin.inherit.plist) with respect to your platform.
 
 `entitlements-loginhelper` - *String*
 
@@ -288,7 +288,7 @@ Example:
 electron-osx-flat path/to/my.app
 ```
 
-Run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-flat-usage.txt) for CLI-specific options.
+Run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/main/bin/electron-osx-flat-usage.txt) for CLI-specific options.
 
 #### From the API
 
