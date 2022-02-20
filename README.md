@@ -142,7 +142,7 @@ signAsync({
 `app` - *String*
 
 Path to the application package.
-Needs file extension `.app`.
+Needs file extension `.app`. NOTE: if your app name contains the space character, please rename the .app and the binary in `.app/Contents/MacOS/` without the space character; otherwise, it will throw an error.
 
 **Optional**
 
