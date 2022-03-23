@@ -140,7 +140,7 @@ async function mergeOptionsForFile (
       if (Array.isArray(opts.entitlements)) {
         const entitlements = opts.entitlements.reduce<Record<string, any>>((dict, entitlementKey) => ({
           ...dict,
-          [entitlementKey]: true,
+          [entitlementKey]: true
         }), {});
         const dir = await fs.mkdtemp(path.resolve(os.tmpdir(), 'tmp-entitlements-'));
         const entitlementsPath = path.join(dir, 'entitlements.plist');

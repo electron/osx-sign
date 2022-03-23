@@ -49,7 +49,7 @@ export async function preAutoEntitlements (
   } else {
     entitlements = perFileOpts.entitlements.reduce<Record<string, any>>((dict, entitlementKey) => ({
       ...dict,
-      [entitlementKey]: true,
+      [entitlementKey]: true
     }), {});
   }
   if (!entitlements['com.apple.security.app-sandbox']) {
