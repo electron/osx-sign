@@ -1,5 +1,7 @@
+import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
+import * as plist from 'plist';
 import compareVersion from 'compare-version';
 
 import {
@@ -128,13 +130,25 @@ function defaultOptionsForFile (filePath: string, platform: ElectronMacPlatform)
   };
 }
 
-function mergeOptionsForFile (
+async function mergeOptionsForFile (
   opts: PerFileSignOptions | null,
   defaults: ReturnType<typeof defaultOptionsForFile>
 ) {
   const mergedPerFileOptions = { ...defaults };
   if (opts) {
-    if (opts.entitlements !== undefined) mergedPerFileOptions.entitlements = opts.entitlements;
+    if (opts.entitlements !== undefined) {
+      if (Array.isArray(opts.entitlements)) {
+        const entitlements = opts.entitlements.reduce<Record<string, any>>((dict, entitlementKey) => ({
+          ...dict,
+          [entitlementKey]: true,
+        }), {});
+        const dir = await fs.mkdtemp(path.resolve(os.tmpdir(), 'tmp-entitlements-'));
+        const entitlementsPath = path.join(dir, 'entitlements.plist');
+        await fs.writeFile(entitlementsPath, plist.build(entitlements), 'utf8');
+        opts.entitlements = entitlementsPath;
+      }
+      mergedPerFileOptions.entitlements = opts.entitlements;
+    }
     if (opts.hardenedRuntime !== undefined) {
       mergedPerFileOptions.hardenedRuntime = opts.hardenedRuntime;
     }
@@ -189,7 +203,7 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
       continue;
     }
 
-    const perFileOptions = mergeOptionsForFile(
+    const perFileOptions = await mergeOptionsForFile(
       opts.optionsForFile ? opts.optionsForFile(filePath) : null,
       defaultOptionsForFile(filePath, opts.platform)
     );

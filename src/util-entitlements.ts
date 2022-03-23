@@ -42,8 +42,16 @@ export async function preAutoEntitlements (
     appInfoPath,
     '\n'
   );
-  const entitlementsContents = await fs.readFile(perFileOpts.entitlements, 'utf8');
-  const entitlements = plist.parse(entitlementsContents) as Record<string, any>;
+  let entitlements: Record<string, any>;
+  if (typeof perFileOpts.entitlements === 'string') {
+    const entitlementsContents = await fs.readFile(perFileOpts.entitlements, 'utf8');
+    entitlements = plist.parse(entitlementsContents) as Record<string, any>;
+  } else {
+    entitlements = perFileOpts.entitlements.reduce<Record<string, any>>((dict, entitlementKey) => ({
+      ...dict,
+      [entitlementKey]: true,
+    }), {});
+  }
   if (!entitlements['com.apple.security.app-sandbox']) {
     // Only automate when app sandbox enabled by user
     return;

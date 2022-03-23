@@ -20,7 +20,7 @@ export type PerFileSignOptions = {
   /**
    * The entitlements file to use when signing this file
    */
-  entitlements?: string;
+  entitlements?: string | string[];
   /**
    * Whether to enable hardened runtime for this file.  Enabled by default.
    */
