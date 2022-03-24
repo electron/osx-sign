@@ -196,10 +196,17 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
     const bList = b.split(path.sep);
     const aDepth = aList.length;
     const bDepth = bList.length;
-    if (bDepth - aDepth === 0) {
-      return bList[bDepth - 1].length - aList[aDepth - 1].length;
+    if (bDepth - aDepth !== 0) {
+      return bDepth - aDepth;
     }
-    return bDepth - aDepth;
+    const aVal = aList[aDepth - 1];
+    const bVal = bList[bDepth - 1];
+    const aLength = aVal.length;
+    const bLength = bVal.length;
+    if (bLength - aLength !== 0) {
+      return bLength - aLength;
+    }
+    return bVal.localeCompare(aVal);
   });
 
   for (const filePath of [...children, opts.app]) {
