@@ -70,7 +70,7 @@ async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identi
  * This function is exported and returns a promise flattening the application.
  */
 export async function buildPkg (_opts: FlatOptions) {
-  debugLog('electron-osx-sign@%s', pkgVersion);
+  debugLog('@electron/osx-sign@%s', pkgVersion);
   const validatedOptions = await validateFlatOpts(_opts);
   let identities: Identity[] = [];
   let identityInUse: Identity | null = null;

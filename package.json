@@ -1,6 +1,6 @@
 {
-  "name": "electron-osx-sign",
-  "version": "0.6.0",
+  "name": "@electron/osx-sign",
+  "version": "1.0.0",
   "description": "Codesign Electron macOS apps",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron/electron-osx-sign.git"
+    "url": "git+https://github.com/electron/osx-sign.git"
   },
   "author": "electron",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/electron/electron-osx-sign/issues"
+    "url": "https://github.com/electron/osx-sign/issues"
   },
-  "homepage": "https://github.com/electron/electron-osx-sign",
+  "homepage": "https://github.com/electron/osx-sign",
   "dependencies": {
     "compare-version": "^0.1.2",
     "debug": "^4.3.2",

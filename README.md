@@ -1,12 +1,12 @@
-# electron-osx-sign [![npm][npm_img]][npm_url] [![Build Status][circleci_img]][circleci_url]
+# @electron/osx-sign [![npm][npm_img]][npm_url] [![Build Status][circleci_img]][circleci_url]
 
 Codesign Electron macOS apps
 
 ## About
 
-[`electron-osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for network access etc. require additional work.
+[`@electron/osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for network access etc. require additional work.
 
-*NB: Since [`electron-osx-sign`][electron-osx-sign] injects the entry `com.apple.security.application-groups` into the entitlements file as part of the pre-signing process, this would reportedly limit app transfer on iTunes Connect (see [#150](https://github.com/electron-userland/electron-osx-sign/issues/150)). However, opting out entitlements automation `opts['pre-auto-entitlements'] === false` may result in worse graphics performance.*
+*NB: Since [`@electron/osx-sign`][electron-osx-sign] injects the entry `com.apple.security.application-groups` into the entitlements file as part of the pre-signing process, this would reportedly limit app transfer on iTunes Connect (see [#150](https://github.com/electron/osx-sign/issues/150)). However, opting out entitlements automation `opts['pre-auto-entitlements'] === false` may result in worse graphics performance.*
 
 *The signing procedure implemented in this package is based on what described in [Code Signing Guide](https://github.com/electron/electron/blob/main/docs/tutorial/code-signing.md).*
 
@@ -14,55 +14,35 @@ Codesign Electron macOS apps
 
 ```sh
 # For use in npm scripts
-npm install --save electron-osx-sign
+npm install --save @electron/osx-sign
+# yarn
+yarn add @electron/osx-sign
 ```
 
 ```sh
 # For use from CLI
-npm install -g electron-osx-sign
+npm install -g @electron/osx-sign
+# Yarn
+yarn global add @electron/osx-sign
 ```
 
-*Note: `electron-osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on macOS. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
+*Note: `@electron/osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on macOS. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
 
 ## Usage
 
-### electron-osx-sign
+### Code Signing
 
 #### From the API
 
 ```javascript
-var sign = require('electron-osx-sign')
+const { sign } = require('@electron/osx-sign')
 sign(opts[, function done (err) {}])
 ```
 
 Example:
 
 ```javascript
-var sign = require('electron-osx-sign')
-sign({
-  app: 'path/to/my.app'
-}, function done (err) {
-  if (err) {
-    // Handle the error
-    return;
-  }
-  // Application signed
-})
-```
-
-From release v0.4.0-beta, promises are introduced for better async method calls; the following is also available for use.
-
-```javascript
-var signAsync = require('electron-osx-sign').signAsync
-signAsync(opts)
-  [.then(function () {})]
-  [.catch(function (err) {})]
-```
-
-Example:
-
-```javascript
-var signAsync = require('electron-osx-sign').signAsync
+const { signAsync } = require('@electron/osx-sign')
 signAsync({
   app: 'path/to/my.app'
 })
@@ -174,10 +154,6 @@ Default to latest Electron version.
 
 It is recommended to utilize this option for best support of specific Electron versions. This may trigger pre/post operations for signing: For example, automation of setting `com.apple.security.application-groups` in entitlements file and of updating `Info.plist` with `ElectronTeamID` is enabled for all versions starting from `1.1.1`; set `pre-auto-entitlements` option to `false` to disable this feature.
 
-###### cb - Callback
-
-`err` - *Error*
-
 #### From the Command Line
 
 ```sh
@@ -216,45 +192,14 @@ The examples below assume that `--pre-auto-entitlements` is enabled.
   electron-osx-sign path/to/my.app --version=0.34.0
   ```
 
-Run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-sign-usage.txt) for CLI-specific options.
+Run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron/osx-sign/blob/main/bin/electron-osx-sign-usage.txt) for CLI-specific options.
 
 ### electron-osx-flat
 
 #### From the API
 
 ```javascript
-var flat = require('electron-osx-sign').flat
-flat(opts[, function done (err) {}])
-```
-
-Example:
-
-```javascript
-var flat = require('electron-osx-sign').flat
-flat({
-  app: 'path/to/my.app'
-}, function done (err) {
-  if (err) {
-    // Handle the error
-    return;
-  }
-  // Application flattened
-})
-```
-
-From release v0.4.0-beta, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
-
-```javascript
-var flatAsync = require('electron-osx-sign').flatAsync
-flatAsync(opts)
-  [.then(function () {})]
-  [.catch(function (err) {})]
-```
-
-Example:
-
-```javascript
-var flatAsync = require('electron-osx-sign').flatAsync
+const { flatAsync } = require('@electron/osx-sign')
 flatAsync({
   app: 'path/to/my.app'
 })
@@ -311,11 +256,6 @@ Needs file extension `.pkg`.
 
 `scripts` - *String*
 Path to a directory containing pre and/or post install scripts.
-
-###### cb - Callback
-
-`err` - *Error*
-
 #### From the Command Line
 
 ```sh
@@ -328,7 +268,7 @@ Example:
 electron-osx-flat path/to/my.app
 ```
 
-Run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/electron-userland/electron-osx-sign/blob/master/bin/electron-osx-flat-usage.txt) for CLI-specific options.
+Run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/electron/osx-sign/blob/main/bin/electron-osx-flat-usage.txt) for CLI-specific options.
 
 ## Debug
 
@@ -387,8 +327,8 @@ ok 10 app signed
 ```
 
 [Electron]: https://github.com/electron/electron
-[electron-osx-sign]: https://github.com/electron-userland/electron-osx-sign
-[npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
-[npm_url]: https://npmjs.org/package/electron-osx-sign
-[circleci_img]: https://img.shields.io/circleci/build/github/electron/electron-osx-sign
-[circleci_url]: https://circleci.com/gh/electron/electron-osx-sign
+[electron-osx-sign]: https://github.com/electron/osx-sign
+[npm_img]: https://img.shields.io/npm/v/@electron/osx-sign.svg
+[npm_url]: https://npmjs.org/package/@electron/osx-sign
+[circleci_img]: https://img.shields.io/circleci/build/github/electron/osx-sign
+[circleci_url]: https://circleci.com/gh/electron/osx-sign
