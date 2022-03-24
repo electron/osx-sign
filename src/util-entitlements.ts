@@ -72,10 +72,11 @@ export async function preAutoEntitlements (
           appInfo.ElectronTeamID
       );
     } else {
-      appInfo.ElectronTeamID = computed.identity.name.substring(
-        computed.identity.name.indexOf('(') + 1,
-        computed.identity.name.lastIndexOf(')')
-      );
+      const teamID = /^.+\((.+?)\)$/g.exec(computed.identity.name)?.[1];
+      if (!teamID) {
+        throw new Error(`Could not automatically determine ElectronTeamID from identity: ${computed.identity.name}`);
+      }
+      appInfo.ElectronTeamID = teamID;
       debugLog(
         '`ElectronTeamID` not found in `Info.plist`, use parsed from signing identity: ' +
           appInfo.ElectronTeamID
