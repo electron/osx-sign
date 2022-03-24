@@ -35,13 +35,6 @@ yarn global add @electron/osx-sign
 #### From the API
 
 ```javascript
-const { sign } = require('@electron/osx-sign')
-sign(opts[, function done (err) {}])
-```
-
-Example:
-
-```javascript
 const { signAsync } = require('@electron/osx-sign')
 signAsync({
   app: 'path/to/my.app'
