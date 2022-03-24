@@ -17,7 +17,7 @@ DESCRIPTION
     Name of certificate to use when signing.
     Default to selected with respect to --platform from --keychain specified or keychain by system default.
 
-  --identity-validation, --no-identity-validation
+  --identityValidation, --no-identityValidation
     Flag to enable/disable validation for the signing identity.
 
   --install=install-path

@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
 import * as plist from 'plist';
-import { ValidatedSignOptions } from './types';
+import { PerFileSignOptions, ValidatedSignOptions } from './types';
 import { debugLog, getAppContentsPath } from './util';
 import { Identity } from './util-identities';
 import { ProvisioningProfile } from './util-provisioning-profiles';
@@ -11,6 +11,8 @@ type ComputedOptions = {
   identity: Identity;
   provisioningProfile?: ProvisioningProfile;
 };
+
+const preAuthMemo = new Map<string, string>();
 
 /**
  * This function returns a promise completing the entitlements automation: The
@@ -22,9 +24,13 @@ type ComputedOptions = {
  */
 export async function preAutoEntitlements (
   opts: ValidatedSignOptions,
+  perFileOpts: PerFileSignOptions,
   computed: ComputedOptions
 ): Promise<void | string> {
-  if (!opts.entitlements) return;
+  if (!perFileOpts.entitlements) return;
+
+  const memoKey = [opts.app, perFileOpts.entitlements].join('---');
+  if (preAuthMemo.has(memoKey)) return preAuthMemo.get(memoKey);
 
   // If entitlements file not provided, default will be used. Fixes #41
   const appInfoPath = path.join(getAppContentsPath(opts), 'Info.plist');
@@ -34,12 +40,18 @@ export async function preAutoEntitlements (
     '\n',
     '> Info.plist:',
     appInfoPath,
-    '\n',
-    '> Entitlements:',
-    opts.entitlements
+    '\n'
   );
-  const entitlementsContents = await fs.readFile(opts.entitlements, 'utf8');
-  const entitlements = plist.parse(entitlementsContents) as Record<string, any>;
+  let entitlements: Record<string, any>;
+  if (typeof perFileOpts.entitlements === 'string') {
+    const entitlementsContents = await fs.readFile(perFileOpts.entitlements, 'utf8');
+    entitlements = plist.parse(entitlementsContents) as Record<string, any>;
+  } else {
+    entitlements = perFileOpts.entitlements.reduce<Record<string, any>>((dict, entitlementKey) => ({
+      ...dict,
+      [entitlementKey]: true
+    }), {});
+  }
   if (!entitlements['com.apple.security.app-sandbox']) {
     // Only automate when app sandbox enabled by user
     return;
@@ -126,5 +138,6 @@ export async function preAutoEntitlements (
   await fs.writeFile(entitlementsPath, plist.build(entitlements), 'utf8');
   debugLog('Entitlements file updated:', '\n', '> Entitlements:', entitlementsPath);
 
+  preAuthMemo.set(memoKey, entitlementsPath);
   return entitlementsPath;
 }

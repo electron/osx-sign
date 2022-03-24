@@ -77,10 +77,7 @@ The examples below assume that `--pre-auto-entitlements` is enabled.
   electron-osx-sign path/to/my.app --provisioning-profile=path/to/my.provisionprofile
   ```
 
-- To specify the entitlements file:
-  ```sh
-  electron-osx-sign path/to/my.app --entitlements=path/to/my.entitlements
-  ```
+- To specify custom entitlements files you have to use the JS API.
 
 - It is recommended to make use of `--version` while signing legacy versions of Electron:
   ```sh
@@ -151,33 +148,20 @@ Needs file extension `.app`.
 Path to additional binaries that will be signed along with built-ins of Electron.
 Default to `undefined`.
 
-`entitlements` - *String*
+`optionsForFile` - *Function*
 
-Path to entitlements file for signing the app.
-Default to built-in entitlements file, Sandbox enabled for Mac App Store platform.
-See [default.entitlements.mas.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.plist) or [default.entitlements.darwin.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.plist) with respect to your platform.
+Function that receives the path to a file and can return the entitlements to use for that file to override the default behavior.  The
+object this function returns can include any of the following optional keys.
 
-`entitlements-inherit` - *String*
-
-Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution. *This option only applies when signing with entitlements.*
-See [default.entitlements.mas.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.mas.inherit.plist) or [default.entitlements.darwin.inherit.plist](https://github.com/electron-userland/electron-osx-sign/blob/master/default.entitlements.darwin.inherit.plist) with respect to your platform.
-
-`entitlements-loginhelper` - *String*
-
-Path to login helper entitlement file. When using App Sandbox, the inherited entitlement should not be used since this is a standalone executable. *This option only applies when signing with entitlements.*
-Default to the same entitlements file used for signing the app bundle.
-
-`entitlementsForFile` - *Function*
-
-Function that receives the path to a file and the current codesign arguments as parameters.  If you wish to override the entitlements used for this file path this function should return the absolute path to a different entitlements file.
+| Option            | Description                                                                                                                                                                                                                               | Usage Example                                                         |
+|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| `entitlements`    | String specifying the path to an `entitlements.plist` file. Will default to built-in entitlements files. Can also be an array of entitlement keys that osx-sign will write to an entitlements file for you.                               | `'path/to/entitlements'`                                        |
+| `hardenedRuntime` | Boolean flag to enable the Hardened Runtime when signing the app. Enabled by default.                                                                                                                                                     | `false`                                                         |
+| `requirements`    | String specifying the [requirements](https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html) that you recommend to be used to evaluate the code signature.       | `'anchor apple or anchor = "/var/db/yourcorporateanchor.cert"'` |
+| `signatureFlags`  | List of [code signature flags](https://developer.apple.com/documentation/security/seccodesignatureflags?language=objc). Accepts an array of strings or a comma-separated string.                                                          | `['kSecCodeSignatureRestrict']`                                 |
+| `timestamp`       | String specifying the URL of the timestamp authority server. Defaults to the server provided by Apple. Please note that this default server may not support signatures not furnished by Apple. Disable the timestamp service with `none`. | `'https://different.timeserver'`                                |
 
 **Note:** Only available via the JS API
-
-`gatekeeper-assess` - *Boolean*
-
-Flag to enable/disable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
-Gatekeeper assessment is enabled by default on `darwin` platform.
-Default to `true`.
 
 `hardenedRuntime` or `hardened-runtime` - *Boolean*
 
@@ -191,7 +175,7 @@ Default to be selected with respect to `provisioning-profile` and `platform` fro
 
 Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)`, and platform `darwin` will look for `Developer ID Application: * (*)` by default.
 
-`identity-validation` - *Boolean*
+`identityValidation` - *Boolean*
 
 Flag to enable/disable validation for the signing identity. If enabled, the `identity` provided will be validated in the `keychain` specified.
 Default to `true`.
@@ -213,48 +197,26 @@ Build platform of Electron.
 Allowed values: `darwin`, `mas`.
 Default to auto detect by presence of `Squirrel.framework` within the application bundle.
 
-`pre-auto-entitlements` - *Boolean*
+`preAutoEntitlements` - *Boolean*
 
 Flag to enable/disable automation of `com.apple.security.application-groups` in entitlements file and update `Info.plist` with `ElectronTeamID`.
 Default to `true`.
 
-`pre-embed-provisioning-profile` - *Boolean*
+`preEmbedProvisioningProfile` - *Boolean*
 
 Flag to enable/disable embedding of provisioning profile in the current working directory.
 Default to `true`.
 
-`provisioning-profile` - *String*
+`provisioningProfile` - *String*
 
 Path to provisioning profile.
 
-`requirements` - *String*
-
-Specify the criteria that you recommend to be used to evaluate the code signature.
-See more info from https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
-Default to `undefined`.
-
-`restrict` - *Boolean*
-
-**To be deprecated, see `signature-flags`.**
-Restrict dyld loading. See doc about this [code signature flag](https://developer.apple.com/documentation/security/seccodesignatureflags/kseccodesignaturerestrict?language=objc) for more details. Disabled by default.
-
-`signature-flags` - *String*
-Comma separated string or array for [code signature flag](https://developer.apple.com/documentation/security/seccodesignatureflags?language=objc). Default to `undefined`.
-
-`signature-size` - *Number*
-Provide a value to be passed to `codesign` along with the `--signature-size` flag, to work around the *signature too large to embed* issue. A value of `12000` should do it - see the [FAQ](https://github.com/electron/electron-osx-sign/wiki/FAQ) for details. Default to `undefined`.
-
-`strict-verify` - *Boolean|String|Array.<String>*
+`strictVerify` - *Boolean|String|Array.<String>*
 
 Flag to enable/disable `--strict` flag when verifying the signed application bundle.
 If provided as a string, each component should be separated with comma (`,`).
 If provided as an array, each item should be a string corresponding to a component.
 Default to `true`.
-
-`timestamp` - *String*
-
-Specify the URL of the timestamp authority server, default to server provided by Apple. Please note that this default server may not support signatures not furnished by Apple.
-Disable the timestamp service with `none`.
 
 `type` - *String*
 
@@ -354,7 +316,7 @@ Default to be selected with respect to `platform` from `keychain` or keychain by
 
 Flattening platform `mas` will look for `3rd Party Mac Developer Installer: * (*)`, and platform `darwin` will look for `Developer ID Installer: * (*)` by default.
 
-`identity-validation` - *Boolean*
+`identityValidation` - *Boolean*
 
 Flag to enable/disable validation for signing identity. If enabled, the `identity` provided will be validated in the `keychain` specified.
 Default to `true`.

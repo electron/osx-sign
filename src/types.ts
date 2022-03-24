@@ -12,42 +12,56 @@ type OnlyValidatedBaseSignOptions = {
   platform: ElectronMacPlatform;
 };
 
-type OnlySignOptions = {
-  binaries?: string[];
-  entitlements?: string;
-  'entitlements-inherit'?: string;
-  'entitlements-loginhelper'?: string;
-  'gatekeeper-assess'?: boolean;
+/**
+ * Any missing options will use the default values, providing a partial
+ * structure will shallow merge with the default values.
+ */
+export type PerFileSignOptions = {
+  /**
+   * The entitlements file to use when signing this file
+   */
+  entitlements?: string | string[];
+  /**
+   * Whether to enable hardened runtime for this file.  Enabled by default.
+   */
   hardenedRuntime?: boolean;
   /**
-   * @deprecated use hardenedRuntime instead
+   * The designated requirements to embed when signing this file
    */
-  ['hardened-runtime']?: boolean;
-  'identity-validation'?: boolean;
-  ignore?: string | string[] | ((file: string) => boolean);
-  'pre-auto-entitlements'?: boolean;
-  'pre-embed-provisioning-profile'?: boolean;
-  'provisioning-profile'?: string;
   requirements?: string;
-  restrict?: boolean;
-  'signature-flags'?: string | ((file: string) => string[]);
-  'signature-size'?: number;
-  'strict-verify'?: boolean;
+  /**
+   * See --options of the "codesign" command.
+   *
+   * https://www.manpagez.com/man/1/codesign
+   */
+  signatureFlags?: string | string[];
+  /**
+   * The timestamp server to use when signing, by default uses the Apple provided
+   * timestamp server.
+   */
   timestamp?: string;
+}
+
+type OnlySignOptions = {
+  binaries?: string[];
+  optionsForFile?: (filePath: string) => PerFileSignOptions;
+  identityValidation?: boolean;
+  ignore?: string | string[] | ((file: string) => boolean);
+  preAutoEntitlements?: boolean;
+  preEmbedProvisioningProfile?: boolean;
+  provisioningProfile?: string;
+  strictVerify?: boolean;
   type?: SigningDistributionType;
   version?: string;
-  entitlementsForFile?: (file: string, codeSignArgs: string[]) => string | null;
 };
 
 type OnlyValidatedSignOptions = {
-  entitlements: string;
-  'entitlements-inherit': string;
   ignore?: (string | ((file: string) => boolean))[];
   type: SigningDistributionType;
 };
 
 type OnlyFlatOptions = {
-  'identity-validation'?: boolean;
+  identityValidation?: boolean;
   install?: string;
   pkg?: string;
   scripts?: string;

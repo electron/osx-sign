@@ -13,26 +13,6 @@ DESCRIPTION
   embedded-binary ...
     Path to additional binaries that will be signed along with built-ins of Electron, spaced.
 
-  --entitlements=file
-    Path to entitlements file for signing the app.
-    Default to built-in entitlements file, Sandbox enabled for Mac App Store platform.
-
-  --entitlements-inherit=file
-    Path to child entitlements which inherit the security settings for signing frameworks and bundles of a distribution.
-    This option only applies when signing with entitlements.
-
-  --entitlements-loginhelper=file
-    Path to login helper entitlement file. When using App Sandbox, the inherited entitlement should not be used since this is a standalone executable.
-    This option only applies when signing with entitlements.
-
-  --gatekeeper-assess, --no-gatekeeper-assess
-    Flag to enable/disable Gatekeeper assessment after signing the app. Disabling it is useful for signing with self-signed certificates.
-    Gatekeeper assessment is enabled by default on ``darwin'' platform.
-
-  --hardened-runtime
-    Flag to enable the Mojave hardened runtime when signing the app.  Disabled by default, requires Xcode >= 10 and macOS
-    >= 10.13.6.
-
   --help
     Flag to display all commands.
 
@@ -40,7 +20,7 @@ DESCRIPTION
     Name of certificate to use when signing.
     Default to selected with respect to --provisioning-profile and --platform from --keychain specified or keychain by system default.
 
-  --identity-validation, --no-identity-validation
+  --identityValidation, --no-identityValidation
     Flag to enable/disable validation for the signing identity.
 
   --ignore=path
@@ -64,27 +44,10 @@ DESCRIPTION
   --provisioning-profile=file
     Path to provisioning profile.
 
-  --requirements=requirements
-    Specify the criteria that you recommend to be used to evaluate the code signature.
-
-  --restrict
-    (This will be deprecated soon, see --sign-flags.)
-    Flag to enable restrict mode. Disabled by default. 
-
-  --signature-flags=flags
-    Code signature flags. Default to none.
-
-  --signature-size=size
-    Signature size. Default to none.
-
-  --strict-verify, --strict-verify=options, --no-strict-verify
+  --strictVerify, --strictVerify=options, --no-strictVerify
     Flag to enable/disable ``--strict'' flag when verifying the signed application bundle.
     Each component should be separated in ``options'' with comma (``,'').
     Enabled by default.
-
-  --timestamp=timestamp
-    Specify the URL of the timestamp authority server, default to server provided by Apple.
-    Disable the timestamp service with ``none''.
 
   --type=type
     Specify whether to sign app for development or for distribution.
