@@ -6,27 +6,9 @@ Codesign Electron macOS apps
 
 [`electron-osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for network access etc. require additional work.
 
-Check out [`electron-osx-sign` guide](https://mintkit.net/electron-userland/electron-osx-sign/guide/) for suggestions on setting up your environment and workflow for distribution or development.
-
-Please visit our [wiki](https://github.com/electron-userland/electron-osx-sign/wiki) for walk-throughs, notes and [frequently asked questions](https://github.com/electron-userland/electron-osx-sign/wiki/FAQ) from past projects shipped with [`electron-packager`][electron-packager] and [`electron-osx-sign`][electron-osx-sign].
-
 *NB: Since [`electron-osx-sign`][electron-osx-sign] injects the entry `com.apple.security.application-groups` into the entitlements file as part of the pre-signing process, this would reportedly limit app transfer on iTunes Connect (see [#150](https://github.com/electron-userland/electron-osx-sign/issues/150)). However, opting out entitlements automation `opts['pre-auto-entitlements'] === false` may result in worse graphics performance.*
 
-*The signing procedure implemented in this package is based on what described in [Mac App Store Submission Guide](https://github.com/atom/electron/blob/master/docs/tutorial/mac-app-store-submission-guide.md).*
-
-### [Electron]
-
-It is worth noting as well that starting from [Electron] v1.1.1, a new mechanism was introduced to allow IPC in App Sandbox (see [electron#5601](https://github.com/electron/electron/pull/5601)); wish to have full support of legacy Electron versions, please utilize `opts.version`, which option brings less hassle with making default settings among Electron builds.
-
-We are trying to keep updated to the latest [Electron] specs; please [file us an issue](https://github.com/electron-userland/electron-osx-sign/issues/new) if having any suggestions or experiencing difficulties code signing your products.
-
-### An [OPEN Open Source Project](http://openopensource.org/)
-
-Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
-
-### Collaborators
-
-Thanks to [seanchas116](https://github.com/seanchas116), [jasonhinkle](https://github.com/jasonhinkle), and [develar](https://github.com/develar) for improving the usability of this project implementation.
+*The signing procedure implemented in this package is based on what described in [Code Signing Guide](https://github.com/electron/electron/blob/main/docs/tutorial/code-signing.md).*
 
 ## Installation
 
@@ -108,7 +90,7 @@ sign({
 })
 ```
 
-From release v0.4.0-beta, [Bluebird] promises are introduced for better async method calls; the following is also available for use.
+From release v0.4.0-beta, promises are introduced for better async method calls; the following is also available for use.
 
 ```javascript
 var signAsync = require('electron-osx-sign').signAsync
@@ -404,15 +386,7 @@ ok 10 app signed
 # ok
 ```
 
-## Related
-
-- [electron-packager] - Package your electron app in OS executables (.app, .exe, etc) via JS or CLI
-- [electron-builder] - A complete solution to package and build a ready for distribution Electron app with “auto update” support out of the box
-
-[Bluebird]: https://github.com/petkaantonov/bluebird
 [Electron]: https://github.com/electron/electron
-[electron-builder]: https://github.com/electron-userland/electron-builder
-[electron-packager]: https://github.com/electron-userland/electron-packager
 [electron-osx-sign]: https://github.com/electron-userland/electron-osx-sign
 [npm_img]: https://img.shields.io/npm/v/electron-osx-sign.svg
 [npm_url]: https://npmjs.org/package/electron-osx-sign
