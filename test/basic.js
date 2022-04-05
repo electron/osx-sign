@@ -11,8 +11,7 @@ function createDefaultsTest (release) {
 
     const opts = {
       app: util.generateAppPath(release),
-      identity: 'codesign.electronjs.org',
-      'gatekeeper-assess': false
+      identity: 'codesign.electronjs.org (T123456)'
     }; // test with no other options for self discovery
 
     waterfall(
