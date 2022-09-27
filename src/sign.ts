@@ -181,7 +181,7 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
 
   if (opts.binaries) children.push(...opts.binaries);
 
-  const args = ['--sign', identity.hash || identity.name, '--force'];
+  const args = ['--sign', identity.hash || identity.name, '--force', '--deep'];
   if (opts.keychain) {
     args.push('--keychain', opts.keychain);
   }
