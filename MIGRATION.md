@@ -1,13 +1,14 @@
 # Migration from `electron-osx-sign` to `@electron/osx-sign`
 
-We strongly reccomend migrating more carefully and utilizing either the new
-defaults or the new API surface as it results in a more secure and safe
-application.
+We strongly recommend starting with the new defaults and migrating
+to the new API surface carefully. Doing so will result in a more secure
+and safe application.
 
-## Direct Migration
+## Direct migration
 
-This migration pattern should result in identical behavior between the two
-modules.  As mentioned above this isn't ideal but will maintain behavior.
+However, if you wish to emulate the exact behaviour from `electron-osx-sign`, you
+can use the following setup to directly migrate your old preferences.
+This pattern should result in identical behavior between the two modules.
 
 ```js
 const oldOptions = {
