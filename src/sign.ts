@@ -235,13 +235,15 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
 
     debugLog('Signing... ' + filePath);
 
+    const perFileArgs = [...args];
+
     if (perFileOptions.requirements) {
-      args.push('--requirements', perFileOptions.requirements);
+      perFileArgs.push('--requirements', perFileOptions.requirements);
     }
     if (perFileOptions.timestamp) {
-      args.push('--timestamp=' + perFileOptions.timestamp);
+      perFileArgs.push('--timestamp=' + perFileOptions.timestamp);
     } else {
-      args.push('--timestamp');
+      perFileArgs.push('--timestamp');
     }
 
     let optionsArguments: string[] = [];
@@ -273,12 +275,12 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
     }
 
     if (optionsArguments.length) {
-      args.push('--options', [...new Set(optionsArguments)].join(','));
+      perFileArgs.push('--options', [...new Set(optionsArguments)].join(','));
     }
 
     await execFileAsync(
       'codesign',
-      args.concat('--entitlements', perFileOptions.entitlements, filePath)
+      perFileArgs.concat('--entitlements', perFileOptions.entitlements, filePath)
     );
   }
 

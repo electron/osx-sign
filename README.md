@@ -78,11 +78,6 @@ object this function returns can include any of the following optional keys.
 
 **Note:** Only available via the JS API
 
-`hardenedRuntime` or `hardened-runtime` - *Boolean*
-
-Flag to enable the Mojave hardened runtime when signing the app.  Disabled by default, requires Xcode >= 10 and
-macOS >= 10.13.6.
-
 `identity` - *String*
 
 Name of certificate to use when signing.
