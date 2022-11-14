@@ -6,7 +6,7 @@ Codesign Electron macOS apps
 
 [`@electron/osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for network access etc. require additional work.
 
-*NB: Since [`@electron/osx-sign`][electron-osx-sign] injects the entry `com.apple.security.application-groups` into the entitlements file as part of the pre-signing process, this would reportedly limit app transfer on iTunes Connect (see [#150](https://github.com/electron/osx-sign/issues/150)). However, opting out entitlements automation `opts['pre-auto-entitlements'] === false` may result in worse graphics performance.*
+*NB: Since [`@electron/osx-sign`][electron-osx-sign] injects the entry `com.apple.security.application-groups` into the entitlements file as part of the pre-signing process, this would reportedly limit app transfer on iTunes Connect (see [#150](https://github.com/electron/osx-sign/issues/150)). However, opting out entitlements automation `opts['preAutoEntitlements'] === false` may result in worse graphics performance.*
 
 *The signing procedure implemented in this package is based on what described in [Code Signing Guide](https://github.com/electron/electron/blob/main/docs/tutorial/code-signing.md).*
 
@@ -26,7 +26,7 @@ npm install -g @electron/osx-sign
 yarn global add @electron/osx-sign
 ```
 
-*Note: `@electron/osx-sign` is a dependency of `electron-packager` as of 6.0.0 for signing apps on macOS. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
+*Note: `@electron/osx-sign` is a dependency of [`electron-packager`](https://github.com/electron/electron-packager) as of 6.0.0 for signing apps on macOS. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
 
 ## Usage
 
@@ -140,7 +140,7 @@ Build version of Electron.
 Values may be like: `1.1.1`, `1.2.0`.
 Default to latest Electron version.
 
-It is recommended to utilize this option for best support of specific Electron versions. This may trigger pre/post operations for signing: For example, automation of setting `com.apple.security.application-groups` in entitlements file and of updating `Info.plist` with `ElectronTeamID` is enabled for all versions starting from `1.1.1`; set `pre-auto-entitlements` option to `false` to disable this feature.
+It is recommended to utilize this option for best support of specific Electron versions. This may trigger pre/post operations for signing: For example, automation of setting `com.apple.security.application-groups` in entitlements file and of updating `Info.plist` with `ElectronTeamID` is enabled for all versions starting from `1.1.1`; set `preAutoEntitlements` option to `false` to disable this feature.
 
 #### From the Command Line
 
