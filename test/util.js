@@ -1,7 +1,7 @@
 const path = require('path');
 const test = require('tape');
 
-const download = require('electron-download');
+const { downloadArtifact } = require('@electron/get');
 const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 const series = require('run-series');
@@ -25,9 +25,9 @@ versions.forEach(function (version) {
       // Only versions later than 0.34.0 offer mas builds
       if (platform !== 'mas' || compareVersion(version, '0.34.0') >= 0) {
         releases.push({
-          arch: arch,
-          platform: platform,
-          version: version
+          arch,
+          platform,
+          version
         });
       }
     });
@@ -47,12 +47,10 @@ exports.downloadElectrons = function downloadElectrons (callback) {
   series(
     releases.map(function (release) {
       return function (cb) {
-        download(release, function (err, zipPath) {
-          if (err) return callback(err);
-          extract(zipPath, { dir: path.join(WORK_CWD, exports.generateReleaseName(release)) })
-            .then(() => cb())
-            .catch(cb);
-        });
+        downloadArtifact({ ...release, artifactName: 'electron' })
+          .then((zipPath) => extract(zipPath, { dir: path.join(WORK_CWD, exports.generateReleaseName(release)) }))
+          .then(() => cb())
+          .catch(cb);
       };
     }),
     callback
