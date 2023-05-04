@@ -54,7 +54,6 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
  * @returns {Promise} Promise.
  */
 async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identity) {
-
   const componentPkgPath = path.join(path.dirname(opts.app), path.basename(opts.app, '.app') + '-component.pkg');
   const pkgbuildArgs = ['--install-location', opts.install, '--component', opts.app, componentPkgPath];
   if (opts.scripts) {
