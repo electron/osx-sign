@@ -136,7 +136,7 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
   debugLog('Walking... ' + dirPath);
 
   async function _walkAsync (dirPath: string): Promise<DeepList<string>> {
-    const res: string[] = [];
+    const res: DeepList<string> = [];
     const children = await fs.readdir(dirPath);
     for (const child of children) {
       const filePath = path.resolve(dirPath, child);
