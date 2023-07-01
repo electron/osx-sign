@@ -1,56 +1,69 @@
-step-restore-cache: &step-restore-cache
-  restore_cache:
-    keys:
-      - v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
-      - v1-dependencies-{{ arch }}
+version: 2.1
 
-steps-test: &steps-test
-  steps:
-    - checkout
-    - *step-restore-cache
-    - run:
-        name: Setup NVM
-        command: |
-          curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash -s -- --no-use
-          echo 'export NVM_DIR=$HOME/.nvm' >> $BASH_ENV
-          echo 'source $NVM_DIR/nvm.sh' >> $BASH_ENV
-          echo 'nvm install $NODE_VERSION' >> $BASH_ENV
-          echo 'nvm alias default $NODE_VERSION' >> $BASH_ENV
-    - run: yarn --frozen-lockfile
-    - save_cache:
-        paths:
-          - node_modules
-        key: v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
-    - run: ./test/ci/generate-identity.sh
-    - run: yarn build && yarn test
+orbs:
+  cfa: continuousauth/npm@1.0.2
+  node: circleci/node@5.1.0
 
-version: 2
+commands:
+  install:
+    parameters:
+      node-version:
+        description: Node.js version to install
+        type: string
+    steps:
+      - run: git config --global core.autocrlf input
+      - node/install:
+          node-version: << parameters.node-version >>
+      - run: nvm use << parameters.node-version >>
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
+            - v1-dependencies-{{ arch }}
+      - run: yarn install --frozen-lockfile
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
+  test:
+    steps:
+      - run: ./test/ci/generate-identity.sh
+      - run: yarn build && yarn test
+
 jobs:
-  test-mac-18:
+  test-mac:
     macos:
-      xcode: "13.3.0"
-    environment:
-      NODE_VERSION: "18"
-    <<: *steps-test
-
-  test-mac-16:
-    macos:
-      xcode: "13.3.0"
-    environment:
-      NODE_VERSION: "16"
-    <<: *steps-test
-
-  test-mac-14:
-    macos:
-      xcode: "13.3.0"
-    environment:
-      NODE_VERSION: "14"
-    <<: *steps-test
+      xcode: "14.0.0"
+    resource_class: macos.x86.medium.gen2
+    parameters:
+      node-version:
+        description: Node.js version to install
+        type: string
+    steps:
+      - install:
+          node-version: << parameters.node-version >>
+      - test
 
 workflows:
-  version: 2
-  test:
+  test_and_release:
+    # Run the test jobs first, then the release only when all the test jobs are successful
     jobs:
-      - test-mac-18
-      - test-mac-16
-      - test-mac-14
+      - test-mac:
+          matrix:
+            parameters:
+              node-version:
+                - 20.3.1
+                - 18.16.1
+                - 16.20.1
+                - 14.21.3
+      - cfa/release:
+          requires:
+            - test-mac-20.3.1
+            - test-mac-18.16.1
+            - test-mac-16.20.1
+            - test-mac-14.21.3
+          filters:
+            branches:
+              only:
+                - main
+          context: cfa-release
