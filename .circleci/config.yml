@@ -10,7 +10,7 @@ workflows:
     jobs:
       - node/test:
           executor: node/macos
-          name: test-<< matrix.executor >>-<< matrix.node-version >>
+          name: test-mac-<< matrix.node-version >>
           pre-steps:
             - run: git config --global core.autocrlf input
           test-steps:
