@@ -1,9 +1,14 @@
 export type ElectronMacPlatform = 'darwin' | 'mas';
 type SigningDistributionType = 'development' | 'distribution';
 
+export type Identity = {
+  name: string;
+  hash: string;
+};
+
 export type BaseSignOptions = Readonly<{
   app: string;
-  identity?: string;
+  identity?: string | Identity;
   platform?: ElectronMacPlatform;
   keychain?: string;
 }>;
@@ -40,7 +45,7 @@ export type PerFileSignOptions = {
    * timestamp server.
    */
   timestamp?: string;
-}
+};
 
 type OnlySignOptions = {
   binaries?: string[];
@@ -74,10 +79,14 @@ type OnlyValidatedFlatOptions = {
 
 type ValidatedForm<UnValidated, Validated> = Omit<UnValidated, keyof Validated> & Validated;
 
-export type ValidatedBaseSignOptions = Readonly<ValidatedForm<BaseSignOptions, OnlyValidatedBaseSignOptions>>;
+export type ValidatedBaseSignOptions = Readonly<
+  ValidatedForm<BaseSignOptions, OnlyValidatedBaseSignOptions>
+>;
 export type SignOptions = Readonly<OnlySignOptions & BaseSignOptions>;
-export type ValidatedSignOptions = Readonly<ValidatedForm<OnlySignOptions, OnlyValidatedSignOptions> &
-  ValidatedBaseSignOptions>;
+export type ValidatedSignOptions = Readonly<
+  ValidatedForm<OnlySignOptions, OnlyValidatedSignOptions> & ValidatedBaseSignOptions
+>;
 export type FlatOptions = Readonly<OnlyFlatOptions & BaseSignOptions>;
-export type ValidatedFlatOptions = Readonly<ValidatedForm<OnlyFlatOptions, OnlyValidatedFlatOptions> &
-  ValidatedBaseSignOptions>;
+export type ValidatedFlatOptions = Readonly<
+  ValidatedForm<OnlyFlatOptions, OnlyValidatedFlatOptions> & ValidatedBaseSignOptions
+>;

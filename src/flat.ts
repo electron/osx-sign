@@ -4,6 +4,7 @@ import { debugLog, debugWarn, execFileAsync, validateOptsApp, validateOptsPlatfo
 import { Identity, findIdentities } from './util-identities';
 
 import { FlatOptions, ValidatedFlatOptions } from './types';
+import { isIdentity } from './isIdentity';
 
 const pkgVersion = require('../../package.json').version as string;
 
@@ -13,7 +14,7 @@ const pkgVersion = require('../../package.json').version as string;
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOptions> {
+async function validateFlatOpts(opts: FlatOptions): Promise<ValidatedFlatOptions> {
   await validateOptsApp(opts);
 
   let pkg = opts.pkg;
@@ -24,7 +25,7 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
     }
   } else {
     debugWarn(
-      'No `pkg` passed in arguments, will fallback to default inferred from the given application.'
+      'No `pkg` passed in arguments, will fallback to default inferred from the given application.',
     );
     pkg = path.join(path.dirname(opts.app), path.basename(opts.app, '.app') + '.pkg');
   }
@@ -43,7 +44,7 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
     ...opts,
     pkg,
     install,
-    platform: await validateOptsPlatform(opts)
+    platform: await validateOptsPlatform(opts),
   };
 }
 
@@ -53,7 +54,7 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identity) {
+async function buildApplicationPkg(opts: ValidatedFlatOptions, identity: Identity) {
   const args = ['--component', opts.app, opts.install, '--sign', identity.name, opts.pkg];
   if (opts.keychain) {
     args.unshift('--keychain', opts.keychain);
@@ -69,7 +70,7 @@ async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identi
 /**
  * This function is exported and returns a promise flattening the application.
  */
-export async function buildPkg (_opts: FlatOptions) {
+export async function buildPkg(_opts: FlatOptions) {
   debugLog('@electron/osx-sign@%s', pkgVersion);
   const validatedOptions = await validateFlatOpts(_opts);
   let identities: Identity[] = [];
@@ -80,23 +81,31 @@ export async function buildPkg (_opts: FlatOptions) {
     if (validatedOptions.identityValidation === false) {
       // Do nothing
     } else {
-      identities = await findIdentities(validatedOptions.keychain || null, validatedOptions.identity);
+      identities = await findIdentities(
+        validatedOptions.keychain || null,
+        isIdentity(validatedOptions.identity)
+          ? validatedOptions.identity.name
+          : validatedOptions.identity,
+      );
     }
   } else {
     debugWarn('No `identity` passed in arguments...');
     if (validatedOptions.platform === 'mas') {
       debugLog(
-        'Finding `3rd Party Mac Developer Installer` certificate for flattening app distribution in the Mac App Store...'
+        'Finding `3rd Party Mac Developer Installer` certificate for flattening app distribution in the Mac App Store...',
       );
       identities = await findIdentities(
         validatedOptions.keychain || null,
-        '3rd Party Mac Developer Installer:'
+        '3rd Party Mac Developer Installer:',
       );
     } else {
       debugLog(
-        'Finding `Developer ID Application` certificate for distribution outside the Mac App Store...'
+        'Finding `Developer ID Application` certificate for distribution outside the Mac App Store...',
       );
-      identities = await findIdentities(validatedOptions.keychain || null, 'Developer ID Installer:');
+      identities = await findIdentities(
+        validatedOptions.keychain || null,
+        'Developer ID Installer:',
+      );
     }
   }
 
@@ -129,7 +138,7 @@ export async function buildPkg (_opts: FlatOptions) {
     validatedOptions.identity,
     '\n',
     '> Scripts:',
-    validatedOptions.scripts
+    validatedOptions.scripts,
   );
   await buildApplicationPkg(validatedOptions, identityInUse);
 
