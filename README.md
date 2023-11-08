@@ -26,7 +26,7 @@ npm install -g @electron/osx-sign
 yarn global add @electron/osx-sign
 ```
 
-*Note: `@electron/osx-sign` is a dependency of [`electron-packager`](https://github.com/electron/electron-packager) as of 6.0.0 for signing apps on macOS. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
+*Note: `@electron/osx-sign` is a dependency of [`@electron/packager`](https://github.com/electron/packager) as of 6.0.0 for signing apps on macOS. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
 
 ## Usage
 
