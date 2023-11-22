@@ -13,6 +13,11 @@ workflows:
           name: test-mac-<< matrix.node-version >>
           pre-steps:
             - run: git config --global core.autocrlf input
+            - when:
+                condition:
+                  - equal: [ '14.16', << matrix.node-version >> ]
+                steps:
+                  - node/install-rosetta
           test-steps:
             - run: ./test/ci/generate-identity.sh
             - run: yarn build && yarn test
@@ -21,10 +26,11 @@ workflows:
             alias: test-mac
             parameters:
               node-version:
-                - 20.5.0
-                - 18.17.0
-                - 16.20.1
-                - 14.21.3
+                - '20.9'
+                - '18.17'
+                - '16.20'
+                # Stay below 14.17.0 or nvm tries to download arm64 artifacts which don't exist
+                - '14.16'
       - cfa/release:
           requires:
             - test-mac
