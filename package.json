@@ -1,6 +1,6 @@
 {
   "name": "@electron/osx-sign",
-  "version": "1.0.4",
+  "version": "0.0.0-development",
   "description": "Codesign Electron macOS apps",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
