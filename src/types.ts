@@ -53,6 +53,7 @@ type OnlySignOptions = {
   strictVerify?: boolean;
   type?: SigningDistributionType;
   version?: string;
+  useDeepFlag?: boolean;
 };
 
 type OnlyValidatedSignOptions = {

@@ -185,6 +185,9 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
   if (opts.keychain) {
     args.push('--keychain', opts.keychain);
   }
+  if (opts.useDeepFlag) {
+    args.push('--deep');
+  }
 
   /**
    * Sort the child paths by how deep they are in the file tree.  Some arcane apple
