@@ -242,7 +242,11 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
     const perFileArgs = [...args];
 
     if (perFileOptions.requirements) {
-      perFileArgs.push('--requirements', perFileOptions.requirements);
+      if (perFileOptions.requirements.charAt(0) === '=') {
+        perFileArgs.push(`-r${perFileOptions.requirements}`);
+      } else {
+        perFileArgs.push('--requirements', perFileOptions.requirements);
+      }
     }
     if (perFileOptions.timestamp) {
       perFileArgs.push('--timestamp=' + perFileOptions.timestamp);
