@@ -140,6 +140,11 @@ Build version of Electron.
 Values may be like: `1.1.1`, `1.2.0`.
 Default to latest Electron version.
 
+`useDeepFlag` - *Boolean*
+
+Flag to `codesign --deep` All signing options will be applied, in turn, to all nested content. Warn: **(DEPRECATED for signing as of macOS 13.0) When signing a bundle, specifies that nested code content such as helpers, frameworks, and plug-ins, should be recursively signed in turn.** to see more content, please execute `man codesign` in the terminal.
+Default to `false`.
+
 It is recommended to utilize this option for best support of specific Electron versions. This may trigger pre/post operations for signing: For example, automation of setting `com.apple.security.application-groups` in entitlements file and of updating `Info.plist` with `ElectronTeamID` is enabled for all versions starting from `1.1.1`; set `preAutoEntitlements` option to `false` to disable this feature.
 
 #### From the Command Line
