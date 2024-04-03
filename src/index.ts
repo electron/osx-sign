@@ -12,3 +12,4 @@ module.exports.flatAsync = buildPkg;
 module.exports.buildPkg = buildPkg;
 
 export { sign, flat, signApp as signAsync, signApp, buildPkg as flatAsync, buildPkg };
+export * from './types';

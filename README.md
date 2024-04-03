@@ -26,7 +26,7 @@ npm install -g @electron/osx-sign
 yarn global add @electron/osx-sign
 ```
 
-*Note: `@electron/osx-sign` is a dependency of [`electron-packager`](https://github.com/electron/electron-packager) as of 6.0.0 for signing apps on macOS. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
+*Note: `@electron/osx-sign` is a dependency of [`@electron/packager`](https://github.com/electron/packager) as of 6.0.0 for signing apps on macOS. However, feel free to install this package globally for more customization beyond specifying identity and entitlements.*
 
 ## Usage
 
@@ -72,7 +72,7 @@ object this function returns can include any of the following optional keys.
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
 | `entitlements`    | String specifying the path to an `entitlements.plist` file. Will default to built-in entitlements files. Can also be an array of entitlement keys that osx-sign will write to an entitlements file for you.                               | `'path/to/entitlements'`                                        |
 | `hardenedRuntime` | Boolean flag to enable the Hardened Runtime when signing the app. Enabled by default.                                                                                                                                                     | `false`                                                         |
-| `requirements`    | String specifying the [requirements](https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html) that you recommend to be used to evaluate the code signature.       | `'anchor apple or anchor = "/var/db/yourcorporateanchor.cert"'` |
+| `requirements`    | Either a string beginning with `=` which specifies in plain text the [signing requirements](https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html) that you recommend to be used to evaluate the code signature, or a string specifying a path to a text or properly encoded `.rqset` file which contains those requirements.       | `'=designated => identifier com.github.Electron'`<br> or <br> `'path/to/requirements.rqset'` |
 | `signatureFlags`  | List of [code signature flags](https://developer.apple.com/documentation/security/seccodesignatureflags?language=objc). Accepts an array of strings or a comma-separated string.                                                          | `['kSecCodeSignatureRestrict']`                                 |
 | `timestamp`       | String specifying the URL of the timestamp authority server. Defaults to the server provided by Apple. Please note that this default server may not support signatures not furnished by Apple. Disable the timestamp service with `none`. | `'https://different.timeserver'`                                |
 

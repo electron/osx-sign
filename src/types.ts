@@ -26,7 +26,7 @@ export type PerFileSignOptions = {
    */
   hardenedRuntime?: boolean;
   /**
-   * The designated requirements to embed when signing this file
+   * The designated requirements to embed when signing this file. Expects a path to a text file.
    */
   requirements?: string;
   /**

@@ -208,27 +208,31 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
       defaultOptionsForFile(filePath, opts.platform)
     );
 
-    if (opts.preAutoEntitlements === false) {
-      debugWarn('Pre-sign operation disabled for entitlements automation.');
-    } else {
-      debugLog(
-        'Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`:',
-        '\n',
-        '* Disable by setting `pre-auto-entitlements` to `false`.'
-      );
-      if (!opts.version || compareVersion(opts.version, '1.1.1') >= 0) {
-        // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
-        const newEntitlements = await preAutoEntitlements(opts, perFileOptions, {
-          identity,
-          provisioningProfile: opts.provisioningProfile
-            ? await getProvisioningProfile(opts.provisioningProfile, opts.keychain)
-            : undefined
-        });
+    // preAutoEntitlements should only be applied to the top level app bundle.
+    // Applying it other files will cause the app to crash and be rejected by Apple.
+    if (!filePath.includes('.app/')) {
+      if (opts.preAutoEntitlements === false) {
+        debugWarn('Pre-sign operation disabled for entitlements automation.');
+      } else {
+        debugLog(
+          'Pre-sign operation enabled for entitlements automation with versions >= `1.1.1`:',
+          '\n',
+          '* Disable by setting `pre-auto-entitlements` to `false`.'
+        );
+        if (!opts.version || compareVersion(opts.version, '1.1.1') >= 0) {
+          // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
+          const newEntitlements = await preAutoEntitlements(opts, perFileOptions, {
+            identity,
+            provisioningProfile: opts.provisioningProfile
+              ? await getProvisioningProfile(opts.provisioningProfile, opts.keychain)
+              : undefined
+          });
 
-        // preAutoEntitlements may provide us new entitlements, if so we update our options
-        // and ensure that entitlements-loginhelper has a correct default value
-        if (newEntitlements) {
-          perFileOptions.entitlements = newEntitlements;
+          // preAutoEntitlements may provide us new entitlements, if so we update our options
+          // and ensure that entitlements-loginhelper has a correct default value
+          if (newEntitlements) {
+            perFileOptions.entitlements = newEntitlements;
+          }
         }
       }
     }
@@ -238,7 +242,11 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
     const perFileArgs = [...args];
 
     if (perFileOptions.requirements) {
-      perFileArgs.push('--requirements', perFileOptions.requirements);
+      if (perFileOptions.requirements.charAt(0) === '=') {
+        perFileArgs.push(`-r${perFileOptions.requirements}`);
+      } else {
+        perFileArgs.push('--requirements', perFileOptions.requirements);
+      }
     }
     if (perFileOptions.timestamp) {
       perFileArgs.push('--timestamp=' + perFileOptions.timestamp);
