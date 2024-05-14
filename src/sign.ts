@@ -126,7 +126,8 @@ function defaultOptionsForFile (filePath: string, platform: ElectronMacPlatform)
     hardenedRuntime: true,
     requirements: undefined as string | undefined,
     signatureFlags: undefined as string | string[] | undefined,
-    timestamp: undefined as string | undefined
+    timestamp: undefined as string | undefined,
+    additionalArguments: [] as string[] | undefined
   };
 }
 
@@ -157,6 +158,7 @@ async function mergeOptionsForFile (
       mergedPerFileOptions.signatureFlags = opts.signatureFlags;
     }
     if (opts.timestamp !== undefined) mergedPerFileOptions.timestamp = opts.timestamp;
+    if (opts.additionalArguments !== undefined) mergedPerFileOptions.additionalArguments = opts.additionalArguments;
   }
   return mergedPerFileOptions;
 }
@@ -284,6 +286,10 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
 
     if (optionsArguments.length) {
       perFileArgs.push('--options', [...new Set(optionsArguments)].join(','));
+    }
+
+    if (perFileOptions.additionalArguments) {
+      perFileArgs.push(...perFileOptions.additionalArguments);
     }
 
     await execFileAsync(
