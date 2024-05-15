@@ -12,6 +12,12 @@ Codesign Electron macOS apps
 
 ## Installation
 
+`@electron/osx-sign` is integrated into other Electron packaging tools, and can be configured accordingly:
+* [Electron Packager](https://electron.github.io/packager/main/types/OsxSignOptions.html)
+* [Electron Forge](https://www.electronforge.io/guides/code-signing/code-signing-macos)
+
+You can also install `@electron/osx-sign` separately if your packaging pipeline does not involve those tools:
+
 ```sh
 npm install --save-dev @electron/osx-sign
 ```
