@@ -66,15 +66,21 @@ Default to `undefined`.
 `optionsForFile` - *Function*
 
 Function that receives the path to a file and can return the entitlements to use for that file to override the default behavior.  The
-object this function returns can include any of the following optional keys.
+object this function returns can include any of the following optional keys.  Any properties that are returned **override** the default
+values that `@electron/osx-sign` generates.  Any properties not returned use the default value.
+
+Take care when overriding the `entitlements` property as for security reasons different bundles within Electron are normally signed with
+different entitlement files. See the [default implementation](https://github.com/electron/osx-sign/blob/806db73bda1400e82b327619d0c2a793acf576a7/src/sign.ts#L91-L122)
+for a reference implementation.
 
 | Option            | Description                                                                                                                                                                                                                               | Usage Example                                                         |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
 | `entitlements`    | String specifying the path to an `entitlements.plist` file. Will default to built-in entitlements files. Can also be an array of entitlement keys that osx-sign will write to an entitlements file for you.                               | `'path/to/entitlements'`                                        |
 | `hardenedRuntime` | Boolean flag to enable the Hardened Runtime when signing the app. Enabled by default.                                                                                                                                                     | `false`                                                         |
 | `requirements`    | Either a string beginning with `=` which specifies in plain text the [signing requirements](https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html) that you recommend to be used to evaluate the code signature, or a string specifying a path to a text or properly encoded `.rqset` file which contains those requirements.       | `'=designated => identifier com.github.Electron'`<br> or <br> `'path/to/requirements.rqset'` |
-| `signatureFlags`  | List of [code signature flags](https://developer.apple.com/documentation/security/seccodesignatureflags?language=objc). Accepts an array of strings or a comma-separated string.                                                          | `['kSecCodeSignatureRestrict']`                                 |
+| `signatureFlags`  | List of [code signature flags](https://keith.github.io/xcode-man-pages/codesign.1.html#OPTION_FLAGS). Accepts an array of strings or a comma-separated string.                                                          | `['runtime']`                                 |
 | `timestamp`       | String specifying the URL of the timestamp authority server. Defaults to the server provided by Apple. Please note that this default server may not support signatures not furnished by Apple. Disable the timestamp service with `none`. | `'https://different.timeserver'`                                |
+| `additionalArguments` | Array of strings specifying additional arguments to pass to the `codesign` command used to sign a specific file. | `['--deep']` |
 
 **Note:** Only available via the JS API
 
@@ -141,6 +147,35 @@ Values may be like: `1.1.1`, `1.2.0`.
 Default to latest Electron version.
 
 It is recommended to utilize this option for best support of specific Electron versions. This may trigger pre/post operations for signing: For example, automation of setting `com.apple.security.application-groups` in entitlements file and of updating `Info.plist` with `ElectronTeamID` is enabled for all versions starting from `1.1.1`; set `preAutoEntitlements` option to `false` to disable this feature.
+
+#### Signing with `--deep`
+
+Some subresources that you may include in your Electron app may need to be signed with `--deep`, this is not typically safe to apply to the entire Electron app and therefore should be applied to _just_ your file.
+
+```js
+const { signAsync } = require('@electron/osx-sign')
+signAsync({
+  app: 'path/to/my.app',
+  optionsForFile: (filePath) => {
+    // For our one specific file we can pass extra options to be merged
+    // with the default options
+    if (path.basename(filePath) === 'myStrangeFile.jar') {
+      return {
+        additionalArguments: ['--deep'],
+      };
+    }
+
+    // Just use the default options for everything else
+    return null;
+  }
+})
+  .then(function () {
+    // Application signed
+  })
+  .catch(function (err) {
+    // Handle the error
+  })
+```
 
 #### From the Command Line
 

@@ -41,6 +41,13 @@ export type PerFileSignOptions = {
    * timestamp server.
    */
   timestamp?: string;
+  /**
+   * Additional raw arguments to pass to the "codesign" command.
+   *
+   * These can be things like "--deep" for instance when code signing specific resources that may
+   * require such arguments.
+   */
+  additionalArguments?: string[];
 }
 
 type OnlySignOptions = {
