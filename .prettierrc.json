@@ -3,5 +3,13 @@
   "tabWidth": 2,
   "singleQuote": true,
   "printWidth": 100,
-  "parser": "typescript"
+  "parser": "typescript",
+  "overrides": [
+    {
+      "files": ["*.json", "*.jsonc", "*.json5"],
+      "options": {
+        "parser": "json"
+      }
+    }
+  ]
 }
