@@ -67,7 +67,8 @@ async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identi
 }
 
 /**
- * This function is exported and returns a promise flattening the application.
+ * Generates a flat `.pkg` installer for a packaged Electron `.app` bundle.
+ * @returns A void Promise once the flattening operation is complete.
  */
 export async function buildPkg (_opts: FlatOptions) {
   debugLog('@electron/osx-sign@%s', pkgVersion);
@@ -139,7 +140,7 @@ export async function buildPkg (_opts: FlatOptions) {
 /**
  * This function is exported with normal callback implementation.
  *
- * @deprecated Please use the promise based "buildPkg" method
+ * @deprecated Please use the Promise-based {@link flatAsync} method instead.
  */
 export const flat = (opts: FlatOptions, cb?: (error?: Error) => void) => {
   buildPkg(opts)

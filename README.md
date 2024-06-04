@@ -4,11 +4,13 @@ Codesign Electron macOS apps
 
 ## About
 
-[`@electron/osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare your apps for shipping, providing the most basic tools and assets. Note that the bare necessities here are sufficient for enabling app sandbox, yet other configurations for network access etc. require additional work.
+[`@electron/osx-sign`][electron-osx-sign] minimizes the extra work needed to eventually prepare
+your apps for shipping, providing options that work out of the box for most applications.
+Additional configuration is available via its API.
 
-*NB: Since [`@electron/osx-sign`][electron-osx-sign] injects the entry `com.apple.security.application-groups` into the entitlements file as part of the pre-signing process, this would reportedly limit app transfer on iTunes Connect (see [#150](https://github.com/electron/osx-sign/issues/150)). However, opting out entitlements automation `opts['preAutoEntitlements'] === false` may result in worse graphics performance.*
-
-*The signing procedure implemented in this package is based on what described in [Code Signing Guide](https://github.com/electron/electron/blob/main/docs/tutorial/code-signing.md).*
+There are two main functionalities exposed via this package:
+* Signing macOS apps via `sign` functions. Under the hood, this uses the `codesign` utility.
+* Creating `.pkg` installer packages via `flat` functions. Under the hood, this uses the `productbuild` utility.
 
 ## Installation
 
@@ -22,17 +24,56 @@ You can also install `@electron/osx-sign` separately if your packaging pipeline 
 npm install --save-dev @electron/osx-sign
 ```
 
-## Usage
+## Code signing
 
-### Code Signing
+The signing procedure implemented in this package is based on what described in Electron's [Code Signing Guide](https://github.com/electron/electron/blob/main/docs/tutorial/code-signing.md).
 
-#### From the API
+### Prerequisites
+
+* You must be a registered member of the [Apple Developer Program](https://developer.apple.com/programs/).
+  Please note that you could be charged by Apple in order to get issued with the required certificates.
+* You must have [Xcode](https://developer.apple.com/xcode/) installed from the
+  [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835). It is not recommended to download your
+  copy from other 3rd party sources for security reasons.
+* You must have Xcode Command Line Tools installed. To check whether it is available,
+  try `xcode-select --install` and follow the instructions.
+* To distribute your app on the Mac App Store, You must create a Mac App on [App Store Connect](https://appstoreconnect.apple.com/).
+* You must give your app a unique Bundle ID.
+* You must give your app a version number.
+
+### Certificates
+
+In order to distribute your application either inside or outside the Mac App Store,
+you will have to have the following certificates from Apple after becoming a registered developer.
+
+Certificates can be created through the
+[Certificates, Identities & Profiles](https://developer.apple.com/account/resources/certificates/add)
+page in the Apple Developer website or via [Account Preferences in Xcode](https://help.apple.com/xcode/mac/current/#/dev3a05256b8).
+
+For distribution inside the Mac App Store, you will need to create:
+* Mac App Distribution: `3rd Party Mac Developer Application: * (*)`
+* Mac Installer Distribution: `3rd Party Mac Developer Installer: * (*)`
+
+For distribution outside the Mac App Store:
+* Developer ID Application: `Developer ID Application: * (*)`
+* Developer ID Installer: `Developer ID Installer: * (*)`
+
+After you create the necessary certifications, download them and open each so that they are
+installed in your keychain. We recommend installing them in your system default keychain so
+that `@electron/osx-sign` can detect them automatically.
+
+**Note:** They appear to come in pairs. It is preferred to have every one of them installed so not to 
+are about which is not yet installed for future works. However, if you may only want to distribute
+outside the Mac App Store, there is no need to have the 3rd Party Mac Developer ones installed and vice versa.
+
+### API
 
 ```javascript
 const { signAsync } = require('@electron/osx-sign')
-signAsync({
+const opts = {
   app: 'path/to/my.app'
-})
+};
+signAsync(opts)
   .then(function () {
     // Application signed
   })
@@ -41,113 +82,58 @@ signAsync({
   })
 ```
 
-###### opts - Options
+The only mandatory option for `signAsync` is a path to your `.app` package.
+Configuration for most Electron apps should work out of the box.
+For full configuration options, see the [API documentation].
 
-**Required**
+### Usage examples
 
-`app` - *String*
+#### Signing for Mac App Store distribution
 
-Path to the application package.
-Needs file extension `.app`.
+```javascript
+const { signAsync } = require('@electron/osx-sign')
+const opts = {
+  app: 'path/to/my.app',
+  // optional parameters for additional customization
+  platform: "mas", // should be auto-detected if your app was packaged for MAS via Packager or Forge
+  type: "distribution", // defaults to "distribution" for submission to App Store Connect
+  provisioningProfile: 'path/to/my.provisionprofile', // defaults to the current working directory
+  keychain: 'my-keychain', // defaults to the system default login keychain
+};
+signAsync(opts)
+  .then(function () {
+    // Application signed
+  })
+  .catch(function (err) {
+    // Handle the error
+  })
+```
 
-**Optional**
+Mac App Store apps require a [Provisioning Profile](https://www.electronjs.org/docs/latest/tutorial/mac-app-store-submission-guide#prepare-provisioning-profile)
+for submission to App Store Connect. We recommend having the provisioning profile for distribution
+placed in the current working directory and the signing identity installed in the default keychain.
 
-`binaries` - *Array*
+The app is not expected to run after codesigning since there is no provisioned device, and it is
+intended only for submission to App Store Connect. Since `@electron/osx-sign` adds the entry
+`com.apple.developer.team-identifier` to a temporary copy of the specified entitlements file
+(with the default option `preAutoEntitlements`), distribution builds can no longer be run directly.
 
-Path to additional binaries that will be signed along with built-ins of Electron.
-Default to `undefined`.
+To run an app codesigned for distribution locally after codesigning, you may manually add
+`ElectronTeamID` in your `Info.plist` and `com.apple.security.application-groups` in the
+entitlements file, and set `preAutoEntitlements: false` for `@electron/osx-sign` to avoid
+this extra bit. Note that "certain features are only allowed across apps whose team-identifier value match"
+([Technical Note TN2415](https://developer.apple.com/library/content/technotes/tn2415/_index.html#//apple_ref/doc/uid/DTS40016427-CH1-ENTITLEMENTSLIST)).
 
-`optionsForFile` - *Function*
-
-Function that receives the path to a file and can return the entitlements to use for that file to override the default behavior.  The
-object this function returns can include any of the following optional keys.  Any properties that are returned **override** the default
-values that `@electron/osx-sign` generates.  Any properties not returned use the default value.
-
-Take care when overriding the `entitlements` property as for security reasons different bundles within Electron are normally signed with
-different entitlement files. See the [default implementation](https://github.com/electron/osx-sign/blob/806db73bda1400e82b327619d0c2a793acf576a7/src/sign.ts#L91-L122)
-for a reference implementation.
-
-| Option            | Description                                                                                                                                                                                                                               | Usage Example                                                         |
-|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
-| `entitlements`    | String specifying the path to an `entitlements.plist` file. Will default to built-in entitlements files. Can also be an array of entitlement keys that osx-sign will write to an entitlements file for you.                               | `'path/to/entitlements'`                                        |
-| `hardenedRuntime` | Boolean flag to enable the Hardened Runtime when signing the app. Enabled by default.                                                                                                                                                     | `false`                                                         |
-| `requirements`    | Either a string beginning with `=` which specifies in plain text the [signing requirements](https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html) that you recommend to be used to evaluate the code signature, or a string specifying a path to a text or properly encoded `.rqset` file which contains those requirements.       | `'=designated => identifier com.github.Electron'`<br> or <br> `'path/to/requirements.rqset'` |
-| `signatureFlags`  | List of [code signature flags](https://keith.github.io/xcode-man-pages/codesign.1.html#OPTION_FLAGS). Accepts an array of strings or a comma-separated string.                                                          | `['runtime']`                                 |
-| `timestamp`       | String specifying the URL of the timestamp authority server. Defaults to the server provided by Apple. Please note that this default server may not support signatures not furnished by Apple. Disable the timestamp service with `none`. | `'https://different.timeserver'`                                |
-| `additionalArguments` | Array of strings specifying additional arguments to pass to the `codesign` command used to sign a specific file. | `['--deep']` |
-
-**Note:** Only available via the JS API
-
-`identity` - *String*
-
-Name of certificate to use when signing.
-Default to be selected with respect to `provisioning-profile` and `platform` from `keychain` or keychain by system default.
-
-Signing platform `mas` will look for `3rd Party Mac Developer Application: * (*)`, and platform `darwin` will look for `Developer ID Application: * (*)` by default.
-
-`identityValidation` - *Boolean*
-
-Flag to enable/disable validation for the signing identity. If enabled, the `identity` provided will be validated in the `keychain` specified.
-Default to `true`.
-
-`keychain` - *String*
-
-The keychain name.
-Default to system default keychain.
-
-`ignore` - *RegExp|Function|Array.<(RegExp|Function)>*
-
-Regex, function or an array of regex's and functions that signal skipping signing a file.
-Elements of other types are treated as `RegExp`.
-Default to `undefined`.
-
-`platform` - *String*
-
-Build platform of Electron.
-Allowed values: `darwin`, `mas`.
-Default to auto detect by presence of `Squirrel.framework` within the application bundle.
-
-`preAutoEntitlements` - *Boolean*
-
-Flag to enable/disable automation of `com.apple.security.application-groups` in entitlements file and update `Info.plist` with `ElectronTeamID`.
-Default to `true`.
-
-`preEmbedProvisioningProfile` - *Boolean*
-
-Flag to enable/disable embedding of provisioning profile in the current working directory.
-Default to `true`.
-
-`provisioningProfile` - *String*
-
-Path to provisioning profile.
-
-`strictVerify` - *Boolean|String|Array.<String>*
-
-Flag to enable/disable `--strict` flag when verifying the signed application bundle.
-If provided as a string, each component should be separated with comma (`,`).
-If provided as an array, each item should be a string corresponding to a component.
-Default to `true`.
-
-`type` - *String*
-
-Specify whether to sign app for development or for distribution.
-Allowed values: `development`, `distribution`.
-Default to `distribution`.
-
-`version` - *String*
-
-Build version of Electron.
-Values may be like: `1.1.1`, `1.2.0`.
-Default to latest Electron version.
-
-It is recommended to utilize this option for best support of specific Electron versions. This may trigger pre/post operations for signing: For example, automation of setting `com.apple.security.application-groups` in entitlements file and of updating `Info.plist` with `ElectronTeamID` is enabled for all versions starting from `1.1.1`; set `preAutoEntitlements` option to `false` to disable this feature.
+Alternatively, set the app's `type` to `development` to codesign a development version of your app,
+which will allow it to be run on your development provisioned machine. Apps signed for development
+will not be eligible for submission via App Store Connect.
 
 #### Signing with `--deep`
 
-Some subresources that you may include in your Electron app may need to be signed with `--deep`, this is not typically safe to apply to the entire Electron app and therefore should be applied to _just_ your file.
+Some subresources that you may include in your Electron app may need to be signed with `--deep`.
+This is not typically safe to apply to the entire Electron app and therefore should be applied to _just_ your file.
 
-```js
-const { signAsync } = require('@electron/osx-sign')
+```javascript
 signAsync({
   app: 'path/to/my.app',
   optionsForFile: (filePath) => {
@@ -161,59 +147,36 @@ signAsync({
 
     // Just use the default options for everything else
     return null;
-  }
-})
-  .then(function () {
-    // Application signed
-  })
-  .catch(function (err) {
-    // Handle the error
-  })
+  },
+});
 ```
 
-#### From the Command Line
+#### Signing legacy versions of Electron
 
-```sh
-electron-osx-sign app [embedded-binary ...] [options ...]
+`@electron/osx-sign` maintains backwards compatibility with older versions of Electron, but
+generally assumes that you are on the latest stable version.
+
+If you are running an older unsupported version of Electron, you should pass in the `version`
+option as such:
+
+```javascript
+signAsync({
+  app: 'path/to/my.app',
+  version: '0.34.0',
+});
 ```
 
-##### Examples
+## Flat installer packaging
 
-Since `electron-osx-sign` adds the entry `com.apple.developer.team-identifier` to a temporary copy of the specified entitlements file (with the default option `--pre-auto-entitlements`) distribution builds can no longer be run directly. To run the app codesigned for distribution locally after codesigning, you may manually add `ElectronTeamID` in your `Info.plist` and `com.apple.security.application-groups` in the entitlements file, and provide the flag `--no-pre-auto-entitlements` for `electron-osx-sign` to avoid this extra bit. Note that "certain features are only allowed across apps whose team-identifier value match" ([Technical Note TN2415](https://developer.apple.com/library/content/technotes/tn2415/_index.html#//apple_ref/doc/uid/DTS40016427-CH1-ENTITLEMENTSLIST)).
+This module also handles the creation of flat installer packages (`.pkg` installers).
 
-The examples below assume that `--pre-auto-entitlements` is enabled.
+> [!NOTE]
+> Modern `.pkg` installers are also named "flat" packages for historical purposes. Prior
+> to Mac OS X Leopard (10.5), installation packages were organized in hierarchical
+> directories. OS X Leopard introduced a new flat package format that is used for modern
+> `.pkg` installers.
 
-- To sign a distribution version by default:
-  ```sh
-  electron-osx-sign path/to/my.app
-  ```
-  For distribution in the Mac App Store: Have the provisioning profile for distribution placed in the current working directory and the signing identity installed in the default keychain. *The app is not expected to run after codesigning since there is no provisioned device, and it is intended only for submission to iTunes Connect.*
-  For distribution outside the Mac App Store: Have the signing identity for distribution installed in the default keychain and optionally place the provisioning profile in the current working directory. By default App Sandbox is not enabled. *The app should run on all devices.*
-
-- To sign development version:
-  ```sh
-  electron-osx-sign path/to/my.app --type=development
-  ```
-  For testing Mac App Store builds: Have the provisioning profile for development placed in the current working directory and the signing identity installed in the default keychain. *The app will only run on provisioned devices.*
-  For testing apps for distribution outside the Mac App Store, have the signing identity for development installed in the default keychain and optionally the provisioning profile placed in the current working directory. *The app will only run on provisioned devices.* However, you may prefer to just go with signing a distribution version because the app is expected to launch properly after codesigned.
-
-- It is recommended to place the provisioning profile(s) under the working directory for `electron-osx-sign` to pick up automatically; however, to specify provisioning profile to be embedded explicitly:
-  ```sh
-  electron-osx-sign path/to/my.app --provisioning-profile=path/to/my.provisionprofile
-  ```
-
-- To specify custom entitlements files you have to use the JS API.
-
-- It is recommended to make use of `--version` while signing legacy versions of Electron:
-  ```sh
-  electron-osx-sign path/to/my.app --version=0.34.0
-  ```
-
-Run `electron-osx-sign --help` or see [electron-osx-sign-usage.txt](https://github.com/electron/osx-sign/blob/main/bin/electron-osx-sign-usage.txt) for CLI-specific options.
-
-### electron-osx-flat
-
-#### From the API
+### API usage
 
 ```javascript
 const { flatAsync } = require('@electron/osx-sign')
@@ -228,76 +191,44 @@ flatAsync({
   })
 ```
 
-###### opts - Options
+The only mandatory option for `flatAsync` is a path to your `.app` package.
+For full configuration options, see the [API documentation].
 
-**Required**
+## CLI
 
-`app` - *String*
-
-Path to the application bundle.
-Needs file extension `.app`.
-
-**Optional**
-
-`identity` - *String*
-
-Name of certificate to use when signing.
-Default to be selected with respect to `platform` from `keychain` or keychain by system default.
-
-Flattening platform `mas` will look for `3rd Party Mac Developer Installer: * (*)`, and platform `darwin` will look for `Developer ID Installer: * (*)` by default.
-
-`identityValidation` - *Boolean*
-
-Flag to enable/disable validation for signing identity. If enabled, the `identity` provided will be validated in the `keychain` specified.
-Default to `true`.
-
-`install` - *String*
-
-Path to install the bundle.
-Default to `/Applications`.
-
-`keychain` - *String*
-
-The keychain name.
-Default to system default keychain.
-
-`platform` - *String*
-
-Build platform of Electron. Allowed values: `darwin`, `mas`.
-Default to auto detect by presence of `Squirrel.framework` within the application bundle.
-
-`pkg` - *String*
-
-Path to the output the flattened package.
-Needs file extension `.pkg`.
-
-`scripts` - *String*
-Path to a directory containing pre and/or post install scripts.
-#### From the Command Line
+`@electron/osx-sign` also exposes a legacy command-line interface (CLI) for both signing
+and installer generation. However, we recommend using the JavaScript API as it has a more
+complete API surface (e.g. `optionsForFile` is only available via JS).
 
 ```sh
-electron-osx-flat app [options ...]
+# install the package locally into devDependencies
+npm install --save-dev @electron/osx-sign
+
+# Sign a packaged .app bundle
+npx electron-osx-sign path/to/my.app [options ...]
+
+# Create a .pkg installer from a packaged .app bundle
+npx electron-osx-flat path/to/my.app [options ...]
 ```
 
-Example:
+For full options, use the `--help` flag for either command.
 
-```sh
-electron-osx-flat path/to/my.app
-```
-
-Run `electron-osx-flat --help` or see [electron-osx-flat-usage.txt](https://github.com/electron/osx-sign/blob/main/bin/electron-osx-flat-usage.txt) for CLI-specific options.
 
 ## Debug
 
-As of release v0.3.1, external module `debug` is used to display logs and messages; remember to `export DEBUG=electron-osx-sign*` when necessary.
+The [`debug`](https://www.npmjs.com/package/debug) module is used to display advanced logs and messages.
+If you are having problems with signing your app with `@electron/osx-sign`, run your signing scripts with
+the `DEBUG=electron-osx-sign*` environment variable.
 
 ## Test
 
 The project's configured to run automated tests on CircleCI.
 
-If you wish to manually test the module, first comment out `opts.identity` in `test/basic.js` to enable auto discovery. Then run the command `npm test` from the dev directory.
+If you wish to manually test the module, first comment out `opts.identity` in `test/basic.js` to enable
+auto discovery. Then run the command `npm test` from the dev directory.
 
-When this command is run for the first time: `@electron/get` will download macOS Electron releases defined in `test/config.json`, and save to `~/.electron/`, which might take up less than 1GB of disk space.
+When this command is run for the first time: `@electron/get` will download macOS Electron releases defined
+in `test/config.json`, and save to `~/.electron/`, which might take up less than 1GB of disk space.
 
 A successful testing should look something like:
 

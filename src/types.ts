@@ -25,7 +25,7 @@ export type BaseSignOptions = Readonly<{
   /**
    * The keychain name.
    *
-   * @defaultValue system default keychain.
+   * @defaultValue `login`
    */
   keychain?: string;
   /**
@@ -39,8 +39,8 @@ export type BaseSignOptions = Readonly<{
   /**
    * Name of the certificate to use when signing.
    *
-   * @defaultValue Selected with respect to {@link ValidatedSignOptions.provisioningProfile | provisioningProfile}
-   * and {@link BaseSignOptions.platform | platform} from {@link BaseSignOptions.keychain | keychain} or keychain by system default.
+   * @defaultValue Selected with respect to {@link SignOptions.provisioningProfile | provisioningProfile}
+   * and {@link SignOptions.platform | platform} from the selected {@link SignOptions.keychain | keychain}.
    * * `mas` will look for `3rd Party Mac Developer Application: * (*)`
    * * `darwin` will look for `Developer ID Application: * (*)` by default.
    */
@@ -52,9 +52,9 @@ type OnlyValidatedBaseSignOptions = {
 };
 
 /**
- *
- * Any missing options will use the default values, providing a partial
- * structure will shallow merge with the default values.
+ * A set of signing options that can be overriden on a per-file basis.
+ * Any missing options will use the default values, and providing a partial structure
+ * will shallow merge with the default values.
  * @interface
  */
 export type PerFileSignOptions = {
@@ -71,7 +71,7 @@ export type PerFileSignOptions = {
    *
    * Note: Hardened Runtime is a pre-requisite for notarization, which is mandatory for apps running on macOS 10.15 and above.
    *
-   * @defaultValue true
+   * @defaultValue `true`
    */
   hardenedRuntime?: boolean;
   /**
@@ -85,7 +85,7 @@ export type PerFileSignOptions = {
    * When signing, a set of option flags can be specified to change the behavior of the system when using the signed code.
    * Accepts an array of strings or a comma-separated string.
    *
-   * See --options of the "codesign" command.
+   * See --options of the `codesign` command.
    *
    * https://keith.github.io/xcode-man-pages/codesign.1.html#OPTION_FLAGS
    */
@@ -99,9 +99,9 @@ export type PerFileSignOptions = {
    */
   timestamp?: string;
   /**
-   * Additional raw arguments to pass to the "codesign" command.
+   * Additional raw arguments to pass to the `codesign` command.
    *
-   * These can be things like "--deep" for instance when code signing specific resources that may
+   * These can be things like `--deep` for instance when code signing specific resources that may
    * require such arguments.
    *
    * https://keith.github.io/xcode-man-pages/codesign.1.html#OPTIONS
@@ -117,7 +117,7 @@ export type OnlySignOptions = {
   /**
    * Array of paths to additional binaries that will be signed along with built-ins of Electron.
    *
-   * @defaultValue undefined
+   * @defaultValue `undefined`
    */
   binaries?: string[];
   /**
@@ -131,10 +131,10 @@ export type OnlySignOptions = {
   optionsForFile?: (filePath: string) => PerFileSignOptions;
   /**
    * Flag to enable/disable validation for the signing identity.
-   * If enabled, the {@link BaseSignOptions.identity | identity} provided
+   * If enabled, the {@link SignOptions.identity | identity} provided
    * will be validated in the {@link BaseSignOptions.keychain | keychain} specified.
    *
-   * @defaultValue true
+   * @defaultValue `true`
    */
   identityValidation?: boolean;
   /**
@@ -144,7 +144,7 @@ export type OnlySignOptions = {
    *
    * File paths matching a regex or returning a `true` value from a function will be ignored.
    *
-   * @defaultValue undefined
+   * @defaultValue `undefined`
    */
   ignore?: string | string[] | ((file: string) => boolean);
   /**
@@ -152,7 +152,7 @@ export type OnlySignOptions = {
    * * Adds [`com.apple.security.application-groups`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_application-groups) to the entitlements file
    * * Fills in the `ElectronTeamID` property in `Info.plist` with the provisioning profile's Team Identifier or by parsing the identity name.
    *
-   * @defaultValue true
+   * @defaultValue `true`
    */
   preAutoEntitlements?: boolean;
   /**
@@ -160,7 +160,7 @@ export type OnlySignOptions = {
    * Will use the profile from {@link OnlySignOptions.provisioningProfile} if provided. Otherwise, it
    * searches for a `.provisionprofile` file in the current working directory.
    *
-   * @defaultValue true
+   * @defaultValue `true`
    */
   preEmbedProvisioningProfile?: boolean;
   /**
@@ -172,16 +172,17 @@ export type OnlySignOptions = {
   /**
    * Flag to enable/disable the `--strict` flag when verifying the signed application bundle.
    *
-   * @defaultValue true
+   * @defaultValue `true`
    */
   strictVerify?: boolean;
   /**
    * Type of certificate to use when signing a MAS app.
-   * @defaultValue "distribution"
+   * @defaultValue `"distribution"`
    */
   type?: SigningDistributionType;
   /**
-   * Build version of Electron. Values may be like: `1.1.1`, `1.2.0`.
+   * Build version of Electron. Values may be like: `1.1.1`, `1.2.0`. For use for signing legacy versions
+   * of Electron to ensure backwards compatibility.
    */
   version?: string;
 };
@@ -197,19 +198,19 @@ type OnlyFlatOptions = {
    * If enabled, the {@link BaseSignOptions.identity | identity} provided
    * will be validated in the {@link BaseSignOptions.keychain | keychain} specified.
    *
-   * @defaultValue true
+   * @defaultValue `true`
    */
   identityValidation?: boolean;
   /**
    * Path to install the bundle.
-   * @defaultValue `/Applications`
+   * @defaultValue `"/Applications"`
    */
   install?: string;
   /**
    * Output path for the flattened installer package.
    * Needs file extension `.pkg`.
    *
-   * @defaultValue Inferred from {@link BaseSignOptions.app}
+   * @defaultValue Inferred from the app name passed into `opts.app`.
    */
   pkg?: string;
   /**
@@ -242,7 +243,7 @@ type ValidatedBaseSignOptions = Readonly<
 type _SignOptions = Readonly<OnlySignOptions & BaseSignOptions>;
 
 /**
- * Options for signing
+ * Options for codesigning a packaged `.app` bundle.
  */
 export interface SignOptions extends _SignOptions {}
 
@@ -256,7 +257,7 @@ export type ValidatedSignOptions = Readonly<
 type _FlatOptions = Readonly<OnlyFlatOptions & BaseSignOptions>;
 
 /**
- * Options for creating an installer package
+ * Options for creating a flat `.pkg` installer.
  */
 export interface FlatOptions extends _FlatOptions {}
 

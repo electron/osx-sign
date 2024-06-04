@@ -316,7 +316,8 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
 }
 
 /**
- * This function returns a promise signing the application.
+ * Signs a macOS application.
+ * @returns A void Promise once the signing operation is complete.
  */
 export async function signApp (_opts: SignOptions) {
   debugLog('electron-osx-sign@%s', pkgVersion);
@@ -420,7 +421,7 @@ export async function signApp (_opts: SignOptions) {
 /**
  * This function is a legacy callback implementation.
  *
- * @deprecated Please use the promise based "signApp" method
+ * @deprecated Please use the Promise-based {@link signAsync} method instead.
  */
 export const sign = (opts: SignOptions, cb?: (error?: Error) => void) => {
   signApp(opts)
