@@ -2,6 +2,7 @@
  * macOS applications can be distributed via the Mac App Store (MAS) or directly
  * downloaded from the developer's website. @electron/osx-sign distinguishes between
  * MAS apps (`mas`) or non-MAS apps (`darwin`).
+ * @category Utility
  */
 export type ElectronMacPlatform = 'darwin' | 'mas';
 
@@ -9,6 +10,7 @@ export type ElectronMacPlatform = 'darwin' | 'mas';
  * MAS apps can be signed using Development or Distribution certificates.
 
  * See [Apple Documentation](https://developer.apple.com/help/account/create-certificates/certificates-overview/) for more info.
+ * @category Utility
  */
 export type SigningDistributionType = 'development' | 'distribution';
 
@@ -56,6 +58,7 @@ type OnlyValidatedBaseSignOptions = {
  * Any missing options will use the default values, and providing a partial structure
  * will shallow merge with the default values.
  * @interface
+ * @category Codesign
  */
 export type PerFileSignOptions = {
   /**
@@ -244,6 +247,7 @@ type _SignOptions = Readonly<OnlySignOptions & BaseSignOptions>;
 
 /**
  * Options for codesigning a packaged `.app` bundle.
+ * @category Codesign
  */
 export interface SignOptions extends _SignOptions {}
 
@@ -258,6 +262,7 @@ type _FlatOptions = Readonly<OnlyFlatOptions & BaseSignOptions>;
 
 /**
  * Options for creating a flat `.pkg` installer.
+ * @category Flat
  */
 export interface FlatOptions extends _FlatOptions {}
 
