@@ -136,33 +136,32 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
   debugLog('Walking... ' + dirPath);
 
   async function _walkAsync (dirPath: string): Promise<DeepList<string>> {
+    const res: DeepList<string> = [];
     const children = await fs.readdir(dirPath);
-    return await Promise.all(
-      children.map(async (child) => {
-        const filePath = path.resolve(dirPath, child);
-
-        const stat = await fs.stat(filePath);
-        if (stat.isFile()) {
-          switch (path.extname(filePath)) {
-            case '.cstemp': // Temporary file generated from past codesign
-              debugLog('Removing... ' + filePath);
-              await fs.remove(filePath);
-              return null;
-            default:
-              return await getFilePathIfBinary(filePath);
-          }
-        } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
-          const walkResult = await _walkAsync(filePath);
-          switch (path.extname(filePath)) {
-            case '.app': // Application
-            case '.framework': // Framework
-              walkResult.push(filePath);
-          }
-          return walkResult;
+    for (const child of children) {
+      const filePath = path.resolve(dirPath, child);
+      const stat = await fs.stat(filePath);
+      if (stat.isFile()) {
+        switch (path.extname(filePath)) {
+          case '.cstemp': // Temporary file generated from past codesign
+            debugLog('Removing... ' + filePath);
+            await fs.remove(filePath);
+            break;
+          default:
+            await getFilePathIfBinary(filePath) && res.push(filePath);
+            break;
         }
-        return null;
-      })
-    );
+      } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
+        const walkResult = await _walkAsync(filePath);
+        switch (path.extname(filePath)) {
+          case '.app': // Application
+          case '.framework': // Framework
+            walkResult.push(filePath);
+        }
+        res.push(walkResult);
+      }
+    }
+    return res;
   }
 
   const allPaths = await _walkAsync(dirPath);
