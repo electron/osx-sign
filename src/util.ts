@@ -107,6 +107,10 @@ export async function validateOptsApp (opts: BaseSignOptions): Promise<void> {
   if (!(await fs.pathExists(opts.app))) {
     throw new Error(`Application at path "${opts.app}" could not be found`);
   }
+  const pathWithSpaceEscapeChars = opts.app.replace(/(\s+)/g, '\\$1');
+  if (opts.app !== pathWithSpaceEscapeChars) {
+    throw new Error(`Application name "${opts.app}" with space is not supported.`);
+  }
 }
 
 /**
