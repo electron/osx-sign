@@ -55,10 +55,12 @@
     "run-waterfall": "^1.1.7",
     "standard": "^17.0.0",
     "tape": "^4.7.1",
+    "typedoc": "~0.25.13",
     "typescript": "^4.9.3"
   },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.esm.json",
+    "docs:build": "npx typedoc",
     "lint": "eslint --ext .ts,.js src bin test",
     "pretest": "rimraf test/work",
     "test": "yarn lint && tape test",

@@ -1,5 +1,7 @@
 .DS_Store
 
+.vscode
+
 /.idea/
 
 /node_modules/
@@ -9,3 +11,5 @@
 /test/work/
 
 /dist/
+
+/docs/

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src/index.ts"],
+  "excludeInternal": true,
+  "navigation": true,
+  "categoryOrder": ["Codesign", "Flat", "Utility"]
+}
