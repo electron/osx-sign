@@ -54,16 +54,22 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
  * @returns {Promise} Promise.
  */
 async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identity) {
-  const args = ['--component', opts.app, opts.install, '--sign', identity.name, opts.pkg];
+  const componentPkgPath = path.join(path.dirname(opts.app), path.basename(opts.app, '.app') + '-component.pkg');
+  const pkgbuildArgs = ['--install-location', opts.install, '--component', opts.app, componentPkgPath];
+  if (opts.scripts) {
+    pkgbuildArgs.unshift('--scripts', opts.scripts);
+  }
+  debugLog('Building component package... ' + opts.app);
+  await execFileAsync('pkgbuild', pkgbuildArgs);
+
+  const args = ['--package', componentPkgPath, opts.install, '--sign', identity.name, opts.pkg];
   if (opts.keychain) {
     args.unshift('--keychain', opts.keychain);
-  }
-  if (opts.scripts) {
-    args.unshift('--scripts', opts.scripts);
   }
 
   debugLog('Flattening... ' + opts.app);
   await execFileAsync('productbuild', args);
+  await execFileAsync('rm', [componentPkgPath]);
 }
 
 /**
