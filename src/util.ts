@@ -128,6 +128,7 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
 
   async function _walkAsync (dirPath: string): Promise<string[]> {
     const children = await fs.readdir(dirPath);
+
     const binaryFiles: string[] = [];
     const filesToCheck: string[] = [];
     const filesToRemove: string[] = [];
@@ -148,6 +149,7 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
           }
         } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
           foldersToCheck.push(filePath);
+
           switch (path.extname(filePath)) {
             case '.app': // Application
             case '.framework': // Framework
@@ -157,17 +159,23 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
       })
     );
 
+    // Remove all old tmp files -> should be not much per folder recursion
     await Promise.all(filesToRemove.map(async (filePath) => {
       debugLog(`Removing... ${filePath}`);
       await fs.remove(filePath);
     }));
 
-    for (const filePath of filesToCheck) {
-      if (await isBinaryFile(filePath)) {
-        binaryFiles.push(filePath);
-      }
+    // Only binaries need to be signed
+    // isBinaryFile method opens file, calls stat and alloc 1KB memory and reads in file
+    // build chunks of 10 files to avoid reaching memory or open file handle limits
+    const chunkSize = 10;
+    for (let index = 0; index < filesToCheck.length; index += chunkSize) {
+      await Promise.all(filesToCheck.slice(index, index + chunkSize).map(
+        async (filePath) => await isBinaryFile(filePath) && binaryFiles.push(filePath))
+      );
     }
 
+    // Do avoid fast and easy memory or open file handle bail outs trigger recursion not in parallel
     for (const folderPath of foldersToCheck) {
       binaryFiles.push(...(await _walkAsync(folderPath)));
     }
