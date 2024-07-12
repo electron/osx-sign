@@ -183,6 +183,5 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
     return binaryFiles;
   }
 
-  const allPaths = await _walkAsync(dirPath);
-  return compactFlattenedList(allPaths);
+  return await _walkAsync(dirPath);
 }
