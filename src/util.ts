@@ -85,16 +85,6 @@ export async function detectElectronPlatform (opts: BaseSignOptions): Promise<El
 }
 
 /**
- * This function returns a promise resolving the file path if file binary.
- */
-async function getFilePathIfBinary (filePath: string) {
-  if (await isBinaryFile(filePath)) {
-    return filePath;
-  }
-  return null;
-}
-
-/**
  * This function returns a promise validating opts.app, the application to be signed or flattened.
  */
 export async function validateOptsApp (opts: BaseSignOptions): Promise<void> {
@@ -136,9 +126,14 @@ export async function validateOptsPlatform (opts: BaseSignOptions): Promise<Elec
 export async function walkAsync (dirPath: string): Promise<string[]> {
   debugLog('Walking... ' + dirPath);
 
-  async function _walkAsync (dirPath: string): Promise<DeepList<string>> {
+  async function _walkAsync (dirPath: string): Promise<string[]> {
     const children = await fs.readdir(dirPath);
-    return await Promise.all(
+    const binaryFiles: string[] = [];
+    const filesToCheck: string[] = [];
+    const filesToRemove: string[] = [];
+    const foldersToCheck: string[] = [];
+
+    await Promise.all(
       children.map(async (child) => {
         const filePath = path.resolve(dirPath, child);
 
@@ -146,24 +141,38 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
         if (stat.isFile()) {
           switch (path.extname(filePath)) {
             case '.cstemp': // Temporary file generated from past codesign
-              debugLog('Removing... ' + filePath);
-              await fs.remove(filePath);
-              return null;
+              filesToRemove.push(filePath);
+              break;
             default:
-              return await getFilePathIfBinary(filePath);
+              filesToCheck.push(filePath);
           }
         } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
-          const walkResult = await _walkAsync(filePath);
+          foldersToCheck.push(filePath);
           switch (path.extname(filePath)) {
             case '.app': // Application
             case '.framework': // Framework
-              walkResult.push(filePath);
+              binaryFiles.push(filePath);
           }
-          return walkResult;
         }
-        return null;
       })
     );
+
+    await Promise.all(filesToRemove.map(async (filePath) => {
+      debugLog(`Removing... ${filePath}`);
+      await fs.remove(filePath);
+    }));
+
+    for (const filePath of filesToCheck) {
+      if (await isBinaryFile(filePath)) {
+        binaryFiles.push(filePath);
+      }
+    }
+
+    for (const folderPath of foldersToCheck) {
+      binaryFiles.push(...(await _walkAsync(folderPath)));
+    }
+
+    return binaryFiles;
   }
 
   const allPaths = await _walkAsync(dirPath);
