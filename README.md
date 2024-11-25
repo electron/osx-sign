@@ -1,4 +1,4 @@
-# @electron/osx-sign [![npm][npm_img]][npm_url] [![Build Status][circleci_img]][circleci_url]
+# @electron/osx-sign [![npm][npm_img]][npm_url] [![Test][gha_img]][gha_url]
 
 Codesign Electron macOS apps
 
@@ -278,5 +278,5 @@ ok 10 app signed
 [electron-osx-sign]: https://github.com/electron/osx-sign
 [npm_img]: https://img.shields.io/npm/v/@electron/osx-sign.svg
 [npm_url]: https://npmjs.org/package/@electron/osx-sign
-[circleci_img]: https://img.shields.io/circleci/build/github/electron/osx-sign
-[circleci_url]: https://circleci.com/gh/electron/osx-sign
+[gha_img]: https://github.com/electron/symbolicate-mac/actions/workflows/test.yml/badge.svg
+[gha_url]: https://github.com/electron/symbolicate-mac/actions/workflows/test.yml

@@ -21,6 +21,9 @@
   },
   "author": "electron",
   "license": "BSD-2-Clause",
+  "publishConfig": {
+    "provenance": true
+  },
   "bugs": {
     "url": "https://github.com/electron/osx-sign/issues"
   },
