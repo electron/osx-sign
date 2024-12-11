@@ -278,5 +278,5 @@ ok 10 app signed
 [electron-osx-sign]: https://github.com/electron/osx-sign
 [npm_img]: https://img.shields.io/npm/v/@electron/osx-sign.svg
 [npm_url]: https://npmjs.org/package/@electron/osx-sign
-[gha_img]: https://github.com/electron/symbolicate-mac/actions/workflows/test.yml/badge.svg
-[gha_url]: https://github.com/electron/symbolicate-mac/actions/workflows/test.yml
+[gha_img]: https://github.com/electron/osx-sign/actions/workflows/test.yml/badge.svg
+[gha_url]: https://github.com/electron/osx-sign/actions/workflows/test.yml
