@@ -39,6 +39,10 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
     install = '/Applications';
   }
 
+  if (typeof opts.scripts === 'string' && opts.platform === 'mas') {
+    debugWarn('Mac App Store packages cannot have `scripts`, ignoring option.');
+  }
+
   return {
     ...opts,
     pkg,
@@ -114,7 +118,10 @@ export async function buildPkg (_opts: FlatOptions) {
       debugLog(
         'Finding `3rd Party Mac Developer Installer` certificate for flattening app distribution in the Mac App Store...'
       );
-      identities = await findIdentities(validatedOptions.keychain || null, '3rd Party Mac Developer Installer:');
+      identities = await findIdentities(
+        validatedOptions.keychain || null,
+        '3rd Party Mac Developer Installer:'
+      );
     } else {
       debugLog(
         'Finding `Developer ID Application` certificate for distribution outside the Mac App Store...'
