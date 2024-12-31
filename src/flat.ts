@@ -39,6 +39,10 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
     install = '/Applications';
   }
 
+  if (typeof opts.scripts === 'string' && opts.platform === 'mas') {
+    debugWarn('Mac App Store packages cannot have `scripts`, ignoring option.');
+  }
+
   return {
     ...opts,
     pkg,
@@ -49,27 +53,44 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
 
 /**
  * This function returns a promise flattening the application.
- * @function
- * @param {Object} opts - Options.
- * @returns {Promise} Promise.
+ * @param opts - Options for building the .pkg archive
  */
 async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identity) {
-  const componentPkgPath = path.join(path.dirname(opts.app), path.basename(opts.app, '.app') + '-component.pkg');
-  const pkgbuildArgs = ['--install-location', opts.install, '--component', opts.app, componentPkgPath];
-  if (opts.scripts) {
-    pkgbuildArgs.unshift('--scripts', opts.scripts);
-  }
-  debugLog('Building component package... ' + opts.app);
-  await execFileAsync('pkgbuild', pkgbuildArgs);
+  if (opts.platform === 'mas') {
+    const args = ['--component', opts.app, opts.install, '--sign', identity.name, opts.pkg];
+    if (opts.keychain) {
+      args.unshift('--keychain', opts.keychain);
+    }
 
-  const args = ['--package', componentPkgPath, opts.install, '--sign', identity.name, opts.pkg];
-  if (opts.keychain) {
-    args.unshift('--keychain', opts.keychain);
-  }
+    debugLog('Flattening Mac App Store package... ' + opts.app);
+    await execFileAsync('productbuild', args);
+  } else {
+    const componentPkgPath = path.join(
+      path.dirname(opts.app),
+      path.basename(opts.app, '.app') + '-component.pkg'
+    );
+    const pkgbuildArgs = [
+      '--install-location',
+      opts.install,
+      '--component',
+      opts.app,
+      componentPkgPath
+    ];
+    if (opts.scripts) {
+      pkgbuildArgs.unshift('--scripts', opts.scripts);
+    }
+    debugLog('Building component package... ' + opts.app);
+    await execFileAsync('pkgbuild', pkgbuildArgs);
 
-  debugLog('Flattening... ' + opts.app);
-  await execFileAsync('productbuild', args);
-  await execFileAsync('rm', [componentPkgPath]);
+    const args = ['--package', componentPkgPath, opts.install, '--sign', identity.name, opts.pkg];
+    if (opts.keychain) {
+      args.unshift('--keychain', opts.keychain);
+    }
+
+    debugLog('Flattening OS X Installer package... ' + opts.app);
+    await execFileAsync('productbuild', args);
+    await execFileAsync('rm', [componentPkgPath]);
+  }
 }
 
 /**
@@ -105,7 +126,10 @@ export async function buildPkg (_opts: FlatOptions) {
       debugLog(
         'Finding `Developer ID Application` certificate for distribution outside the Mac App Store...'
       );
-      identities = await findIdentities(validatedOptions.keychain || null, 'Developer ID Installer:');
+      identities = await findIdentities(
+        validatedOptions.keychain || null,
+        'Developer ID Installer:'
+      );
     }
   }
 

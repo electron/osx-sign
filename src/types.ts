@@ -220,6 +220,8 @@ type OnlyFlatOptions = {
    * Path to a directory containing `preinstall.sh` or `postinstall.sh` scripts.
    * These must be executable and will run on pre/postinstall depending on the file
    * name.
+   *
+   * This option is only valid if {@link FlatOptions.platform} is set to `darwin`.
    */
   scripts?: string;
 };
