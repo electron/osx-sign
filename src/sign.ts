@@ -78,8 +78,8 @@ async function verifySignApplication (opts: ValidatedSignOptions) {
       opts.strictVerify !== false && compareVersion(osRelease, '15.0.0') >= 0 // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
         ? [
             '--strict' +
-              (opts.strictVerify
-                ? '=' + opts.strictVerify // Array should be converted to a comma separated string
+              (opts.strictVerify !== true
+                ? '=' + opts.strictVerify
                 : '')
           ]
         : [],

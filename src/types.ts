@@ -174,10 +174,11 @@ export type OnlySignOptions = {
   provisioningProfile?: string;
   /**
    * Flag to enable/disable the `--strict` flag when verifying the signed application bundle.
+   * Also supports string values to specify which strict restrictions to use, see codesign man page for supported values.
    *
    * @defaultValue `true`
    */
-  strictVerify?: boolean;
+  strictVerify?: boolean | string;
   /**
    * Type of certificate to use when signing a MAS app.
    * @defaultValue `"distribution"`
