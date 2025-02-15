@@ -118,6 +118,14 @@ export type PerFileSignOptions = {
  */
 export type OnlySignOptions = {
   /**
+   * Combine all files with identical CLI arguments in a single `codesign` call instead of running
+   * `codesign` once for each of those files. This minimizes the number of child processes that need
+   * to be spawned and reduces the time it takes to sign all files.
+   *
+   * @defaultValue `false`
+   */
+  batchCodesignCalls?: boolean;
+  /**
    * Array of paths to additional binaries that will be signed along with built-ins of Electron.
    *
    * @defaultValue `undefined`
