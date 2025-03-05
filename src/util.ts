@@ -142,7 +142,7 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
       children.map(async (child) => {
         const filePath = path.resolve(dirPath, child);
 
-        const stat = await fs.stat(filePath);
+        const stat = await fs.lstat(filePath);
         if (stat.isFile()) {
           switch (path.extname(filePath)) {
             case '.cstemp': // Temporary file generated from past codesign
