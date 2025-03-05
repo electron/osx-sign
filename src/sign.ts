@@ -198,6 +198,14 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
     return bDepth - aDepth;
   });
 
+  /**
+   * For each level in the file tree, group together all files that use the same
+   * signing arguments so we can sign all of them with a single call to
+   * `codesign`, while still ensuring that the app files are signed from the
+   * inside out.
+   */
+  const filesWithSameArgsByDepth = new Map<number, Map<string, string[]>>();
+
   for (const filePath of [...children, opts.app]) {
     if (shouldIgnoreFilePath(filePath)) {
       debugLog('Skipped... ' + filePath);
@@ -237,8 +245,6 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
         }
       }
     }
-
-    debugLog('Signing... ' + filePath);
 
     const perFileArgs = [...args];
 
@@ -291,10 +297,28 @@ async function signApplication (opts: ValidatedSignOptions, identity: Identity) 
       perFileArgs.push(...perFileOptions.additionalArguments);
     }
 
-    await execFileAsync(
-      'codesign',
-      perFileArgs.concat('--entitlements', perFileOptions.entitlements, filePath)
-    );
+    perFileArgs.push('--entitlements', perFileOptions.entitlements);
+
+    const fileDepth = filePath.split(path.sep).length;
+    const filesWithSameArgsMap = filesWithSameArgsByDepth.get(fileDepth) ?? new Map<string, string[]>();
+
+    const fileWithSameArgsMapKey = JSON.stringify(perFileArgs);
+    filesWithSameArgsMap.set(fileWithSameArgsMapKey, (filesWithSameArgsMap.get(fileWithSameArgsMapKey) ?? ([] as string[])).concat(filePath));
+
+    filesWithSameArgsByDepth.set(fileDepth, filesWithSameArgsMap);
+  }
+
+  for (const filesWithSameArgsMap of filesWithSameArgsByDepth.values()) {
+    for (const [stringifiedArgs, filePaths] of filesWithSameArgsMap.entries()) {
+      debugLog('Signing... ' + JSON.stringify(filePaths, null, 2));
+
+      const args: string[] = JSON.parse(stringifiedArgs);
+
+      await execFileAsync(
+        'codesign',
+        [...args, ...filePaths]
+      );
+    }
   }
 
   // Verify code sign
