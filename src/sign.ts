@@ -72,15 +72,14 @@ async function verifySignApplication (opts: ValidatedSignOptions) {
   // Verify with codesign
   debugLog('Verifying application bundle with codesign...');
 
+  const strictVerify = opts.strictVerify !== undefined ? opts.strictVerify : true;
   await execFileAsync(
     'codesign',
     ['--verify', '--deep'].concat(
-      opts.strictVerify !== false && compareVersion(osRelease, '15.0.0') >= 0 // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
+      strictVerify !== false && compareVersion(osRelease, '15.0.0') >= 0 // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
         ? [
             '--strict' +
-              (opts.strictVerify
-                ? '=' + opts.strictVerify // Array should be converted to a comma separated string
-                : '')
+              (strictVerify !== true ? '=' + strictVerify : '')
           ]
         : [],
       ['--verbose=2', opts.app]
