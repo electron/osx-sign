@@ -18,16 +18,16 @@ const removePassword = function (input: string): string {
   });
 };
 
-export async function execFileAsync (
+export async function execFileAsync(
   file: string,
   args: string[],
-  options: child.ExecFileOptions = {}
+  options: child.ExecFileOptions = {},
 ): Promise<string> {
   if (debugLog.enabled) {
     debugLog(
       'Executing...',
       file,
-      args && Array.isArray(args) ? removePassword(args.join(' ')) : ''
+      args && Array.isArray(args) ? removePassword(args.join(' ')) : '',
     );
   }
 
@@ -46,10 +46,10 @@ export async function execFileAsync (
 type DeepListItem<T> = null | T | DeepListItem<T>[];
 type DeepList<T> = DeepListItem<T>[];
 
-export function compactFlattenedList<T> (list: DeepList<T>): T[] {
+export function compactFlattenedList<T>(list: DeepList<T>): T[] {
   const result: T[] = [];
 
-  function populateResult (list: DeepListItem<T>) {
+  function populateResult(list: DeepListItem<T>) {
     if (!Array.isArray(list)) {
       if (list) result.push(list);
     } else if (list.length > 0) {
@@ -64,18 +64,18 @@ export function compactFlattenedList<T> (list: DeepList<T>): T[] {
 /**
  * Returns the path to the "Contents" folder inside the application bundle
  */
-export function getAppContentsPath (opts: BaseSignOptions): string {
+export function getAppContentsPath(opts: BaseSignOptions): string {
   return path.join(opts.app, 'Contents');
 }
 
 /**
  * Returns the path to app "Frameworks" within contents.
  */
-export function getAppFrameworksPath (opts: BaseSignOptions): string {
+export function getAppFrameworksPath(opts: BaseSignOptions): string {
   return path.join(getAppContentsPath(opts), 'Frameworks');
 }
 
-export async function detectElectronPlatform (opts: BaseSignOptions): Promise<ElectronMacPlatform> {
+export async function detectElectronPlatform(opts: BaseSignOptions): Promise<ElectronMacPlatform> {
   const appFrameworksPath = getAppFrameworksPath(opts);
   if (await fs.pathExists(path.resolve(appFrameworksPath, 'Squirrel.framework'))) {
     return 'darwin';
@@ -87,7 +87,7 @@ export async function detectElectronPlatform (opts: BaseSignOptions): Promise<El
 /**
  * This function returns a promise resolving the file path if file binary.
  */
-async function getFilePathIfBinary (filePath: string) {
+async function getFilePathIfBinary(filePath: string) {
   if (await isBinaryFile(filePath)) {
     return filePath;
   }
@@ -97,7 +97,7 @@ async function getFilePathIfBinary (filePath: string) {
 /**
  * This function returns a promise validating opts.app, the application to be signed or flattened.
  */
-export async function validateOptsApp (opts: BaseSignOptions): Promise<void> {
+export async function validateOptsApp(opts: BaseSignOptions): Promise<void> {
   if (!opts.app) {
     throw new Error('Path to application must be specified.');
   }
@@ -112,7 +112,7 @@ export async function validateOptsApp (opts: BaseSignOptions): Promise<void> {
 /**
  * This function returns a promise validating opts.platform, the platform of Electron build. It allows auto-discovery if no opts.platform is specified.
  */
-export async function validateOptsPlatform (opts: BaseSignOptions): Promise<ElectronMacPlatform> {
+export async function validateOptsPlatform(opts: BaseSignOptions): Promise<ElectronMacPlatform> {
   if (opts.platform) {
     if (opts.platform === 'mas' || opts.platform === 'darwin') {
       return opts.platform;
@@ -133,10 +133,10 @@ export async function validateOptsPlatform (opts: BaseSignOptions): Promise<Elec
  * @returns {Promise} Promise resolving child paths needing signing in order.
  * @internal
  */
-export async function walkAsync (dirPath: string): Promise<string[]> {
+export async function walkAsync(dirPath: string): Promise<string[]> {
   debugLog('Walking... ' + dirPath);
 
-  async function _walkAsync (dirPath: string): Promise<DeepList<string>> {
+  async function _walkAsync(dirPath: string): Promise<DeepList<string>> {
     const children = await fs.readdir(dirPath);
     return await Promise.all(
       children.map(async (child) => {
@@ -162,7 +162,7 @@ export async function walkAsync (dirPath: string): Promise<string[]> {
           return walkResult;
         }
         return null;
-      })
+      }),
     );
   }
 

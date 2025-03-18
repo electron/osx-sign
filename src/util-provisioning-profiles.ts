@@ -3,16 +3,25 @@ import * as path from 'path';
 import plist from 'plist';
 
 import { ElectronMacPlatform, ValidatedSignOptions } from './types';
-import { debugLog, debugWarn, getAppContentsPath, compactFlattenedList, execFileAsync } from './util';
+import {
+  debugLog,
+  debugWarn,
+  getAppContentsPath,
+  compactFlattenedList,
+  execFileAsync,
+} from './util';
 
 export class ProvisioningProfile {
-  constructor (public filePath: string, public message: any) {}
+  constructor(
+    public filePath: string,
+    public message: any,
+  ) {}
 
-  get name (): string {
+  get name(): string {
     return this.message.Name;
   }
 
-  get platforms (): ElectronMacPlatform[] {
+  get platforms(): ElectronMacPlatform[] {
     if ('ProvisionsAllDevices' in this.message) return ['darwin'];
     // Developer ID
     else if (this.type === 'distribution') return ['mas'];
@@ -20,7 +29,7 @@ export class ProvisioningProfile {
     else return ['darwin', 'mas']; // Mac App Development
   }
 
-  get type () {
+  get type() {
     if ('ProvisionedDevices' in this.message) return 'development';
     // Mac App Development
     else return 'distribution'; // Developer ID or Mac App Store
@@ -34,12 +43,12 @@ export class ProvisioningProfile {
  * @param {string} keychain - Keychain to use when unlocking provisioning profile.
  * @returns {Promise} Promise.
  */
-export async function getProvisioningProfile (filePath: string, keychain: string | null = null) {
+export async function getProvisioningProfile(filePath: string, keychain: string | null = null) {
   const securityArgs = [
     'cms',
     '-D', // Decode a CMS message
     '-i',
-    filePath // Use infile as source of data
+    filePath, // Use infile as source of data
   ];
 
   if (keychain) {
@@ -64,7 +73,7 @@ export async function getProvisioningProfile (filePath: string, keychain: string
     provisioningProfile.filePath,
     '\n',
     '> Message:',
-    provisioningProfile.message
+    provisioningProfile.message,
   );
   return provisioningProfile;
 }
@@ -72,7 +81,7 @@ export async function getProvisioningProfile (filePath: string, keychain: string
 /**
  * Returns a promise resolving to a list of suitable provisioning profile within the current working directory.
  */
-export async function findProvisioningProfiles (opts: ValidatedSignOptions) {
+export async function findProvisioningProfiles(opts: ValidatedSignOptions) {
   const cwd = process.cwd();
   const children = await fs.readdir(cwd);
   const foundProfiles = compactFlattenedList(
@@ -84,29 +93,34 @@ export async function findProvisioningProfiles (opts: ValidatedSignOptions) {
           return filePath;
         }
         return null;
-      })
-    )
+      }),
+    ),
   );
 
   return compactFlattenedList(
     await Promise.all(
       foundProfiles.map(async (filePath) => {
         const profile = await getProvisioningProfile(filePath);
-        if (profile.platforms.indexOf(opts.platform) >= 0 && profile.type === opts.type) { return profile; }
+        if (profile.platforms.indexOf(opts.platform) >= 0 && profile.type === opts.type) {
+          return profile;
+        }
         debugWarn(
-          'Provisioning profile above ignored, not for ' + opts.platform + ' ' + opts.type + '.'
+          'Provisioning profile above ignored, not for ' + opts.platform + ' ' + opts.type + '.',
         );
         return null;
-      })
-    )
+      }),
+    ),
   );
 }
 
 /**
  * Returns a promise embedding the provisioning profile in the app Contents folder.
  */
-export async function preEmbedProvisioningProfile (opts: ValidatedSignOptions, profile: ProvisioningProfile | null) {
-  async function embedProvisioningProfile (profile: ProvisioningProfile) {
+export async function preEmbedProvisioningProfile(
+  opts: ValidatedSignOptions,
+  profile: ProvisioningProfile | null,
+) {
+  async function embedProvisioningProfile(profile: ProvisioningProfile) {
     debugLog('Looking for existing provisioning profile...');
     const embeddedFilePath = path.join(getAppContentsPath(opts), 'embedded.provisionprofile');
 
@@ -117,7 +131,7 @@ export async function preEmbedProvisioningProfile (opts: ValidatedSignOptions, p
         '* Please manually remove the existing file if not wanted.',
         '\n',
         '* Current file at:',
-        embeddedFilePath
+        embeddedFilePath,
       );
     } else {
       debugLog('Embedding provisioning profile...');
@@ -131,7 +145,7 @@ export async function preEmbedProvisioningProfile (opts: ValidatedSignOptions, p
   } else {
     // Discover provisioning profile
     debugLog(
-      'No `provisioning-profile` passed in arguments, will find in current working directory and in user library...'
+      'No `provisioning-profile` passed in arguments, will find in current working directory and in user library...',
     );
     const profiles = await findProvisioningProfiles(opts);
     if (profiles.length > 0) {

@@ -5,7 +5,7 @@ import { Identity, findIdentities } from './util-identities';
 
 import { FlatOptions, ValidatedFlatOptions } from './types';
 
-const pkgVersion = require('../../package.json').version as string;
+import { version as pkgVersion } from '../package.json';
 
 /**
  * This function returns a promise validating all options passed in opts.
@@ -13,7 +13,7 @@ const pkgVersion = require('../../package.json').version as string;
  * @param {Object} opts - Options.
  * @returns {Promise} Promise.
  */
-async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOptions> {
+async function validateFlatOpts(opts: FlatOptions): Promise<ValidatedFlatOptions> {
   await validateOptsApp(opts);
 
   let pkg = opts.pkg;
@@ -24,7 +24,7 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
     }
   } else {
     debugWarn(
-      'No `pkg` passed in arguments, will fallback to default inferred from the given application.'
+      'No `pkg` passed in arguments, will fallback to default inferred from the given application.',
     );
     pkg = path.join(path.dirname(opts.app), path.basename(opts.app, '.app') + '.pkg');
   }
@@ -47,7 +47,7 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
     ...opts,
     pkg,
     install,
-    platform: await validateOptsPlatform(opts)
+    platform: await validateOptsPlatform(opts),
   };
 }
 
@@ -55,7 +55,7 @@ async function validateFlatOpts (opts: FlatOptions): Promise<ValidatedFlatOption
  * This function returns a promise flattening the application.
  * @param opts - Options for building the .pkg archive
  */
-async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identity) {
+async function buildApplicationPkg(opts: ValidatedFlatOptions, identity: Identity) {
   if (opts.platform === 'mas') {
     const args = ['--component', opts.app, opts.install, '--sign', identity.name, opts.pkg];
     if (opts.keychain) {
@@ -67,14 +67,14 @@ async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identi
   } else {
     const componentPkgPath = path.join(
       path.dirname(opts.app),
-      path.basename(opts.app, '.app') + '-component.pkg'
+      path.basename(opts.app, '.app') + '-component.pkg',
     );
     const pkgbuildArgs = [
       '--install-location',
       opts.install,
       '--component',
       opts.app,
-      componentPkgPath
+      componentPkgPath,
     ];
     if (opts.scripts) {
       pkgbuildArgs.unshift('--scripts', opts.scripts);
@@ -99,7 +99,7 @@ async function buildApplicationPkg (opts: ValidatedFlatOptions, identity: Identi
  *
  * @category Flat
  */
-export async function buildPkg (_opts: FlatOptions) {
+export async function buildPkg(_opts: FlatOptions) {
   debugLog('@electron/osx-sign@%s', pkgVersion);
   const validatedOptions = await validateFlatOpts(_opts);
   let identities: Identity[] = [];
@@ -110,25 +110,28 @@ export async function buildPkg (_opts: FlatOptions) {
     if (validatedOptions.identityValidation === false) {
       // Do nothing
     } else {
-      identities = await findIdentities(validatedOptions.keychain || null, validatedOptions.identity);
+      identities = await findIdentities(
+        validatedOptions.keychain || null,
+        validatedOptions.identity,
+      );
     }
   } else {
     debugWarn('No `identity` passed in arguments...');
     if (validatedOptions.platform === 'mas') {
       debugLog(
-        'Finding `3rd Party Mac Developer Installer` certificate for flattening app distribution in the Mac App Store...'
+        'Finding `3rd Party Mac Developer Installer` certificate for flattening app distribution in the Mac App Store...',
       );
       identities = await findIdentities(
         validatedOptions.keychain || null,
-        '3rd Party Mac Developer Installer:'
+        '3rd Party Mac Developer Installer:',
       );
     } else {
       debugLog(
-        'Finding `Developer ID Application` certificate for distribution outside the Mac App Store...'
+        'Finding `Developer ID Application` certificate for distribution outside the Mac App Store...',
       );
       identities = await findIdentities(
         validatedOptions.keychain || null,
-        'Developer ID Installer:'
+        'Developer ID Installer:',
       );
     }
   }
@@ -162,7 +165,7 @@ export async function buildPkg (_opts: FlatOptions) {
     validatedOptions.identity,
     '\n',
     '> Scripts:',
-    validatedOptions.scripts
+    validatedOptions.scripts,
   );
   await buildApplicationPkg(validatedOptions, identityInUse);
 
@@ -179,6 +182,7 @@ export const flat = (opts: FlatOptions, cb?: (error?: Error) => void) => {
   buildPkg(opts)
     .then(() => {
       debugLog('Application flattened, saved to: ' + opts.app);
+      // eslint-disable-next-line -- we're removing this in the next major version anyways
       if (cb) cb();
     })
     .catch((err) => {

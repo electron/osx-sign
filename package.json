@@ -4,13 +4,7 @@
   "description": "Codesign Electron macOS apps",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
-  "files": [
-    "dist",
-    "entitlements",
-    "README.md",
-    "LICENSE",
-    "bin"
-  ],
+  "files": ["dist", "entitlements", "README.md", "LICENSE", "bin"],
   "bin": {
     "electron-osx-flat": "bin/electron-osx-flat.js",
     "electron-osx-sign": "bin/electron-osx-sign.js"
@@ -46,17 +40,17 @@
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "eslint": "^8.29.0",
-    "eslint-config-eslint": "^7.0.0",
-    "eslint-config-standard": "^17.0.0",
+    "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "extract-zip": "^2.0.1",
+    "husky": "^9.1.7",
     "mkdirp": "^1.0.4",
+    "prettier": "^3.5.3",
     "rimraf": "^3.0.2",
     "run-series": "^1.1.9",
     "run-waterfall": "^1.1.7",
-    "standard": "^17.0.0",
     "tape": "^4.7.1",
     "typedoc": "~0.25.13",
     "typescript": "^4.9.3"
@@ -64,17 +58,17 @@
   "scripts": {
     "build": "tsc && tsc -p tsconfig.esm.json",
     "docs:build": "npx typedoc",
-    "lint": "eslint --ext .ts,.js src bin test",
+    "lint": "prettier --check src/*.ts && eslint --ext .ts,.js src bin test",
     "pretest": "rimraf test/work",
     "test": "yarn lint && tape test",
-    "prepublishOnly": "yarn build"
-  },
-  "standard": {
-    "ignore": [
-      "test/work"
-    ]
+    "prepublishOnly": "yarn build",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=12.0.0"
+  },
+  "lint-staged": {
+    "*.{json}": "prettier --write",
+    "*.{js,ts}": ["prettier --write", "eslint --fix"]
   }
 }
