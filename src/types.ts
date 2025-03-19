@@ -252,6 +252,7 @@ type _SignOptions = Readonly<OnlySignOptions & BaseSignOptions>;
  * Options for codesigning a packaged `.app` bundle.
  * @category Codesign
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SignOptions extends _SignOptions {}
 
 /**
@@ -267,6 +268,7 @@ type _FlatOptions = Readonly<OnlyFlatOptions & BaseSignOptions>;
  * Options for creating a flat `.pkg` installer.
  * @category Flat
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface FlatOptions extends _FlatOptions {}
 
 /**

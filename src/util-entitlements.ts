@@ -22,10 +22,10 @@ const preAuthMemo = new Map<string, string>();
  * temporary entitlements file may be created to replace the input for any
  * changes introduced.
  */
-export async function preAutoEntitlements (
+export async function preAutoEntitlements(
   opts: ValidatedSignOptions,
   perFileOpts: PerFileSignOptions,
-  computed: ComputedOptions
+  computed: ComputedOptions,
 ): Promise<void | string> {
   if (!perFileOpts.entitlements) return;
 
@@ -35,22 +35,19 @@ export async function preAutoEntitlements (
   // If entitlements file not provided, default will be used. Fixes #41
   const appInfoPath = path.join(getAppContentsPath(opts), 'Info.plist');
 
-  debugLog(
-    'Automating entitlement app group...',
-    '\n',
-    '> Info.plist:',
-    appInfoPath,
-    '\n'
-  );
+  debugLog('Automating entitlement app group...', '\n', '> Info.plist:', appInfoPath, '\n');
   let entitlements: Record<string, any>;
   if (typeof perFileOpts.entitlements === 'string') {
     const entitlementsContents = await fs.readFile(perFileOpts.entitlements, 'utf8');
     entitlements = plist.parse(entitlementsContents) as Record<string, any>;
   } else {
-    entitlements = perFileOpts.entitlements.reduce<Record<string, any>>((dict, entitlementKey) => ({
-      ...dict,
-      [entitlementKey]: true
-    }), {});
+    entitlements = perFileOpts.entitlements.reduce<Record<string, any>>(
+      (dict, entitlementKey) => ({
+        ...dict,
+        [entitlementKey]: true,
+      }),
+      {},
+    );
   }
   if (!entitlements['com.apple.security.app-sandbox']) {
     // Only automate when app sandbox enabled by user
@@ -69,17 +66,19 @@ export async function preAutoEntitlements (
         computed.provisioningProfile.message.Entitlements['com.apple.developer.team-identifier'];
       debugLog(
         '`ElectronTeamID` not found in `Info.plist`, use parsed from provisioning profile: ' +
-          appInfo.ElectronTeamID
+          appInfo.ElectronTeamID,
       );
     } else {
       const teamID = /^.+\((.+?)\)$/g.exec(computed.identity.name)?.[1];
       if (!teamID) {
-        throw new Error(`Could not automatically determine ElectronTeamID from identity: ${computed.identity.name}`);
+        throw new Error(
+          `Could not automatically determine ElectronTeamID from identity: ${computed.identity.name}`,
+        );
       }
       appInfo.ElectronTeamID = teamID;
       debugLog(
         '`ElectronTeamID` not found in `Info.plist`, use parsed from signing identity: ' +
-          appInfo.ElectronTeamID
+          appInfo.ElectronTeamID,
       );
     }
     await fs.writeFile(appInfoPath, plist.build(appInfo), 'utf8');
@@ -92,12 +91,12 @@ export async function preAutoEntitlements (
   if (entitlements['com.apple.application-identifier']) {
     debugLog(
       '`com.apple.application-identifier` found in entitlements file: ' +
-        entitlements['com.apple.application-identifier']
+        entitlements['com.apple.application-identifier'],
     );
   } else {
     debugLog(
       '`com.apple.application-identifier` not found in entitlements file, new inserted: ' +
-        appIdentifier
+        appIdentifier,
     );
     entitlements['com.apple.application-identifier'] = appIdentifier;
   }
@@ -105,12 +104,12 @@ export async function preAutoEntitlements (
   if (entitlements['com.apple.developer.team-identifier']) {
     debugLog(
       '`com.apple.developer.team-identifier` found in entitlements file: ' +
-        entitlements['com.apple.developer.team-identifier']
+        entitlements['com.apple.developer.team-identifier'],
     );
   } else {
     debugLog(
       '`com.apple.developer.team-identifier` not found in entitlements file, new inserted: ' +
-        appInfo.ElectronTeamID
+        appInfo.ElectronTeamID,
     );
     entitlements['com.apple.developer.team-identifier'] = appInfo.ElectronTeamID;
   }
@@ -125,12 +124,12 @@ export async function preAutoEntitlements (
   ) {
     debugLog(
       '`com.apple.security.application-groups` not found in entitlements file, new inserted: ' +
-        appIdentifier
+        appIdentifier,
     );
     entitlements['com.apple.security.application-groups'].push(appIdentifier);
   } else {
     debugLog(
-      '`com.apple.security.application-groups` found in entitlements file: ' + appIdentifier
+      '`com.apple.security.application-groups` found in entitlements file: ' + appIdentifier,
     );
   }
   // Create temporary entitlements file
