@@ -23,7 +23,9 @@ import {
   ValidatedSignOptions,
 } from './types';
 
-import { version as pkgVersion } from '../package.json';
+// This directory doesn't work in dev but in prod we publish to /dist/cjs/sign.js so package.json is 2 levels up
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkgVersion = require('../../package.json').version as string;
 
 const osRelease = os.release();
 
