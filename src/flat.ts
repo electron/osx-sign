@@ -1,12 +1,18 @@
-import * as path from 'path';
-import { debugLog, debugWarn, execFileAsync, validateOptsApp, validateOptsPlatform } from './util';
+import path from 'node:path';
+import {
+  debugLog,
+  debugWarn,
+  execFileAsync,
+  validateOptsApp,
+  validateOptsPlatform,
+} from './util.js';
 
-import { Identity, findIdentities } from './util-identities';
+import { Identity, findIdentities } from './util-identities.js';
 
-import { FlatOptions, ValidatedFlatOptions } from './types';
+import type { FlatOptions, ValidatedFlatOptions } from './types.js';
 
 // This directory doesn't work in dev but in prod we publish to /dist/cjs/flat.js so package.json is 2 levels up
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const pkgVersion = require('../../package.json').version as string;
 
 /**
@@ -101,7 +107,7 @@ async function buildApplicationPkg(opts: ValidatedFlatOptions, identity: Identit
  *
  * @category Flat
  */
-export async function buildPkg(_opts: FlatOptions) {
+export async function flat(_opts: FlatOptions) {
   debugLog('@electron/osx-sign@%s', pkgVersion);
   const validatedOptions = await validateFlatOpts(_opts);
   let identities: Identity[] = [];
@@ -173,25 +179,3 @@ export async function buildPkg(_opts: FlatOptions) {
 
   debugLog('Application flattened.');
 }
-
-/**
- * This function is exported with normal callback implementation.
- *
- * @deprecated Please use the Promise-based {@link flatAsync} method instead.
- * @category Flat
- */
-export const flat = (opts: FlatOptions, cb?: (error?: Error) => void) => {
-  buildPkg(opts)
-    .then(() => {
-      debugLog('Application flattened, saved to: ' + opts.app);
-      // eslint-disable-next-line -- we're removing this in the next major version anyways
-      if (cb) cb();
-    })
-    .catch((err) => {
-      debugLog('Flat failed:');
-      if (err.message) debugLog(err.message);
-      else if (err.stack) debugLog(err.stack);
-      else debugLog(err);
-      if (cb) cb(err);
-    });
-};
