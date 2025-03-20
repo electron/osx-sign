@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
 import * as plist from 'plist';
-import compareVersion from 'compare-version';
+import * as semver from 'semver';
 
 import {
   debugLog,
@@ -83,7 +83,7 @@ async function verifySignApplication(opts: ValidatedSignOptions) {
   await execFileAsync(
     'codesign',
     ['--verify', '--deep'].concat(
-      strictVerify !== false && compareVersion(osRelease, '15.0.0') >= 0 // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
+      strictVerify !== false && semver.gte(osRelease, '15.0.0') // Strict flag since darwin 15.0.0 --> OS X 10.11.0 El Capitan
         ? ['--strict' + (strictVerify !== true ? '=' + strictVerify : '')]
         : [],
       ['--verbose=2', opts.app],
@@ -228,7 +228,7 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
           '\n',
           '* Disable by setting `pre-auto-entitlements` to `false`.',
         );
-        if (!opts.version || compareVersion(opts.version, '1.1.1') >= 0) {
+        if (!opts.version || semver.gte(opts.version, '1.1.1')) {
           // Enable Mac App Store sandboxing without using temporary-exception, introduced in Electron v1.1.1. Relates to electron#5601
           const newEntitlements = await preAutoEntitlements(opts, perFileOptions, {
             identity,
@@ -278,7 +278,7 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
 
     if (perFileOptions.hardenedRuntime || optionsArguments.includes('runtime')) {
       // Hardened runtime since darwin 17.7.0 --> macOS 10.13.6
-      if (compareVersion(osRelease, '17.7.0') >= 0) {
+      if (semver.gte(osRelease, '17.7.0')) {
         optionsArguments.push('runtime');
       } else {
         // Remove runtime if passed in with --signature-flags

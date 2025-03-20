@@ -4,7 +4,13 @@
   "description": "Codesign Electron macOS apps",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
-  "files": ["dist", "entitlements", "README.md", "LICENSE", "bin"],
+  "files": [
+    "dist",
+    "entitlements",
+    "README.md",
+    "LICENSE",
+    "bin"
+  ],
   "bin": {
     "electron-osx-flat": "bin/electron-osx-flat.js",
     "electron-osx-sign": "bin/electron-osx-sign.js"
@@ -23,20 +29,20 @@
   },
   "homepage": "https://github.com/electron/osx-sign",
   "dependencies": {
-    "compare-version": "^0.1.2",
     "debug": "^4.3.4",
     "fs-extra": "^10.0.0",
     "isbinaryfile": "^4.0.8",
     "minimist": "^1.2.6",
-    "plist": "^3.0.5"
+    "plist": "^3.0.5",
+    "semver": "^7.7.1"
   },
   "devDependencies": {
     "@electron/get": "^2.0.2",
-    "@types/compare-version": "^0.1.31",
     "@types/debug": "^4.1.7",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.11.6",
     "@types/plist": "^3.0.2",
+    "@types/semver": "^7.5.8",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "eslint": "^8.29.0",
@@ -69,6 +75,9 @@
   },
   "lint-staged": {
     "*.{json}": "prettier --write",
-    "*.{js,ts}": ["prettier --write", "eslint --fix"]
+    "*.{js,ts}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }
