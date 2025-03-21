@@ -21,7 +21,9 @@ const app = positionals.shift();
 const binaries = positionals;
 
 if (!app || values.help) {
-  const usage = fs.readFileSync(path.join(__dirname, 'electron-osx-sign-usage.txt')).toString();
+  const usage = fs
+    .readFileSync(path.join(import.meta.dirname, 'electron-osx-sign-usage.txt'))
+    .toString();
   console.log(usage);
   process.exit(0);
 } else {

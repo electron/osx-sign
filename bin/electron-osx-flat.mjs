@@ -18,7 +18,9 @@ const { values, positionals } = parseArgs({
 const app = positionals.shift();
 
 if (!app || values.help || positionals.length > 0) {
-  const usage = fs.readFileSync(path.join(__dirname, 'electron-osx-flat-usage.txt')).toString();
+  const usage = fs
+    .readFileSync(path.join(import.meta.dirname, 'electron-osx-flat-usage.txt'))
+    .toString();
   console.log(usage);
   process.exit(0);
 }

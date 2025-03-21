@@ -11,9 +11,8 @@ import { Identity, findIdentities } from './util-identities.js';
 
 import type { FlatOptions, ValidatedFlatOptions } from './types.js';
 
-// This directory doesn't work in dev but in prod we publish to /dist/cjs/flat.js so package.json is 2 levels up
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pkgVersion = require('../../package.json').version as string;
+const pkgVersion = require('../package.json').version as string;
 
 /**
  * This function returns a promise validating all options passed in opts.

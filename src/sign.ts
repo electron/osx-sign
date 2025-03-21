@@ -28,9 +28,8 @@ import type {
   ValidatedSignOptions,
 } from './types.js';
 
-// This directory doesn't work in dev but in prod we publish to /dist/cjs/sign.js so package.json is 2 levels up
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pkgVersion = require('../../package.json').version as string;
+const pkgVersion = require('../package.json').version as string;
 
 const osRelease = os.release();
 
@@ -97,7 +96,7 @@ async function verifySignApplication(opts: ValidatedSignOptions) {
 }
 
 function defaultOptionsForFile(filePath: string, platform: ElectronMacPlatform) {
-  const entitlementsFolder = path.resolve(__dirname, '..', '..', 'entitlements');
+  const entitlementsFolder = path.resolve(import.meta.dirname, '..', 'entitlements');
 
   let entitlementsFile: string;
   if (platform === 'darwin') {
