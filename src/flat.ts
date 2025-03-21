@@ -11,9 +11,6 @@ import { Identity, findIdentities } from './util-identities.js';
 
 import type { FlatOptions, ValidatedFlatOptions } from './types.js';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pkgVersion = require('../package.json').version as string;
-
 /**
  * This function returns a promise validating all options passed in opts.
  * @function
@@ -107,7 +104,6 @@ async function buildApplicationPkg(opts: ValidatedFlatOptions, identity: Identit
  * @category Flat
  */
 export async function flat(_opts: FlatOptions) {
-  debugLog('@electron/osx-sign@%s', pkgVersion);
   const validatedOptions = await validateFlatOpts(_opts);
   let identities: Identity[] = [];
   let identityInUse: Identity | null = null;

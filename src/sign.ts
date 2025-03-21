@@ -28,9 +28,6 @@ import type {
   ValidatedSignOptions,
 } from './types.js';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pkgVersion = require('../package.json').version as string;
-
 const osRelease = os.release();
 
 /**
@@ -333,7 +330,6 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
  * @category Codesign
  */
 export async function sign(_opts: SignOptions) {
-  debugLog('electron-osx-sign@%s', pkgVersion);
   const validatedOpts = await validateSignOpts(_opts);
   let identities: Identity[] = [];
   let identityInUse: Identity | null = null;
