@@ -1,4 +1,4 @@
-import { debugLog, compactFlattenedList, execFileAsync } from './util';
+import { debugLog, compactFlattenedList, execFileAsync } from './util.js';
 
 export class Identity {
   constructor(

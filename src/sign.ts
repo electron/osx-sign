@@ -1,8 +1,10 @@
-import * as fs from 'fs-extra';
-import * as os from 'os';
-import * as path from 'path';
-import * as plist from 'plist';
-import * as semver from 'semver';
+import os from 'node:os';
+import path from 'node:path';
+import util from 'node:util';
+
+import fs from 'graceful-fs';
+import plist from 'plist';
+import semver from 'semver';
 
 import {
   debugLog,
@@ -11,21 +13,20 @@ import {
   execFileAsync,
   validateOptsApp,
   validateOptsPlatform,
-  walkAsync,
-} from './util';
-import { Identity, findIdentities } from './util-identities';
-import { preEmbedProvisioningProfile, getProvisioningProfile } from './util-provisioning-profiles';
-import { preAutoEntitlements } from './util-entitlements';
+  walk,
+} from './util.js';
+import { Identity, findIdentities } from './util-identities.js';
 import {
+  preEmbedProvisioningProfile,
+  getProvisioningProfile,
+} from './util-provisioning-profiles.js';
+import { preAutoEntitlements } from './util-entitlements.js';
+import type {
   ElectronMacPlatform,
   PerFileSignOptions,
   SignOptions,
   ValidatedSignOptions,
-} from './types';
-
-// This directory doesn't work in dev but in prod we publish to /dist/cjs/sign.js so package.json is 2 levels up
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkgVersion = require('../../package.json').version as string;
+} from './types.js';
 
 const osRelease = os.release();
 
@@ -92,7 +93,7 @@ async function verifySignApplication(opts: ValidatedSignOptions) {
 }
 
 function defaultOptionsForFile(filePath: string, platform: ElectronMacPlatform) {
-  const entitlementsFolder = path.resolve(__dirname, '..', '..', 'entitlements');
+  const entitlementsFolder = path.resolve(import.meta.dirname, '..', 'entitlements');
 
   let entitlementsFile: string;
   if (platform === 'darwin') {
@@ -149,9 +150,9 @@ async function mergeOptionsForFile(
           }),
           {},
         );
-        const dir = await fs.mkdtemp(path.resolve(os.tmpdir(), 'tmp-entitlements-'));
+        const dir = await fs.promises.mkdtemp(path.resolve(os.tmpdir(), 'tmp-entitlements-'));
         const entitlementsPath = path.join(dir, 'entitlements.plist');
-        await fs.writeFile(entitlementsPath, plist.build(entitlements), 'utf8');
+        await util.promisify(fs.writeFile)(entitlementsPath, plist.build(entitlements), 'utf8');
         opts.entitlements = entitlementsPath;
       }
       mergedPerFileOptions.entitlements = opts.entitlements;
@@ -186,7 +187,7 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
     return false;
   }
 
-  const children = await walkAsync(getAppContentsPath(opts));
+  const children = await walk(getAppContentsPath(opts));
 
   if (opts.binaries) children.push(...opts.binaries);
 
@@ -328,8 +329,7 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
  *
  * @category Codesign
  */
-export async function signApp(_opts: SignOptions) {
-  debugLog('electron-osx-sign@%s', pkgVersion);
+export async function sign(_opts: SignOptions) {
   const validatedOpts = await validateSignOpts(_opts);
   let identities: Identity[] = [];
   let identityInUse: Identity | null = null;
@@ -426,24 +426,3 @@ export async function signApp(_opts: SignOptions) {
   // Post-sign operations
   debugLog('Application signed.');
 }
-
-/**
- * This function is a legacy callback implementation.
- *
- * @deprecated Please use the Promise-based {@link signAsync} method instead.
- * @category Codesign
- */
-export const sign = (opts: SignOptions, cb?: (error?: Error) => void) => {
-  signApp(opts)
-    .then(() => {
-      debugLog('Application signed: ' + opts.app);
-      // eslint-disable-next-line -- we're removing this in the next major version anyways
-      if (cb) cb();
-    })
-    .catch((err) => {
-      if (err.message) debugLog(err.message);
-      else if (err.stack) debugLog(err.stack);
-      else debugLog(err);
-      if (cb) cb(err);
-    });
-};

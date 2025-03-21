@@ -17,9 +17,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - '20.9'
-          - '18.17'
-          - '16.20'
+          - '22.12.x'
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -31,7 +29,7 @@ jobs:
           cache: 'yarn'
       - name: Install
         run: yarn install --frozen-lockfile
-      - name: Test
-        run: ./test/ci/generate-identity.sh
+      - name: Generate self-signed signing identity
+        run: ./spec/ci/generate-identity.sh
       - name: Test
         run: yarn build && yarn test

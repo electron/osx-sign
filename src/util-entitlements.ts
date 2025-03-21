@@ -1,11 +1,14 @@
-import * as fs from 'fs-extra';
-import * as os from 'os';
-import * as path from 'path';
-import * as plist from 'plist';
-import { PerFileSignOptions, ValidatedSignOptions } from './types';
-import { debugLog, getAppContentsPath } from './util';
-import { Identity } from './util-identities';
-import { ProvisioningProfile } from './util-provisioning-profiles';
+import os from 'node:os';
+import path from 'node:path';
+import util from 'node:util';
+
+import fs from 'graceful-fs';
+import plist from 'plist';
+
+import type { PerFileSignOptions, ValidatedSignOptions } from './types.js';
+import { debugLog, getAppContentsPath } from './util.js';
+import type { Identity } from './util-identities.js';
+import type { ProvisioningProfile } from './util-provisioning-profiles.js';
 
 type ComputedOptions = {
   identity: Identity;
@@ -38,7 +41,10 @@ export async function preAutoEntitlements(
   debugLog('Automating entitlement app group...', '\n', '> Info.plist:', appInfoPath, '\n');
   let entitlements: Record<string, any>;
   if (typeof perFileOpts.entitlements === 'string') {
-    const entitlementsContents = await fs.readFile(perFileOpts.entitlements, 'utf8');
+    const entitlementsContents = await util.promisify(fs.readFile)(
+      perFileOpts.entitlements,
+      'utf8',
+    );
     entitlements = plist.parse(entitlementsContents) as Record<string, any>;
   } else {
     entitlements = perFileOpts.entitlements.reduce<Record<string, any>>(
@@ -54,7 +60,7 @@ export async function preAutoEntitlements(
     return;
   }
 
-  const appInfoContents = await fs.readFile(appInfoPath, 'utf8');
+  const appInfoContents = await util.promisify(fs.readFile)(appInfoPath, 'utf8');
   const appInfo = plist.parse(appInfoContents) as Record<string, any>;
   // Use ElectronTeamID in Info.plist if already specified
   if (appInfo.ElectronTeamID) {
@@ -81,7 +87,7 @@ export async function preAutoEntitlements(
           appInfo.ElectronTeamID,
       );
     }
-    await fs.writeFile(appInfoPath, plist.build(appInfo), 'utf8');
+    await util.promisify(fs.writeFile)(appInfoPath, plist.build(appInfo), 'utf8');
 
     debugLog('`Info.plist` updated:', '\n', '> Info.plist:', appInfoPath);
   }
@@ -133,9 +139,9 @@ export async function preAutoEntitlements(
     );
   }
   // Create temporary entitlements file
-  const dir = await fs.mkdtemp(path.resolve(os.tmpdir(), 'tmp-entitlements-'));
+  const dir = await fs.promises.mkdtemp(path.resolve(os.tmpdir(), 'tmp-entitlements-'));
   const entitlementsPath = path.join(dir, 'entitlements.plist');
-  await fs.writeFile(entitlementsPath, plist.build(entitlements), 'utf8');
+  await util.promisify(fs.writeFile)(entitlementsPath, plist.build(entitlements), 'utf8');
   debugLog('Entitlements file updated:', '\n', '> Entitlements:', entitlementsPath);
 
   preAuthMemo.set(memoKey, entitlementsPath);

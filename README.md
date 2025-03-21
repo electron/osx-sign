@@ -69,11 +69,11 @@ outside the Mac App Store, there is no need to have the 3rd Party Mac Developer 
 ### API
 
 ```javascript
-const { signAsync } = require('@electron/osx-sign')
+import { sign } = from '@electron/osx-sign'
 const opts = {
   app: 'path/to/my.app'
 };
-signAsync(opts)
+sign(opts)
   .then(function () {
     // Application signed
   })
@@ -82,7 +82,7 @@ signAsync(opts)
   })
 ```
 
-The only mandatory option for `signAsync` is a path to your `.app` package.
+The only mandatory option for `sign` is a path to your `.app` package.
 Configuration for most Electron apps should work out of the box.
 For full configuration options, see the [API documentation].
 
@@ -91,7 +91,7 @@ For full configuration options, see the [API documentation].
 #### Signing for Mac App Store distribution
 
 ```javascript
-const { signAsync } = require('@electron/osx-sign')
+import { sign } from '@electron/osx-sign'
 const opts = {
   app: 'path/to/my.app',
   // optional parameters for additional customization
@@ -100,7 +100,7 @@ const opts = {
   provisioningProfile: 'path/to/my.provisionprofile', // defaults to the current working directory
   keychain: 'my-keychain', // defaults to the system default login keychain
 };
-signAsync(opts)
+sign(opts)
   .then(function () {
     // Application signed
   })
@@ -134,7 +134,7 @@ Some subresources that you may include in your Electron app may need to be signe
 This is not typically safe to apply to the entire Electron app and therefore should be applied to _just_ your file.
 
 ```javascript
-signAsync({
+sign({
   app: 'path/to/my.app',
   optionsForFile: (filePath) => {
     // For our one specific file we can pass extra options to be merged
@@ -160,7 +160,7 @@ If you are running an older unsupported version of Electron, you should pass in 
 option as such:
 
 ```javascript
-signAsync({
+sign({
   app: 'path/to/my.app',
   version: '0.34.0',
 });
@@ -179,8 +179,8 @@ This module also handles the creation of flat installer packages (`.pkg` install
 ### API usage
 
 ```javascript
-const { flatAsync } = require('@electron/osx-sign')
-flatAsync({
+import { flat } = '@electron/osx-sign'
+flat({
   app: 'path/to/my.app'
 })
   .then(function () {
@@ -191,7 +191,7 @@ flatAsync({
   })
 ```
 
-The only mandatory option for `flatAsync` is a path to your `.app` package.
+The only mandatory option for `flat` is a path to your `.app` package.
 For full configuration options, see the [API documentation].
 
 ## CLI
@@ -222,57 +222,10 @@ the `DEBUG=electron-osx-sign*` environment variable.
 
 ## Test
 
-The project's configured to run automated tests on CircleCI.
+The project's configured to run automated tests on GitHub Actions.
 
-If you wish to manually test the module, first comment out `opts.identity` in `test/basic.js` to enable
-auto discovery. Then run the command `npm test` from the dev directory.
-
-When this command is run for the first time: `@electron/get` will download macOS Electron releases defined
-in `test/config.json`, and save to `~/.electron/`, which might take up less than 1GB of disk space.
-
-A successful testing should look something like:
-
-```
-$ npm test
-
-> electron-osx-sign@0.4.17 pretest electron-osx-sign
-> rimraf test/work
-
-> electron-osx-sign@0.4.17 test electron-osx-sign
-> standard && tape test
-
-Calling @electron/get before running tests...
-Running tests...
-TAP version 13
-# setup
-# defaults-test:v7.0.0-beta.3-darwin-x64
-ok 1 app signed
-# defaults-test:v7.0.0-beta.3-mas-x64
-ok 2 app signed
-# defaults-test:v6.0.3-darwin-x64
-ok 3 app signed
-# defaults-test:v6.0.3-mas-x64
-ok 4 app signed
-# defaults-test:v5.0.10-darwin-x64
-ok 5 app signed
-# defaults-test:v5.0.10-mas-x64
-ok 6 app signed
-# defaults-test:v4.2.9-darwin-x64
-ok 7 app signed
-# defaults-test:v4.2.9-mas-x64
-ok 8 app signed
-# defaults-test:v3.1.2-darwin-x64
-ok 9 app signed
-# defaults-test:v3.1.2-mas-x64
-ok 10 app signed
-# teardown
-
-1..10
-# tests 10
-# pass  10
-
-# ok
-```
+If you wish to manually test the module, you need to first generate a self-signed certificate
+via the `spec/ci/generate-identity.sh` script.
 
 [Electron]: https://github.com/electron/electron
 [electron-osx-sign]: https://github.com/electron/osx-sign

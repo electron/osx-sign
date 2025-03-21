@@ -1,16 +1,10 @@
 {
+  "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es2017",
-    "lib": ["es2017"],
     "sourceMap": true,
-    "strict": true,
-    "outDir": "dist/cjs",
+    "outDir": "dist",
     "types": ["node"],
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
-    "declaration": true,
-    "esModuleInterop": true,
+    "declaration": true
   },
   "include": ["src"]
 }
