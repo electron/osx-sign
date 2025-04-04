@@ -1,17 +1,6 @@
-import { sign, signApp } from './sign';
-import { flat, buildPkg } from './flat';
-import { walkAsync } from './util';
+import { sign } from './sign.js';
+import { flat } from './flat.js';
+import { walk } from './util.js';
 
-// TODO: Remove and leave only proper named exports, but for non-breaking change reasons
-// we need to keep this weirdness for now
-module.exports = sign;
-module.exports.sign = sign;
-module.exports.signAsync = signApp;
-module.exports.signApp = signApp;
-module.exports.flat = flat;
-module.exports.flatAsync = buildPkg;
-module.exports.buildPkg = buildPkg;
-module.exports.walkAsync = walkAsync;
-
-export { sign, flat, signApp as signAsync, signApp, buildPkg as flatAsync, buildPkg, walkAsync };
-export * from './types';
+export { sign, flat, walk };
+export type * from './types.js';

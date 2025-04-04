@@ -1,10 +1,12 @@
-import * as child from 'child_process';
-import * as fs from 'fs-extra';
+import child from 'node:child_process';
+import path from 'node:path';
+import util from 'node:util';
+
+import fs from 'graceful-fs';
 import { isBinaryFile } from 'isbinaryfile';
-import * as path from 'path';
 
 import debug from 'debug';
-import { BaseSignOptions, ElectronMacPlatform } from './types';
+import type { BaseSignOptions, ElectronMacPlatform } from './types.js';
 
 export const debugLog = debug('electron-osx-sign');
 debugLog.log = console.log.bind(console);
@@ -77,7 +79,7 @@ export function getAppFrameworksPath(opts: BaseSignOptions): string {
 
 export async function detectElectronPlatform(opts: BaseSignOptions): Promise<ElectronMacPlatform> {
   const appFrameworksPath = getAppFrameworksPath(opts);
-  if (await fs.pathExists(path.resolve(appFrameworksPath, 'Squirrel.framework'))) {
+  if (fs.existsSync(path.resolve(appFrameworksPath, 'Squirrel.framework'))) {
     return 'darwin';
   } else {
     return 'mas';
@@ -104,7 +106,7 @@ export async function validateOptsApp(opts: BaseSignOptions): Promise<void> {
   if (path.extname(opts.app) !== '.app') {
     throw new Error('Extension of application must be `.app`.');
   }
-  if (!(await fs.pathExists(opts.app))) {
+  if (!fs.existsSync(opts.app)) {
     throw new Error(`Application at path "${opts.app}" could not be found`);
   }
 }
@@ -133,21 +135,21 @@ export async function validateOptsPlatform(opts: BaseSignOptions): Promise<Elect
  * @returns {Promise} Promise resolving child paths needing signing in order.
  * @internal
  */
-export async function walkAsync(dirPath: string): Promise<string[]> {
+export async function walk(dirPath: string): Promise<string[]> {
   debugLog('Walking... ' + dirPath);
 
   async function _walkAsync(dirPath: string): Promise<DeepList<string>> {
-    const children = await fs.readdir(dirPath);
+    const children = await util.promisify(fs.readdir)(dirPath);
     return await Promise.all(
       children.map(async (child) => {
         const filePath = path.resolve(dirPath, child);
 
-        const stat = await fs.stat(filePath);
+        const stat = await fs.promises.stat(filePath);
         if (stat.isFile()) {
           switch (path.extname(filePath)) {
             case '.cstemp': // Temporary file generated from past codesign
               debugLog('Removing... ' + filePath);
-              await fs.remove(filePath);
+              await fs.promises.rm(filePath, { recursive: true, force: true });
               return null;
             default:
               return await getFilePathIfBinary(filePath);

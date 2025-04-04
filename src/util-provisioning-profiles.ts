@@ -1,15 +1,17 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import path from 'node:path';
+import util from 'node:util';
+
+import fs from 'graceful-fs';
 import plist from 'plist';
 
-import { ElectronMacPlatform, ValidatedSignOptions } from './types';
+import type { ElectronMacPlatform, ValidatedSignOptions } from './types.js';
 import {
   debugLog,
   debugWarn,
   getAppContentsPath,
   compactFlattenedList,
   execFileAsync,
-} from './util';
+} from './util.js';
 
 export class ProvisioningProfile {
   constructor(
@@ -83,12 +85,12 @@ export async function getProvisioningProfile(filePath: string, keychain: string 
  */
 export async function findProvisioningProfiles(opts: ValidatedSignOptions) {
   const cwd = process.cwd();
-  const children = await fs.readdir(cwd);
+  const children = await util.promisify(fs.readdir)(cwd);
   const foundProfiles = compactFlattenedList(
     await Promise.all(
       children.map(async (child) => {
         const filePath = path.resolve(cwd, child);
-        const stat = await fs.stat(filePath);
+        const stat = await fs.promises.stat(filePath);
         if (stat.isFile() && path.extname(filePath) === '.provisionprofile') {
           return filePath;
         }
@@ -124,7 +126,7 @@ export async function preEmbedProvisioningProfile(
     debugLog('Looking for existing provisioning profile...');
     const embeddedFilePath = path.join(getAppContentsPath(opts), 'embedded.provisionprofile');
 
-    if (await fs.pathExists(embeddedFilePath)) {
+    if (fs.existsSync(embeddedFilePath)) {
       debugLog(
         'Found embedded provisioning profile:',
         '\n',
@@ -135,7 +137,7 @@ export async function preEmbedProvisioningProfile(
       );
     } else {
       debugLog('Embedding provisioning profile...');
-      await fs.copy(profile.filePath, embeddedFilePath);
+      await util.promisify(fs.copyFile)(profile.filePath, embeddedFilePath);
     }
   }
 
