@@ -1,8 +1,7 @@
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import util from 'node:util';
 
-import fs from 'graceful-fs';
 import plist from 'plist';
 import semver from 'semver';
 
@@ -152,7 +151,7 @@ async function mergeOptionsForFile(
         );
         const dir = await fs.promises.mkdtemp(path.resolve(os.tmpdir(), 'tmp-entitlements-'));
         const entitlementsPath = path.join(dir, 'entitlements.plist');
-        await util.promisify(fs.writeFile)(entitlementsPath, plist.build(entitlements), 'utf8');
+        await fs.promises.writeFile(entitlementsPath, plist.build(entitlements), 'utf8');
         opts.entitlements = entitlementsPath;
       }
       mergedPerFileOptions.entitlements = opts.entitlements;

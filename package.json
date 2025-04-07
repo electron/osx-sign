@@ -23,9 +23,7 @@
   },
   "homepage": "https://github.com/electron/osx-sign",
   "dependencies": {
-    "@types/graceful-fs": "^4.1.9",
     "debug": "^4.3.4",
-    "graceful-fs": "^4.2.11",
     "isbinaryfile": "^4.0.8",
     "plist": "^3.0.5",
     "semver": "^7.7.1"
