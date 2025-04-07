@@ -1,8 +1,7 @@
 import child from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
-import util from 'node:util';
 
-import fs from 'graceful-fs';
 import { isBinaryFile } from 'isbinaryfile';
 
 import debug from 'debug';
@@ -139,7 +138,7 @@ export async function walk(dirPath: string): Promise<string[]> {
   debugLog('Walking... ' + dirPath);
 
   async function _walkAsync(dirPath: string): Promise<DeepList<string>> {
-    const children = await util.promisify(fs.readdir)(dirPath);
+    const children = await fs.promises.readdir(dirPath);
     return await Promise.all(
       children.map(async (child) => {
         const filePath = path.resolve(dirPath, child);

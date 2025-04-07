@@ -1,7 +1,6 @@
+import fs from 'node:fs';
 import path from 'node:path';
-import util from 'node:util';
 
-import fs from 'graceful-fs';
 import plist from 'plist';
 
 import type { ElectronMacPlatform, ValidatedSignOptions } from './types.js';
@@ -85,7 +84,7 @@ export async function getProvisioningProfile(filePath: string, keychain: string 
  */
 export async function findProvisioningProfiles(opts: ValidatedSignOptions) {
   const cwd = process.cwd();
-  const children = await util.promisify(fs.readdir)(cwd);
+  const children = await fs.promises.readdir(cwd);
   const foundProfiles = compactFlattenedList(
     await Promise.all(
       children.map(async (child) => {
@@ -137,7 +136,7 @@ export async function preEmbedProvisioningProfile(
       );
     } else {
       debugLog('Embedding provisioning profile...');
-      await util.promisify(fs.copyFile)(profile.filePath, embeddedFilePath);
+      await fs.promises.copyFile(profile.filePath, embeddedFilePath);
     }
   }
 
