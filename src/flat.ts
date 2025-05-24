@@ -13,9 +13,8 @@ import type { FlatOptions, ValidatedFlatOptions } from './types.js';
 
 /**
  * This function returns a promise validating all options passed in opts.
- * @function
- * @param {Object} opts - Options.
- * @returns {Promise} Promise.
+ *
+ * @param opts - Options.
  */
 async function validateFlatOpts(opts: FlatOptions): Promise<ValidatedFlatOptions> {
   await validateOptsApp(opts);
