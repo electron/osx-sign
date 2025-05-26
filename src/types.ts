@@ -128,7 +128,7 @@ export type OnlySignOptions = {
    * object this function returns can include any of the following optional keys. Any properties that are returned **override** the default
    * values that `@electron/osx-sign` generates. Any properties not returned use the default value.
    *
-   * @param filePath Path to file
+   * @param filePath - Path to file
    * @returns Override signing options
    */
   optionsForFile?: (filePath: string) => PerFileSignOptions;

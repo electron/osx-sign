@@ -129,9 +129,9 @@ export async function validateOptsPlatform(opts: BaseSignOptions): Promise<Elect
 
 /**
  * This function returns a promise resolving all child paths within the directory specified.
- * @function
- * @param {string} dirPath - Path to directory.
- * @returns {Promise} Promise resolving child paths needing signing in order.
+ *
+ * @param dirPath - Path to directory.
+ * @returns Promise resolving child paths needing signing in order.
  * @internal
  */
 export async function walk(dirPath: string): Promise<string[]> {
