@@ -13,11 +13,32 @@ debugLog.log = console.log.bind(console);
 export const debugWarn = debug('electron-osx-sign:warn');
 debugWarn.log = console.warn.bind(console);
 
-const removePassword = function (input: string): string {
-  return input.replace(/(-P |pass:|\/p|-pass )([^ ]+)/, function (_, p1) {
-    return `${p1}***`;
-  });
-};
+function removePassword(input: string[]): string {
+  const secretFlags = new Set(['-P', '--password', '-pass', '/p', 'pass:']);
+
+  const redacted: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+
+    const eqIndex = a.indexOf('=');
+    if (eqIndex > -1) {
+      const flag = a.slice(0, eqIndex);
+      if (secretFlags.has(flag)) {
+        redacted.push(`${flag}=***`);
+        continue;
+      }
+    }
+
+    if (secretFlags.has(a)) {
+      redacted.push(a, '***');
+      i++;
+      continue;
+    }
+
+    redacted.push(a);
+  }
+  return redacted.join(' ');
+}
 
 export async function execFileAsync(
   file: string,
@@ -28,7 +49,7 @@ export async function execFileAsync(
     debugLog(
       'Executing...',
       file,
-      args && Array.isArray(args) ? removePassword(args.join(' ')) : '',
+      args && Array.isArray(args) ? removePassword(args) : '',
     );
   }
 
