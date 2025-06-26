@@ -63,8 +63,8 @@ installed in your keychain. We recommend installing them in your system default 
 that `@electron/osx-sign` can detect them automatically.
 
 **Note:** Apple developer certificates tend to come in related pairs. It’s simplest to install
-both of them. However, if you only want to distribute outside the Mac App Store, there is no
-need to have the 3rd Party Mac Developer ones installed, and vice versa.
+both of them for future use. However, if you only want to distribute outside the Mac App Store,
+there is no need to have the 3rd Party Mac Developer ones installed, and vice versa.
 
 ### API
 
