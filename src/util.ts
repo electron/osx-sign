@@ -17,8 +17,8 @@ function removePassword(input: string[]): string {
   const secretFlags = new Set(['-P', '--password', '-pass', '/p', 'pass:']);
 
   const redacted: string[] = [];
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i];
+  for (let i = 0; i < input.length; i++) {
+    const a = input[i];
 
     const eqIndex = a.indexOf('=');
     if (eqIndex > -1) {
@@ -46,11 +46,7 @@ export async function execFileAsync(
   options: child.ExecFileOptions = {},
 ): Promise<string> {
   if (debugLog.enabled) {
-    debugLog(
-      'Executing...',
-      file,
-      args && Array.isArray(args) ? removePassword(args) : '',
-    );
+    debugLog('Executing...', file, args && Array.isArray(args) ? removePassword(args) : '');
   }
 
   return new Promise(function (resolve, reject) {
