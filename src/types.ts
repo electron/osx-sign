@@ -123,6 +123,7 @@ export type OnlySignOptions = {
    * to be spawned and reduces the time it takes to sign all files.
    *
    * @defaultValue `false`
+   * @experimental
    */
   batchCodesignCalls?: boolean;
   /**
