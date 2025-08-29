@@ -40,7 +40,7 @@ enum FileType {
  * Parse and modify permissions in a cpio (SVR4/ASCII) archive
  * This handles the 'odc' format (old portable ASCII format)
  */
-class CpioModifier {
+export class CpioModifier {
   private entries: CpioEntry[] = [];
   private static readonly MAGIC_NUMBER = '070707';
   private static readonly HEADER_SIZE = 76;
