@@ -11,13 +11,38 @@ const { values, positionals } = parseArgs({
       type: 'boolean',
       default: false,
     },
+    identity: {
+      type: 'string',
+    },
+    identityValidation: {
+      type: 'boolean',
+      default: false,
+    },
+    keychain: {
+      type: 'string',
+    },
+    platform: {
+      type: 'string',
+    },
+    pkg: {
+      type: 'string',
+    },
+    scripts: {
+      type: 'string',
+    },
+    openPermissionsForSquirrelMac: {
+      type: 'boolean',
+      default: false,
+    },
   },
   allowPositionals: true,
 });
 
 const app = positionals.shift();
 
-if (!app || values.help || positionals.length > 0) {
+const { help, ...opts } = values;
+
+if (!app || help || positionals.length > 0) {
   const usage = fs
     .readFileSync(path.join(import.meta.dirname, 'electron-osx-flat-usage.txt'))
     .toString();
@@ -26,10 +51,11 @@ if (!app || values.help || positionals.length > 0) {
 }
 
 try {
-  await flat({ app });
+  // @ts-ignore
+  await flat({ app, ...opts });
   // This is the default value inferred in the `flat` function.
   console.log(
-    `Application flattened, saved to: ${path.join(path.dirname(app), path.basename(app, '.app') + '.pkg')}`,
+    `Application flattened, saved to: ${path.join(path.dirname(app), opts.pkg || (path.basename(app, '.app') + '.pkg'))}`,
   );
   process.exit(0);
 } catch (err) {

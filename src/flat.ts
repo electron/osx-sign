@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import {
   debugLog,
@@ -10,6 +11,8 @@ import {
 import { Identity, findIdentities } from './util-identities.js';
 
 import type { FlatOptions, ValidatedFlatOptions } from './types.js';
+import { modifyPayloadPermissions } from './pkg-utils/cpio.js';
+import { setPermissionOnBom } from './pkg-utils/bom.js';
 
 /**
  * This function returns a promise validating all options passed in opts.
@@ -68,31 +71,105 @@ async function buildApplicationPkg(opts: ValidatedFlatOptions, identity: Identit
     debugLog('Flattening Mac App Store package... ' + opts.app);
     await execFileAsync('productbuild', args);
   } else {
+    const targetDir = path.dirname(opts.app);
+
     const componentPkgPath = path.join(
-      path.dirname(opts.app),
+      targetDir,
       path.basename(opts.app, '.app') + '-component.pkg',
     );
-    const pkgbuildArgs = [
-      '--install-location',
-      opts.install,
-      '--component',
-      opts.app,
-      componentPkgPath,
-    ];
-    if (opts.scripts) {
-      pkgbuildArgs.unshift('--scripts', opts.scripts);
-    }
-    debugLog('Building component package... ' + opts.app);
-    await execFileAsync('pkgbuild', pkgbuildArgs);
+    const componentExtractedPath = path.join(
+      targetDir,
+      path.basename(opts.app, '.app') + '-component-extracted',
+    );
 
-    const args = ['--package', componentPkgPath, opts.install, '--sign', identity.name, opts.pkg];
-    if (opts.keychain) {
-      args.unshift('--keychain', opts.keychain);
-    }
+    try {
+      const pkgbuildArgs = [
+        '--install-location',
+        opts.install,
+        '--component',
+        opts.app,
+        componentPkgPath,
+      ];
+      if (opts.scripts) {
+        pkgbuildArgs.unshift('--scripts', opts.scripts);
+      }
+      debugLog('Building component package... ' + opts.app);
+      await execFileAsync('pkgbuild', pkgbuildArgs);
 
-    debugLog('Flattening OS X Installer package... ' + opts.app);
-    await execFileAsync('productbuild', args);
-    await execFileAsync('rm', [componentPkgPath]);
+      if (opts.openPermissionsForSquirrelMac) {
+        debugLog('Rewriting permissions in component package');
+        // Change file permissions to be squirrel compatible
+        await fs.promises.mkdir(componentExtractedPath, {
+          recursive: true,
+        });
+        await execFileAsync(
+          '/usr/bin/xar',
+          ['-xf', path.relative(componentExtractedPath, componentPkgPath)],
+          {
+            cwd: componentExtractedPath,
+          },
+        );
+        const bomContents = await execFileAsync('/usr/bin/lsbom', ['Bom'], {
+          cwd: componentExtractedPath,
+        });
+
+        await fs.promises.copyFile(
+          path.resolve(componentExtractedPath, 'Bom'),
+          path.resolve(targetDir, 'OldBom'),
+        );
+        const mutatedBomPath = path.resolve(targetDir, 'ModifiedBom');
+        debugLog('Writing mutated BOM --> ', mutatedBomPath);
+
+        await fs.promises.writeFile(mutatedBomPath, setPermissionOnBom(bomContents));
+        // Overwrite the existing Bom then clean up our temporary file
+        await execFileAsync(
+          '/usr/bin/mkbom',
+          ['-i', mutatedBomPath, path.resolve(componentExtractedPath, 'Bom')],
+          {
+            cwd: targetDir,
+          },
+        );
+        await fs.promises.copyFile(
+          path.resolve(componentExtractedPath, 'Bom'),
+          path.resolve(targetDir, 'NewBom'),
+        );
+        // await fs.promises.rm(mutatedBomPath);
+        await fs.promises.rm(componentPkgPath);
+
+        await modifyPayloadPermissions(path.resolve(componentExtractedPath, 'Payload'));
+
+        debugLog('Rebuilding component package after permission modifications');
+        await execFileAsync(
+          '/usr/bin/xar',
+          [
+            '--compression',
+            'none',
+            '-cf',
+            path.relative(componentExtractedPath, componentPkgPath),
+            ...(await fs.promises.readdir(componentExtractedPath)),
+          ],
+          {
+            cwd: componentExtractedPath,
+          },
+        );
+      }
+
+      const args = ['--package', componentPkgPath, opts.install, '--sign', identity.name, opts.pkg];
+      if (opts.keychain) {
+        args.unshift('--keychain', opts.keychain);
+      }
+
+      debugLog('Flattening OS X Installer package... ' + opts.app);
+      await execFileAsync('productbuild', args);
+    } finally {
+      await fs.promises.rm(componentPkgPath, {
+        force: true,
+      });
+      await fs.promises.rm(componentExtractedPath, {
+        force: true,
+        recursive: true,
+      });
+    }
   }
 }
 
