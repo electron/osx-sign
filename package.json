@@ -65,5 +65,6 @@
   "lint-staged": {
     "*.{json}": "prettier --write",
     "*.{js,ts}": ["prettier --write", "eslint --fix"]
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
