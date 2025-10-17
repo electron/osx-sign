@@ -39,10 +39,9 @@ export class ProvisioningProfile {
 
 /**
  * Returns a promise resolving to a ProvisioningProfile instance based on file.
- * @function
- * @param {string} filePath - Path to provisioning profile.
- * @param {string} keychain - Keychain to use when unlocking provisioning profile.
- * @returns {Promise} Promise.
+ *
+ * @param filePath - Path to provisioning profile.
+ * @param keychain - Keychain to use when unlocking provisioning profile.
  */
 export async function getProvisioningProfile(filePath: string, keychain: string | null = null) {
   const securityArgs = [

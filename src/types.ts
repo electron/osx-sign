@@ -118,6 +118,15 @@ export type PerFileSignOptions = {
  */
 export type OnlySignOptions = {
   /**
+   * Combine all files with identical CLI arguments in a single `codesign` call instead of running
+   * `codesign` once for each of those files. This minimizes the number of child processes that need
+   * to be spawned and reduces the time it takes to sign all files.
+   *
+   * @defaultValue `false`
+   * @experimental
+   */
+  batchCodesignCalls?: boolean;
+  /**
    * Array of paths to additional binaries that will be signed along with built-ins of Electron.
    *
    * @defaultValue `undefined`
@@ -128,7 +137,7 @@ export type OnlySignOptions = {
    * object this function returns can include any of the following optional keys. Any properties that are returned **override** the default
    * values that `@electron/osx-sign` generates. Any properties not returned use the default value.
    *
-   * @param filePath Path to file
+   * @param filePath - Path to file
    * @returns Override signing options
    */
   optionsForFile?: (filePath: string) => PerFileSignOptions;
@@ -225,6 +234,21 @@ type OnlyFlatOptions = {
    * This option is only valid if {@link FlatOptions.platform} is set to `darwin`.
    */
   scripts?: string;
+  /**
+   * Permissions of your "MyApp.app" will be overwritten inside the pkg to be
+   * owned by root:admin and 775 instead of 755.
+   *
+   * This is done so that Squirrel Mac updates work better when this PKG is installed
+   * on end user machines. Specifically 775 allows _any_ admin to update MyApp.app
+   * instead of it being limtied to the user who installed the app in /Applications.
+   *
+   * This is probably what you want to enable if you're shipping a PKG to enterprise
+   * companies. It is disabled by default purely for backwards compatibility and will be
+   * changed in a future major version.
+   *
+   * @defaultValue `false`
+   */
+  openPermissionsForSquirrelMac?: boolean;
 };
 
 type OnlyValidatedFlatOptions = {

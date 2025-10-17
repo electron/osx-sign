@@ -129,9 +129,9 @@ export async function validateOptsPlatform(opts: BaseSignOptions): Promise<Elect
 
 /**
  * This function returns a promise resolving all child paths within the directory specified.
- * @function
- * @param {string} dirPath - Path to directory.
- * @returns {Promise} Promise resolving child paths needing signing in order.
+ *
+ * @param dirPath - Path to directory.
+ * @returns Promise resolving child paths needing signing in order.
  * @internal
  */
 export async function walk(dirPath: string): Promise<string[]> {
@@ -143,7 +143,7 @@ export async function walk(dirPath: string): Promise<string[]> {
       children.map(async (child) => {
         const filePath = path.resolve(dirPath, child);
 
-        const stat = await fs.promises.stat(filePath);
+        const stat = await fs.promises.lstat(filePath);
         if (stat.isFile()) {
           switch (path.extname(filePath)) {
             case '.cstemp': // Temporary file generated from past codesign
