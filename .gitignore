@@ -13,3 +13,4 @@
 /dist/
 
 /docs/
+.yarn/install-state.gz

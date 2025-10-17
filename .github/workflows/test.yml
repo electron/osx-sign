@@ -28,7 +28,7 @@ jobs:
           node-version: "${{ matrix.node-version }}"
           cache: 'yarn'
       - name: Install
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Generate self-signed signing identity
         run: ./spec/ci/generate-identity.sh
       - name: Test
