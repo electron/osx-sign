@@ -1,6 +1,8 @@
 # @electron/osx-sign
 
-[![npm][npm_img]][npm_url] [![Test][gha_img]][gha_url] [![API docs](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.npmjs.org%2F%40electron%2Fosx-sign%2Flatest&query=%24.version&logo=typescript&logoColor=white&label=API%20Docs)](https://packages.electronjs.org/osx-sign)
+[![npm][npm_img]][npm_url]
+[![Test][gha_img]][gha_url] 
+![API docs](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.npmjs.org%2F%40electron%2Fosx-sign%2Flatest&query=%24.version&logo=typescript&logoColor=white&label=API%20Docs)](https://packages.electronjs.org/osx-sign)
 
 Codesign Electron macOS apps
 
