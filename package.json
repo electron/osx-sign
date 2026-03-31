@@ -53,7 +53,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:docs": "npx typedoc",
+    "build:docs": "typedoc",
     "lint": "prettier --check **/*.{ts,mjs} && eslint --ext .ts,.mjs src bin spec",
     "test": "vitest run",
     "prepack": "yarn build",
