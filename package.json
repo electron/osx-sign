@@ -45,6 +45,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "extract-zip": "^2.0.1",
     "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.5.3",
     "typedoc": "~0.25.13",
     "typescript": "~5.4.5",
