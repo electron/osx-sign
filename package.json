@@ -4,7 +4,13 @@
   "description": "Codesign Electron macOS apps",
   "type": "module",
   "exports": "./dist/index.js",
-  "files": ["dist", "entitlements", "README.md", "LICENSE", "bin"],
+  "files": [
+    "dist",
+    "entitlements",
+    "README.md",
+    "LICENSE",
+    "bin"
+  ],
   "bin": {
     "electron-osx-flat": "bin/electron-osx-flat.mjs",
     "electron-osx-sign": "bin/electron-osx-sign.mjs"
@@ -49,7 +55,7 @@
     "prettier": "^3.5.3",
     "typedoc": "~0.25.13",
     "typescript": "~5.4.5",
-    "vitest": "^3.0.9"
+    "vitest": "^4.1.2"
   },
   "scripts": {
     "build": "tsc",
@@ -64,7 +70,10 @@
   },
   "lint-staged": {
     "*.{json}": "prettier --write",
-    "*.{js,ts}": ["prettier --write", "eslint --fix"]
+    "*.{js,ts}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   },
   "resolutions": {
     "fsevents": "npm:@electron/fsevents@2.3.3-fork"
