@@ -55,7 +55,7 @@ try {
   await flat({ app, ...opts });
   // This is the default value inferred in the `flat` function.
   console.log(
-    `Application flattened, saved to: ${path.join(path.dirname(app), opts.pkg || (path.basename(app, '.app') + '.pkg'))}`,
+    `Application flattened, saved to: ${path.join(path.dirname(app), opts.pkg || path.basename(app, '.app') + '.pkg')}`,
   );
   process.exit(0);
 } catch (err) {

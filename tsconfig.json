@@ -2,6 +2,7 @@
   "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
     "sourceMap": true,
+    "rootDir": "src",
     "outDir": "dist",
     "types": ["node"],
     "declaration": true

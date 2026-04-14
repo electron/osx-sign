@@ -41,26 +41,21 @@
     "@types/node": "~22.10.7",
     "@types/plist": "^3.0.2",
     "@types/semver": "^7.5.8",
-    "@typescript-eslint/eslint-plugin": "^8.27.0",
-    "@typescript-eslint/parser": "^8.27.0",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^10.1.1",
-    "eslint-import-resolver-typescript": "^4.2.2",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.1.1",
     "extract-zip": "^2.0.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.5.3",
-    "typedoc": "~0.25.13",
-    "typescript": "~5.4.5",
+    "lint-staged": "^16.4.0",
+    "oxfmt": "^0.44.0",
+    "oxlint": "^1.59.0",
+    "oxlint-tsgolint": "^0.20.0",
+    "typedoc": "~0.28.0",
+    "typescript": "^6.0.2",
     "vitest": "^4.1.2"
   },
   "scripts": {
     "build": "tsc",
     "build:docs": "typedoc",
-    "lint": "prettier --check **/*.{ts,mjs} && eslint --ext .ts,.mjs src bin spec",
+    "lint": "oxfmt --check . && oxlint",
+    "lint:fix": "oxfmt --write . && oxlint --fix",
     "test": "vitest run",
     "prepack": "yarn build",
     "prepare": "husky"
@@ -69,10 +64,12 @@
     "node": ">=22.12.0"
   },
   "lint-staged": {
-    "*.{json}": "prettier --write",
-    "*.{js,ts}": [
-      "prettier --write",
-      "eslint --fix"
+    "*.{js,ts,mjs}": [
+      "oxfmt --write",
+      "oxlint --fix"
+    ],
+    "*.{json,css,html}": [
+      "oxfmt --write"
     ]
   },
   "resolutions": {
