@@ -61,9 +61,10 @@ async function validateFlatOpts(opts: FlatOptions): Promise<ValidatedFlatOptions
  * This function returns a promise flattening the application.
  * @param opts - Options for building the .pkg archive
  */
-async function buildApplicationPkg(opts: ValidatedFlatOptions, identity: Identity) {
+async function buildApplicationPkg(opts: ValidatedFlatOptions, identity: Identity | null) {
   if (opts.platform === 'mas') {
-    const args = ['--component', opts.app, opts.install, '--sign', identity.name, opts.pkg];
+    const signArgs = identity ? ['--sign', identity.name] : [];
+    const args = ['--component', opts.app, opts.install, ...signArgs, opts.pkg];
     if (opts.keychain) {
       args.unshift('--keychain', opts.keychain);
     }
@@ -154,7 +155,8 @@ async function buildApplicationPkg(opts: ValidatedFlatOptions, identity: Identit
         );
       }
 
-      const args = ['--package', componentPkgPath, opts.install, '--sign', identity.name, opts.pkg];
+      const signArgs = identity ? ['--sign', identity.name] : [];
+      const args = ['--package', componentPkgPath, opts.install, ...signArgs, opts.pkg];
       if (opts.keychain) {
         args.unshift('--keychain', opts.keychain);
       }
@@ -184,10 +186,12 @@ export async function flat(_opts: FlatOptions) {
   let identities: Identity[] = [];
   let identityInUse: Identity | null = null;
 
-  if (validatedOptions.identity) {
+  if (validatedOptions.identity === null) {
+    // No identity, skip signing
+  } else if (validatedOptions.identity) {
     debugLog('`identity` passed in arguments.');
     if (validatedOptions.identityValidation === false) {
-      // Do nothing
+      identityInUse = new Identity(validatedOptions.identity);
     } else {
       identities = await findIdentities(
         validatedOptions.keychain || null,
@@ -223,7 +227,7 @@ export async function flat(_opts: FlatOptions) {
       debugLog('Found 1 identity.');
     }
     identityInUse = identities[0];
-  } else {
+  } else if (validatedOptions.identity !== null && validatedOptions.identityValidation !== false) {
     // No identity found
     throw new Error('No identity found for signing.');
   }
