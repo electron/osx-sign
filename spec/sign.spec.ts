@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import extract from 'extract-zip';
+import { extract } from '@electron-internal/extract-zip';
 
 import { downloadArtifact } from '@electron/get';
 import { sign } from '../src';
