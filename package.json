@@ -35,13 +35,13 @@
     "semver": "^7.7.1"
   },
   "devDependencies": {
+    "@electron-internal/extract-zip": "^1.0.1",
     "@electron/get": "^4.0.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/debug": "^4.1.7",
     "@types/node": "~22.10.7",
     "@types/plist": "^3.0.2",
     "@types/semver": "^7.5.8",
-    "extract-zip": "^2.0.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "oxfmt": "^0.44.0",
