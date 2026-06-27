@@ -41,9 +41,9 @@ async function validateOptsBinaries(opts: SignOptions) {
   }
 }
 
-function validateOptsIgnore(ignore: SignOptions['ignore']): ValidatedSignOptions['ignore'] {
-  if (ignore && !(ignore instanceof Array)) {
-    return [ignore];
+export function validateOptsIgnore(ignore: SignOptions['ignore']): ValidatedSignOptions['ignore'] {
+  if (ignore) {
+    return Array.isArray(ignore) ? ignore : [ignore];
   }
 }
 
