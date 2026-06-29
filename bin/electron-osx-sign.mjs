@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { sign } from '../dist/sign.js';
+import { cliOptionsToSignOptions, sign } from '../dist/sign.js';
 
 const { values, positionals } = parseArgs({
   options: {
@@ -30,12 +30,7 @@ if (!app || values.help) {
 } else {
   try {
     /** @type {import('../dist/types.js').SignOptions} */
-    const opts = { app, binaries };
-    if (values.ignore) opts.ignore = values.ignore;
-    if (values['signature-flags']) {
-      const signatureFlags = values['signature-flags'];
-      opts.optionsForFile = () => ({ signatureFlags });
-    }
+    const opts = { app, binaries, ...cliOptionsToSignOptions(values) };
     await sign(opts);
     console.log(`Application signed: ${app}`);
     process.exit(0);

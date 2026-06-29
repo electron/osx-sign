@@ -48,6 +48,29 @@ export function validateOptsIgnore(ignore: SignOptions['ignore']): ValidatedSign
 }
 
 /**
+ * Maps parsed command-line values from the `electron-osx-sign` CLI onto a {@link SignOptions} object.
+ * This keeps the CLI argument forwarding logic in one testable place.
+ */
+export function cliOptionsToSignOptions(values: {
+  ignore?: string[];
+  'signature-flags'?: string;
+}): {
+  ignore?: SignOptions['ignore'];
+  optionsForFile?: SignOptions['optionsForFile'];
+} {
+  const opts: {
+    ignore?: SignOptions['ignore'];
+    optionsForFile?: SignOptions['optionsForFile'];
+  } = {};
+  if (values.ignore) opts.ignore = values.ignore;
+  if (values['signature-flags']) {
+    const signatureFlags = values['signature-flags'];
+    opts.optionsForFile = () => ({ signatureFlags });
+  }
+  return opts;
+}
+
+/**
  * This function returns a promise validating all options passed in opts.
  */
 async function validateSignOpts(opts: SignOptions): Promise<Readonly<ValidatedSignOptions>> {
