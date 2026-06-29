@@ -141,7 +141,10 @@ This is not typically safe to apply to the entire Electron app and therefore sho
 ```javascript
 sign({
   app: 'path/to/my.app',
-  optionsForFile: (filePath) => {
+  optionsForFile: (filePath, { platform }) => {
+    // The second argument provides additional context about the current signing
+    // operation, such as the resolved `platform` ('darwin' or 'mas').
+
     // For our one specific file we can pass extra options to be merged
     // with the default options
     if (path.basename(filePath) === 'myStrangeFile.jar') {

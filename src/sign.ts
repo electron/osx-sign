@@ -244,7 +244,7 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
     }
 
     const perFileOptions = await mergeOptionsForFile(
-      opts.optionsForFile ? opts.optionsForFile(filePath) : null,
+      opts.optionsForFile ? opts.optionsForFile(filePath, { platform: opts.platform }) : null,
       defaultOptionsForFile(filePath, opts.platform),
     );
 
