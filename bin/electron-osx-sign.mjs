@@ -3,11 +3,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { sign } from '../dist/sign.js';
+import { cliOptionsToSignOptions, sign } from '../dist/sign.js';
 
 const { values, positionals } = parseArgs({
   options: {
     'signature-flags': { type: 'string' },
+    ignore: { type: 'string', multiple: true },
     help: { type: 'boolean' },
     'pre-auto-entitlements': { type: 'boolean', default: true },
     'pre-embed-provisioning-profile': { type: 'boolean', default: true },
@@ -28,7 +29,9 @@ if (!app || values.help) {
   process.exit(0);
 } else {
   try {
-    await sign({ app, binaries });
+    /** @type {import('../dist/types.js').SignOptions} */
+    const opts = { app, binaries, ...cliOptionsToSignOptions(values) };
+    await sign(opts);
     console.log(`Application signed: ${app}`);
     process.exit(0);
   } catch (err) {
