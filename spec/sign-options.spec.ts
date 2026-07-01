@@ -32,7 +32,9 @@ describe('cliOptionsToSignOptions', () => {
   it('forwards --signature-flags via optionsForFile', () => {
     const opts = cliOptionsToSignOptions({ 'signature-flags': 'library' });
     expect(opts.optionsForFile).toBeTypeOf('function');
-    expect(opts.optionsForFile!('/some/path')).toEqual({ signatureFlags: 'library' });
+    expect(opts.optionsForFile!('/some/path', { platform: 'darwin' })).toEqual({
+      signatureFlags: 'library',
+    });
   });
 
   it('omits options that were not provided', () => {

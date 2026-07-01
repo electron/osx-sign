@@ -113,6 +113,24 @@ export type PerFileSignOptions = {
 };
 
 /**
+ * Context passed as the second argument to the {@link OnlySignOptions.optionsForFile | optionsForFile}
+ * callback. This object can grow over time, so destructure only the properties you need.
+ * @interface
+ * @category Codesign
+ */
+export type OptionsForFileOptions = {
+  /**
+   * Build platform of your Electron app that is currently being signed.
+   * Allowed values: `darwin` (Direct Download App), `mas` (Mac App Store).
+   *
+   * This reflects the platform that `@electron/osx-sign` resolved for this run, which is
+   * useful when it was auto-detected from the presence of `Squirrel.framework` rather than
+   * passed explicitly.
+   */
+  platform: ElectronMacPlatform;
+};
+
+/**
  * @interface
  * @internal
  */
@@ -138,9 +156,11 @@ export type OnlySignOptions = {
    * values that `@electron/osx-sign` generates. Any properties not returned use the default value.
    *
    * @param filePath - Path to file
+   * @param options - Additional context about the current signing operation, such as the
+   * resolved {@link OptionsForFileOptions.platform | platform}.
    * @returns Override signing options
    */
-  optionsForFile?: (filePath: string) => PerFileSignOptions;
+  optionsForFile?: (filePath: string, options: OptionsForFileOptions) => PerFileSignOptions;
   /**
    * Flag to enable/disable validation for the signing identity.
    * If enabled, the {@link SignOptions.identity | identity} provided
