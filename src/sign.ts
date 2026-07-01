@@ -19,7 +19,7 @@ import {
   preEmbedProvisioningProfile,
   getProvisioningProfile,
 } from './util-provisioning-profiles.js';
-import { preAutoEntitlements } from './util-entitlements.js';
+import { ensureAppSandboxEntitlement, preAutoEntitlements } from './util-entitlements.js';
 import type {
   ElectronMacPlatform,
   PerFileSignOptions,
@@ -247,6 +247,14 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
       opts.optionsForFile ? opts.optionsForFile(filePath, { platform: opts.platform }) : null,
       defaultOptionsForFile(filePath, opts.platform),
     );
+
+    // Mac App Store builds must declare the app sandbox, otherwise the app will
+    // be signed successfully but silently rejected by the App Store. Enforce
+    // this on the top-level app bundle so a missing entitlement fails loudly at
+    // sign time rather than during App Store review.
+    if (opts.platform === 'mas' && filePath === opts.app) {
+      await ensureAppSandboxEntitlement(perFileOptions.entitlements);
+    }
 
     // preAutoEntitlements should only be applied to the top level app bundle.
     // Applying it other files will cause the app to crash and be rejected by Apple.
