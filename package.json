@@ -54,6 +54,7 @@
   "scripts": {
     "build": "tsc",
     "build:docs": "typedoc",
+    "bench": "yarn build && node spec/bench/pkg-benchmark.mjs",
     "lint": "oxfmt --check . && oxlint",
     "lint:fix": "oxfmt --write . && oxlint --fix",
     "test": "vitest run",

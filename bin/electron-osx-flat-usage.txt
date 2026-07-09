@@ -20,6 +20,11 @@ DESCRIPTION
   --identityValidation, --no-identityValidation
     Flag to enable/disable validation for the signing identity.
 
+  --implementation=implementation
+    Packaging implementation to use.
+    Allowed values: ``native'' (Apple's pkgbuild/productbuild), ``js'' (bundled pure-JavaScript implementation; faster and cross-platform for unsigned packages).
+    Default to ``native''.
+
   --install=install-path
     Path to install the bundle.
     Default to ``/Applications''.

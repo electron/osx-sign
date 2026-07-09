@@ -14,6 +14,12 @@ const { values, positionals } = parseArgs({
     identity: {
       type: 'string',
     },
+    implementation: {
+      type: 'string',
+    },
+    install: {
+      type: 'string',
+    },
     identityValidation: {
       type: 'boolean',
       default: false,
