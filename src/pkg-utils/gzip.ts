@@ -3,20 +3,9 @@ import zlib from 'node:zlib';
 export interface GzipOptions {
   /** zlib compression level (default 6, matching Apple's tools). */
   level?: number;
-  /**
-   * 'parallel' (default): split the input into chunks compressed concurrently
-   * on the libuv threadpool as raw deflate segments terminated with a sync
-   * flush, then stitch them into a single standard gzip member (the same
-   * technique pigz uses). Output is a plain single-member gzip stream that
-   * every decoder — including macOS Installer's payload extractor, which
-   * rejects multi-member streams — accepts.
-   * 'single': one sequential deflate stream; slower, marginally better
-   * compression (the dictionary survives across chunk boundaries).
-   */
-  strategy?: 'parallel' | 'single';
-  /** Bytes per compression chunk in parallel mode. */
+  /** Bytes per compression chunk. */
   chunkSize?: number;
-  /** Maximum concurrent compression jobs in parallel mode. */
+  /** Maximum concurrent compression jobs. */
   concurrency?: number;
 }
 
@@ -39,8 +28,12 @@ const FINAL_BLOCK = Buffer.from([0x03, 0x00]);
 
 /**
  * Compress an async stream of buffers to a single-member gzip stream.
- * Returns the ordered list of compressed buffers. In parallel mode,
- * compression of earlier chunks overlaps with production (file reads) of
+ * Returns the ordered list of compressed buffers. Chunks are compressed
+ * concurrently on the libuv threadpool as raw deflate segments terminated
+ * with a sync flush, then stitched into one standard gzip member (the same
+ * technique pigz uses) — macOS Installer's payload extractor rejects
+ * multi-member streams, so the framing must stay a plain single member.
+ * Compression of earlier chunks overlaps with production (file reads) of
  * later ones.
  */
 export async function gzipStream(
@@ -48,26 +41,6 @@ export async function gzipStream(
   opts: GzipOptions = {},
 ): Promise<Buffer[]> {
   const level = opts.level ?? 6;
-  const strategy = opts.strategy ?? 'parallel';
-
-  if (strategy === 'single') {
-    const gz = zlib.createGzip({ level });
-    const out: Buffer[] = [];
-    gz.on('data', (d: Buffer) => out.push(d));
-    const done = new Promise<void>((resolve, reject) => {
-      gz.on('end', resolve);
-      gz.on('error', reject);
-    });
-    for await (const chunk of source) {
-      if (!gz.write(chunk)) {
-        await new Promise<void>((resolve) => gz.once('drain', resolve));
-      }
-    }
-    gz.end();
-    await done;
-    return out;
-  }
-
   const chunkSize = opts.chunkSize ?? DEFAULT_CHUNK_SIZE;
   const concurrency = opts.concurrency ?? 8;
 

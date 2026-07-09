@@ -176,11 +176,11 @@ describe('gzip', () => {
     }
   });
 
-  it('single mode produces one gzip member', async () => {
+  it('handles inputs smaller than one chunk', async () => {
     async function* source() {
       yield Buffer.from('hello world');
     }
-    const parts = await gzipStream(source(), { strategy: 'single' });
+    const parts = await gzipStream(source());
     const out = Buffer.concat(parts);
     expect(zlib.gunzipSync(out).toString()).toBe('hello world');
   });

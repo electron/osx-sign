@@ -252,21 +252,15 @@ try {
   } else {
     console.log('  (native tools unavailable on this platform — JS pipelines only)');
   }
-  results.push(
-    await timePipeline('js (parallel compression, default)', RUNS, () =>
-      jsPipeline(app, outDir, undefined, 'js-parallel.pkg'),
-    ),
+  const jsResult = await timePipeline('js implementation', RUNS, () =>
+    jsPipeline(app, outDir, undefined, 'js.pkg'),
   );
-  results.push(
-    await timePipeline('js (single-stream compression)', RUNS, () =>
-      jsPipeline(app, outDir, { strategy: 'single' }, 'js-single.pkg'),
-    ),
-  );
+  results.push(jsResult);
 
   if (nativeAvailable) {
     process.stdout.write('\nVerifying JS payload matches the native payload... ');
     const native = normalizePayload(await payloadOf(results[0].output));
-    const js = normalizePayload(await payloadOf(results[2].output));
+    const js = normalizePayload(await payloadOf(jsResult.output));
     if (Buffer.compare(native, js) !== 0) {
       console.log('MISMATCH — benchmark outputs are not equivalent!');
       process.exitCode = 1;
