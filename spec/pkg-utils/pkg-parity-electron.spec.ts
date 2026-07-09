@@ -25,7 +25,7 @@ import {
 const hasNativeTools =
   process.platform === 'darwin' && ['productbuild', 'lsbom', 'xar'].every(commandExists);
 
-const ELECTRON_VERSION = '35.0.3';
+const ELECTRON_VERSION = '43.1.0';
 const WORK_CWD = path.join(import.meta.dirname, '..', 'work-pkg-electron');
 
 describe.runIf(hasNativeTools)('pkg parity with a real Electron.app', () => {

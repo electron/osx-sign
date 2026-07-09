@@ -102,7 +102,7 @@ async function acquireApp(workDir) {
     console.log(`Generating ~${mb} MB synthetic app...`);
     return { app: generateSyntheticApp(workDir, mb), label: `synthetic ${mb} MB app` };
   }
-  const version = process.env.OSX_SIGN_BENCH_ELECTRON ?? '35.0.3';
+  const version = process.env.OSX_SIGN_BENCH_ELECTRON ?? '43.1.0';
   const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
   console.log(`Downloading Electron v${version} (darwin-${arch})...`);
   const { downloadArtifact } = await import('@electron/get');
