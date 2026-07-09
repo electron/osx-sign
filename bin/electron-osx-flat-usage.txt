@@ -38,6 +38,10 @@ DESCRIPTION
     Allowed values: ``darwin'', ``mas''.
     Default to auto detect from application bundle.
 
+  --noIdentity
+    Flag to build an unsigned package, skipping signing identity discovery.
+    Required for building with ``--implementation=js'' on non-macOS platforms.
+
   --pkg
     Path to the output the flattened package.
     Needs file extension ``.pkg''.
