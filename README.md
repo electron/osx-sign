@@ -231,6 +231,8 @@ Notes on intentional differences from the native tools:
   zlib flavor; decompressed content is identical.
 - Extended attributes are not preserved (no AppleDouble `._*` entries are generated).
 - The app's `Info.plist` must be XML; binary property lists are rejected with an error.
+- Hardlinked files are stored as independent copies rather than deduplicated the way
+  pkgbuild archives them (Electron apps use symlinks, not hardlinks).
 - Individual files larger than 4 GB are rejected (the flat package Bom format stores
   32-bit sizes; `Size64` support is not implemented).
 - Files with NFC-normalized (composed) Unicode names are packaged correctly; native
