@@ -20,6 +20,11 @@ DESCRIPTION
   --identityValidation, --no-identityValidation
     Flag to enable/disable validation for the signing identity.
 
+  --implementation=implementation
+    Packaging implementation to use.
+    Allowed values: ``native'' (Apple's pkgbuild/productbuild), ``js'' (bundled pure-JavaScript implementation; faster and cross-platform for unsigned packages).
+    Default to ``native''.
+
   --install=install-path
     Path to install the bundle.
     Default to ``/Applications''.
@@ -32,6 +37,10 @@ DESCRIPTION
     Build platform of Electron.
     Allowed values: ``darwin'', ``mas''.
     Default to auto detect from application bundle.
+
+  --noIdentity
+    Flag to build an unsigned package, skipping signing identity discovery.
+    Required for building with ``--implementation=js'' on non-macOS platforms.
 
   --pkg
     Path to the output the flattened package.

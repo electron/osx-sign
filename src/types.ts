@@ -269,6 +269,18 @@ type OnlyFlatOptions = {
    * @defaultValue `false`
    */
   openPermissionsForSquirrelMac?: boolean;
+  /**
+   * Which packaging implementation builds the `.pkg`:
+   *
+   * - `'native'` shells out to Apple's `pkgbuild`/`productbuild` binaries.
+   * - `'js'` builds the flat package with the bundled pure-JavaScript
+   *   implementation — substantially faster and usable on any platform.
+   *   When an {@link BaseSignOptions.identity | identity} is provided the
+   *   built package is signed with `productsign` (macOS only).
+   *
+   * @defaultValue `"native"`
+   */
+  implementation?: 'native' | 'js';
 };
 
 type OnlyValidatedFlatOptions = {

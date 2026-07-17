@@ -13,6 +13,7 @@ import { Identity, findIdentities } from './util-identities.js';
 import type { FlatOptions, ValidatedFlatOptions } from './types.js';
 import { modifyPayloadPermissions } from './pkg-utils/cpio.js';
 import { setPermissionOnBom } from './pkg-utils/bom.js';
+import { buildProductArchive } from './pkg-utils/pkg.js';
 
 /**
  * This function returns a promise validating all options passed in opts.
@@ -49,6 +50,16 @@ async function validateFlatOpts(opts: FlatOptions): Promise<ValidatedFlatOptions
     debugWarn('Mac App Store packages cannot have `scripts`, ignoring option.');
   }
 
+  if (
+    opts.implementation !== undefined &&
+    opts.implementation !== 'native' &&
+    opts.implementation !== 'js'
+  ) {
+    throw new Error(
+      `\`implementation\` must be either \`native\` or \`js\`, got \`${String(opts.implementation)}\``,
+    );
+  }
+
   return {
     ...opts,
     pkg,
@@ -58,10 +69,69 @@ async function validateFlatOpts(opts: FlatOptions): Promise<ValidatedFlatOptions
 }
 
 /**
+ * Squirrel.Mac-friendly permissions: files and directories installed as
+ * root:admin with group-writable modes so any admin can update the app.
+ * Mirrors what {@link setPermissionOnBom} does to native pkgbuild output.
+ */
+function openPermissionsTransform(entry: { path: string; mode: number }): {
+  mode?: number;
+  gid: number;
+} {
+  // The payload root is always forced to 0775, matching the unconditional
+  // root rewrite in setPermissionOnBom.
+  if (entry.path === '.') return { mode: 0o775, gid: 80 };
+  const perms = entry.mode & 0o777;
+  const special = entry.mode & 0o7000;
+  let mode: number | undefined;
+  if (perms === 0o755) mode = special | 0o775;
+  else if (perms === 0o644) mode = special | 0o664;
+  return { mode, gid: 80 };
+}
+
+/**
+ * Build the flat package with the pure-JS implementation, then sign it with
+ * `productsign` when an identity was resolved.
+ */
+async function buildApplicationPkgJS(opts: ValidatedFlatOptions, identity: Identity | null) {
+  const unsignedPkg = identity ? `${opts.pkg}.unsigned` : opts.pkg;
+  debugLog('Flattening package with the JS implementation... ' + opts.app);
+  try {
+    await buildProductArchive({
+      app: opts.app,
+      installLocation: opts.install,
+      output: unsignedPkg,
+      // MAS packages go through `productbuild --component`; everything else
+      // historically used `pkgbuild` + `productbuild --package` (which is
+      // also the only shape that supports scripts).
+      componentStyle: opts.platform === 'mas',
+      scripts: opts.platform === 'mas' ? undefined : opts.scripts,
+      transformEntry: opts.openPermissionsForSquirrelMac ? openPermissionsTransform : undefined,
+    });
+
+    if (identity) {
+      debugLog('Signing package with productsign...', opts.pkg);
+      // productsign refuses to overwrite an existing destination, unlike
+      // `productbuild --sign` which the native path uses.
+      await fs.promises.rm(opts.pkg, { force: true });
+      const args = ['--sign', identity.name];
+      if (opts.keychain) args.unshift('--keychain', opts.keychain);
+      await execFileAsync('productsign', [...args, unsignedPkg, opts.pkg]);
+    }
+  } finally {
+    if (unsignedPkg !== opts.pkg) {
+      await fs.promises.rm(unsignedPkg, { force: true });
+    }
+  }
+}
+
+/**
  * This function returns a promise flattening the application.
  * @param opts - Options for building the .pkg archive
  */
 async function buildApplicationPkg(opts: ValidatedFlatOptions, identity: Identity | null) {
+  if (opts.implementation === 'js') {
+    return buildApplicationPkgJS(opts, identity);
+  }
   if (opts.platform === 'mas') {
     const signArgs = identity ? ['--sign', identity.name] : [];
     const args = ['--component', opts.app, opts.install, ...signArgs, opts.pkg];
