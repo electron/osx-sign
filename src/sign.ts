@@ -71,6 +71,42 @@ export function cliOptionsToSignOptions(values: {
 }
 
 /**
+ * Whether `filePath` is a binary inside a `.app` bundle's `Contents/MacOS/` directory.
+ *
+ * `codesign` treats a bundle's main executable as the bundle itself: signing
+ * `Foo.app/Contents/MacOS/Foo` seals `Foo.app`, which requires every nested code object
+ * under `Foo.app/Contents/` to already be signed, otherwise `codesign` fails with
+ * `code object is not signed at all` for the first unsigned subcomponent it finds.
+ */
+export function isBundleMainExecutable(filePath: string): boolean {
+  return /\.app\/Contents\/MacOS\/[^/]+$/.test(filePath);
+}
+
+/**
+ * Rank of a file in the signing order — higher ranks are signed first.
+ *
+ * Files are signed from the inside out (deeper paths first). Within a depth, binaries in a
+ * bundle's `Contents/MacOS/` come after everything else: nested code that lives directly under
+ * `Contents/<dir>/` — a flat helper in `Contents/Helpers/`, for example — sits at the same depth
+ * as the main executable, and signing the main executable seals the bundle (see
+ * {@link isBundleMainExecutable}), so depth alone doesn't guarantee that helper is signed first.
+ * Ranking is what both the one-file-per-`codesign` path and `batchCodesignCalls` order by, so
+ * the two produce the same sequence of seals.
+ */
+export function signingRank(filePath: string): number {
+  const depth = filePath.split(path.sep).length;
+  return depth * 2 + (isBundleMainExecutable(filePath) ? 0 : 1);
+}
+
+/**
+ * Sorts paths into the order they must be signed in. Stable, so files with the same rank keep
+ * their discovery order.
+ */
+export function sortForSigning(filePaths: readonly string[]): string[] {
+  return [...filePaths].sort((a, b) => signingRank(b) - signingRank(a));
+}
+
+/**
  * This function returns a promise validating all options passed in opts.
  */
 async function validateSignOpts(opts: SignOptions): Promise<Readonly<ValidatedSignOptions>> {
@@ -209,9 +245,9 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
     return false;
   }
 
-  const children = await walk(getAppContentsPath(opts));
+  const discovered = await walk(getAppContentsPath(opts));
 
-  if (opts.binaries) children.push(...opts.binaries);
+  if (opts.binaries) discovered.push(...opts.binaries);
 
   const args = ['--sign', identity.hash || identity.name, '--force'];
   if (opts.keychain) {
@@ -219,23 +255,20 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
   }
 
   /**
-   * Sort the child paths by how deep they are in the file tree.  Some arcane apple
-   * logic expects the deeper files to be signed first otherwise strange errors get
-   * thrown our way
+   * Sign from the inside out: codesign requires nested code to be signed before the code
+   * that contains it is sealed. See {@link signingRank} for the exact order.
    */
-  children.sort((a, b) => {
-    const aDepth = a.split(path.sep).length;
-    const bDepth = b.split(path.sep).length;
-    return bDepth - aDepth;
-  });
+  const children = sortForSigning(discovered);
 
   /**
-   * If `opts.batchCodesignCalls` is `true`, for each level in the file tree,
-   * we'll group together all files that use the same signing arguments so we
-   * can sign all of them with a single call to `codesign`, while still ensuring
-   * that the app files are signed from the inside out.
+   * If `opts.batchCodesignCalls` is `true`, for each signing rank (see {@link signingRank}),
+   * we'll group together all files that use the same signing arguments so we can sign all of
+   * them with a single call to `codesign`, while still ensuring that the app files are signed
+   * from the inside out. Grouping happens per rank rather than per depth so that a bundle's
+   * main executable can't be pulled into a batch that runs before a same-depth helper whose
+   * arguments differ (e.g. because it has its own entitlements).
    */
-  const filesWithSameArgsByDepth = new Map<number, Map<string, string[]>>();
+  const filesWithSameArgsByRank = new Map<number, Map<string, string[]>>();
 
   for (const filePath of [...children, opts.app]) {
     if (shouldIgnoreFilePath(filePath)) {
@@ -335,9 +368,8 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
     if (opts.batchCodesignCalls) {
       perFileArgs.push('--entitlements', perFileOptions.entitlements);
 
-      const fileDepth = filePath.split(path.sep).length;
-      const filesWithSameArgsMap =
-        filesWithSameArgsByDepth.get(fileDepth) ?? new Map<string, string[]>();
+      const rank = signingRank(filePath);
+      const filesWithSameArgsMap = filesWithSameArgsByRank.get(rank) ?? new Map<string, string[]>();
 
       const fileWithSameArgsMapKey = JSON.stringify(perFileArgs);
       filesWithSameArgsMap.set(
@@ -345,7 +377,7 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
         (filesWithSameArgsMap.get(fileWithSameArgsMapKey) ?? ([] as string[])).concat(filePath),
       );
 
-      filesWithSameArgsByDepth.set(fileDepth, filesWithSameArgsMap);
+      filesWithSameArgsByRank.set(rank, filesWithSameArgsMap);
     } else {
       await execFileAsync(
         'codesign',
@@ -355,7 +387,10 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
   }
 
   if (opts.batchCodesignCalls) {
-    for (const filesWithSameArgsMap of filesWithSameArgsByDepth.values()) {
+    // Map iteration follows insertion order, and files were inserted in signing order
+    // (`children` is sorted, `opts.app` comes last), so this signs in the same sequence
+    // as the one-file-per-call path above — just with fewer `codesign` invocations.
+    for (const filesWithSameArgsMap of filesWithSameArgsByRank.values()) {
       for (const [stringifiedArgs, filePaths] of filesWithSameArgsMap.entries()) {
         debugLog('Signing... ' + JSON.stringify(filePaths, null, 2));
 
