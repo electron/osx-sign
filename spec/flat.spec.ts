@@ -8,9 +8,13 @@ import zlib from 'node:zlib';
 import { flat } from '../src/index.js';
 import { readXar } from '../src/pkg-utils/xar.js';
 import { readBom } from '../src/pkg-utils/bom-reader.js';
-import { commandExists, infoPlist, parseCpio, writeFixtureTree } from './pkg-utils/helpers.js';
-
-const hasPkgutil = process.platform === 'darwin' && commandExists('pkgutil');
+import {
+  assertNativeTools,
+  infoPlist,
+  isDarwin,
+  parseCpio,
+  writeFixtureTree,
+} from './pkg-utils/helpers.js';
 
 describe('flat (js implementation)', () => {
   let tmp: string;
@@ -42,7 +46,8 @@ describe('flat (js implementation)', () => {
     expect(paths).toContain('Flat-component.pkg/PackageInfo');
     expect(paths).toContain('Flat-component.pkg/Bom');
 
-    if (hasPkgutil) {
+    if (isDarwin) {
+      assertNativeTools(['pkgutil']);
       const expanded = path.join(tmp, 'out', 'expanded');
       execFileSync('pkgutil', ['--expand-full', pkg, expanded], { stdio: 'pipe' });
       expect(

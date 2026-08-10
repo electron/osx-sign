@@ -9,7 +9,8 @@ import { buildComponentPackageFile, buildProductArchive } from '../../src/pkg-ut
 import { readXar } from '../../src/pkg-utils/xar.js';
 import { readBom } from '../../src/pkg-utils/bom-reader.js';
 import {
-  commandExists,
+  assertNativeTools,
+  isDarwin,
   FixtureFile,
   infoPlist,
   lsbomNormalized,
@@ -37,10 +38,6 @@ import {
  * is out of scope). On xattr-free hosts the filter is a no-op and the
  * comparison is a straight byte-for-byte check.
  */
-
-const isDarwin = process.platform === 'darwin';
-const hasNativeTools =
-  isDarwin && ['pkgbuild', 'productbuild', 'lsbom', 'xar', 'pkgutil'].every(commandExists);
 
 interface Fixture {
   name: string;
@@ -161,11 +158,12 @@ interface BuiltFixture {
   jsProductPkg: string;
 }
 
-describe.runIf(hasNativeTools)('pkg parity with native pkgbuild/productbuild', () => {
+describe.runIf(isDarwin)('pkg parity with native pkgbuild/productbuild', () => {
   let tmp: string;
   const built: BuiltFixture[] = [];
 
   beforeAll(async () => {
+    assertNativeTools(['pkgbuild', 'productbuild', 'lsbom', 'xar', 'pkgutil']);
     tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pkg-parity-'));
     for (const [index, fixture] of FIXTURES.entries()) {
       // Each app lives alone in its own parent directory: pkgbuild derives the
@@ -380,11 +378,5 @@ describe.runIf(hasNativeTools)('pkg parity with native pkgbuild/productbuild', (
       if (b.scriptsPath) expected.push('Scripts');
       expect(listing, b.fixture.name).toEqual(expected.sort());
     }
-  });
-});
-
-describe.runIf(!hasNativeTools)('pkg parity (skipped)', () => {
-  it('requires macOS with the native packaging tools installed', () => {
-    expect(true).toBe(true);
   });
 });

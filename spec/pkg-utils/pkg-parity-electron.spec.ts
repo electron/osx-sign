@@ -10,7 +10,8 @@ import { downloadArtifact } from '@electron/get';
 import { buildProductArchive } from '../../src/pkg-utils/pkg.js';
 import { readXar } from '../../src/pkg-utils/xar.js';
 import {
-  commandExists,
+  assertNativeTools,
+  isDarwin,
   lsbomNormalized,
   normalizeCpio,
   normalizeGeneratorVersion,
@@ -22,9 +23,6 @@ import {
  * `productbuild --component` output member by member.
  */
 
-const hasNativeTools =
-  process.platform === 'darwin' && ['productbuild', 'lsbom', 'xar'].every(commandExists);
-
 const ELECTRON_VERSION = '43.1.0';
 const WORK_CWD = path.join(import.meta.dirname, '..', 'work-pkg-electron');
 
@@ -32,12 +30,13 @@ const WORK_CWD = path.join(import.meta.dirname, '..', 'work-pkg-electron');
 // (xar + gunzip, or pkgutil --expand-full), which lands right around vitest's
 // default 5s on the shared macOS runners (the payload comparison has timed out
 // at 5010ms). Same budget as sign.spec.ts, which also works on a real app.
-describe.runIf(hasNativeTools)('pkg parity with a real Electron.app', { timeout: 60_000 }, () => {
+describe.runIf(isDarwin)('pkg parity with a real Electron.app', { timeout: 60_000 }, () => {
   let app: string;
   let nativePkg: string;
   let jsPkg: string;
 
   beforeAll(async () => {
+    assertNativeTools(['productbuild', 'pkgutil', 'lsbom', 'xar']);
     const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
     const artifact = await downloadArtifact({
       version: ELECTRON_VERSION,
@@ -108,11 +107,5 @@ describe.runIf(hasNativeTools)('pkg parity with a real Electron.app', { timeout:
     expect(lsbomNormalized(jsBomPath)).toEqual(
       lsbomNormalized(path.join(nativeDir, embedded, 'Bom')),
     );
-  });
-});
-
-describe.runIf(!hasNativeTools)('pkg parity with a real Electron.app (skipped)', () => {
-  it('requires macOS with the native packaging tools installed', () => {
-    expect(true).toBe(true);
   });
 });

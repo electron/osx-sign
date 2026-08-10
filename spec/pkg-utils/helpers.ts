@@ -160,6 +160,24 @@ export function commandExists(command: string): boolean {
   }
 }
 
+export const isDarwin = process.platform === 'darwin';
+
+/**
+ * Gate for the suites that compare against Apple's tooling: they skip off macOS
+ * (`describe.runIf(isDarwin)`), but on macOS every tool they need ships with the
+ * OS itself, so a missing one means the host or CI image is broken. Fail the
+ * suite in that case rather than silently skipping and losing the coverage.
+ */
+export function assertNativeTools(tools: string[]): void {
+  const missing = tools.filter((tool) => !commandExists(tool));
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing native packaging tool(s) on this macOS host: ${missing.join(', ')}. ` +
+        'These suites must run on macOS, so this is an environment problem, not a skip.',
+    );
+  }
+}
+
 const INFO_PLIST = (
   identifier: string,
   extra: Record<string, string>,
