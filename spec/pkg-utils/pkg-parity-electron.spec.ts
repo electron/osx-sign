@@ -28,7 +28,11 @@ const hasNativeTools =
 const ELECTRON_VERSION = '43.1.0';
 const WORK_CWD = path.join(import.meta.dirname, '..', 'work-pkg-electron');
 
-describe.runIf(hasNativeTools)('pkg parity with a real Electron.app', () => {
+// Every case here expands a ~100 MB package built from a real Electron.app
+// (xar + gunzip, or pkgutil --expand-full), which lands right around vitest's
+// default 5s on the shared macOS runners (the payload comparison has timed out
+// at 5010ms). Same budget as sign.spec.ts, which also works on a real app.
+describe.runIf(hasNativeTools)('pkg parity with a real Electron.app', { timeout: 60_000 }, () => {
   let app: string;
   let nativePkg: string;
   let jsPkg: string;
