@@ -29,6 +29,14 @@ export interface WalkEntry {
   linkTarget?: string;
   /** Children in on-disk (readdir) order — the order pkgbuild archives them. */
   children?: WalkEntry[];
+  /**
+   * Set when a {@link WalkOptions.transformEntry} rewrote `mode`. Only the Bom
+   * writer looks at this, and only for the root entry: pkgbuild records the
+   * payload root with mode 0, but a Bom rebuilt from a rewritten listing (which
+   * is what the native `openPermissionsForSquirrelMac` path produces via
+   * lsbom + mkbom) records the rewritten root mode.
+   */
+  modeRewritten?: boolean;
 }
 
 export interface WalkOptions {
@@ -89,6 +97,7 @@ export async function walkTree(targetDir: string, opts: WalkOptions = {}): Promi
     if (!patch) return entry;
     if (patch.mode !== undefined) {
       entry.mode = (entry.mode & S_IFMT) | (patch.mode & 0o7777);
+      entry.modeRewritten = true;
     }
     if (patch.uid !== undefined) entry.uid = patch.uid;
     if (patch.gid !== undefined) entry.gid = patch.gid;

@@ -254,7 +254,7 @@ describe('walk + cpio + bom', () => {
     const bom = readBom(writeBom(root, result.checksums));
     expect(bom.numberOfPaths).toBe(11); // 10 entries + trailer
     const byPath = new Map(bom.paths.map((p) => [p.path, p]));
-    expect(byPath.get('.')!.mode).toBe(0); // Apple stores 0 for the root
+    expect(byPath.get('.')!.mode).toBe(0); // pkgbuild stores 0 for the root
     expect(byPath.get('./Unit.app/Contents/Resources/data.txt')!.checksum).toBe(3287646509);
     expect(byPath.get('./Unit.app/Contents/Resources/link')!.linkTarget).toBe('data.txt');
     expect(byPath.get('./Unit.app/Contents/Resources/link')!.mode & 0o170000).toBe(0o120000);
@@ -271,6 +271,35 @@ describe('walk + cpio + bom', () => {
             Buffer.compare(Buffer.from(prev.name), Buffer.from(curr.name)) < 0),
       ).toBe(true);
     }
+  });
+
+  it('records a rewritten root mode in the bom', async () => {
+    // The zero root mode above is only pkgbuild's default. Once transformEntry
+    // rewrites the root (the openPermissionsForSquirrelMac case) the bom has to
+    // carry the rewritten mode, like the native lsbom + mkbom rewrite does.
+    const root = await walkTree(app, {
+      transformEntry: (entry) => (entry.path === '.' ? { mode: 0o775, gid: 80 } : undefined),
+    });
+    const result = newCpioWriteResult();
+    await collect(cpioStream(root, result));
+    const bom = readBom(writeBom(root, result.checksums));
+    const byPath = new Map(bom.paths.map((p) => [p.path, p]));
+    expect(byPath.get('.')!.mode).toBe(0o40775);
+    expect(byPath.get('.')!.gid).toBe(80);
+    // Entries the transform left alone are recorded exactly as before.
+    const untouched = [...cpioOrder(await walkTree(app))].find((e) => e.path === './Unit.app')!;
+    expect(byPath.get('./Unit.app')!.mode).toBe(untouched.mode);
+    expect(byPath.get('./Unit.app')!.gid).toBe(0);
+  });
+
+  it('leaves the root mode at zero when a transform touches only ownership', async () => {
+    const root = await walkTree(app, { transformEntry: () => ({ gid: 80 }) });
+    const result = newCpioWriteResult();
+    await collect(cpioStream(root, result));
+    const bom = readBom(writeBom(root, result.checksums));
+    const rootPath = bom.paths.find((p) => p.path === '.')!;
+    expect(rootPath.mode).toBe(0);
+    expect(rootPath.gid).toBe(80);
   });
 
   it('splits large path sets across multiple bom tree leaves', async () => {

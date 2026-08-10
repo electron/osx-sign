@@ -78,7 +78,9 @@ function openPermissionsTransform(entry: { path: string; mode: number }): {
   gid: number;
 } {
   // The payload root is always forced to 0775, matching the unconditional
-  // root rewrite in setPermissionOnBom.
+  // root rewrite in setPermissionOnBom. This lands in both the payload and the
+  // Bom: the Bom writer only zeroes the root mode (pkgbuild style) when nothing
+  // rewrote it.
   if (entry.path === '.') return { mode: 0o775, gid: 80 };
   const perms = entry.mode & 0o777;
   const special = entry.mode & 0o7000;

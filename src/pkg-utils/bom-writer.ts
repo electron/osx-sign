@@ -123,7 +123,10 @@ function pathInfo2(entry: WalkEntry, checksum: number): Buffer {
   buf.writeUInt8(PATH_TYPE[entry.type], 0);
   buf.writeUInt8(1, 1); // unknown, always 1
   buf.writeUInt16BE(isRoot ? 0x01 : 0x0f, 2); // "architecture"
-  buf.writeUInt16BE(isRoot ? 0 : entry.mode & 0xffff, 4);
+  // pkgbuild records the root with mode 0. When a transform rewrote the root
+  // (openPermissionsForSquirrelMac) record the rewritten mode instead, which is
+  // what the native path ends up with after its lsbom + mkbom round trip.
+  buf.writeUInt16BE(isRoot && !entry.modeRewritten ? 0 : entry.mode & 0xffff, 4);
   buf.writeUInt32BE(entry.uid, 6);
   buf.writeUInt32BE(entry.gid, 10);
   buf.writeUInt32BE(isRoot ? 0 : entry.mtime, 14);

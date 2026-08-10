@@ -12,6 +12,7 @@ import {
   assertNativeTools,
   infoPlist,
   isDarwin,
+  lsbomNormalized,
   parseCpio,
   writeFixtureTree,
 } from './pkg-utils/helpers.js';
@@ -123,8 +124,43 @@ describe('flat (js implementation)', () => {
     }
     const bom = readBom(members.find((m) => m.path.endsWith('/Bom'))!.data!);
     for (const bomPath of bom.paths) {
-      if (bomPath.path === '.') continue;
       expect(bomPath.gid, bomPath.path).toBe(80);
     }
+    // The Bom normally records the root with mode 0 (pkgbuild's convention), but
+    // the rewrite has to reach it too, the same way the native lsbom + mkbom
+    // rewrite forces the root line to 40775.
+    expect(bom.paths.find((p) => p.path === '.')!.mode).toBe(0o40775);
+    expect(bom.paths.find((p) => p.path === './Flat.app')!.mode).toBe(0o40775);
   });
+
+  it.runIf(isDarwin)(
+    'produces the same squirrel-friendly Bom as the native rewrite',
+    { timeout: 60_000 },
+    async () => {
+      // Everything the native openPermissionsForSquirrelMac path shells out to.
+      assertNativeTools(['pkgbuild', 'productbuild', 'xar', 'lsbom', 'mkbom']);
+      const outDir = path.join(tmp, 'out-squirrel-parity');
+      fs.mkdirSync(outDir, { recursive: true });
+      const bomFor = async (implementation: 'native' | 'js') => {
+        const pkg = path.join(outDir, `${implementation}.pkg`);
+        await flat({
+          app,
+          pkg,
+          identity: null,
+          platform: 'darwin',
+          implementation,
+          openPermissionsForSquirrelMac: true,
+        });
+        const members = await readXar(pkg);
+        const bomPath = path.join(outDir, `${implementation}-Bom`);
+        fs.writeFileSync(bomPath, members.find((m) => m.path.endsWith('/Bom'))!.data!);
+        return bomPath;
+      };
+      const native = await bomFor('native');
+      const js = await bomFor('js');
+      // Default lsbom output prints path, mode and uid/gid for every entry (plus
+      // size/checksum for files), so this pins the root record along with the rest.
+      expect(lsbomNormalized(js)).toEqual(lsbomNormalized(native));
+    },
+  );
 });
