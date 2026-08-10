@@ -54,8 +54,8 @@ describe('signingRank', () => {
 describe('sortForSigning', () => {
   it('signs a bundle main executable after the same-depth nested code it seals', () => {
     // Discovery order deliberately lists MacOS/ before Helpers/: ordering by depth alone
-    // would sign the main executable — which seals the bundle — while the helper is
-    // still unsigned.
+    // would sign the main executable (which seals the bundle) while the helper is still
+    // unsigned.
     expect(sortForSigning([main, flatHelper])).toEqual([flatHelper, main]);
     expect(sortForSigning([helperAppMain, helperAppTool])).toEqual([helperAppTool, helperAppMain]);
   });

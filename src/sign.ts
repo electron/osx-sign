@@ -83,11 +83,11 @@ export function isBundleMainExecutable(filePath: string): boolean {
 }
 
 /**
- * Rank of a file in the signing order — higher ranks are signed first.
+ * Rank of a file in the signing order. Higher ranks are signed first.
  *
  * Files are signed from the inside out (deeper paths first). Within a depth, binaries in a
  * bundle's `Contents/MacOS/` come after everything else: nested code that lives directly under
- * `Contents/<dir>/` — a flat helper in `Contents/Helpers/`, for example — sits at the same depth
+ * `Contents/<dir>/` (a flat helper in `Contents/Helpers/`, for example) sits at the same depth
  * as the main executable, and signing the main executable seals the bundle (see
  * {@link isBundleMainExecutable}), so depth alone doesn't guarantee that helper is signed first.
  * Ranking is what both the one-file-per-`codesign` path and `batchCodesignCalls` order by, so
@@ -389,7 +389,7 @@ async function signApplication(opts: ValidatedSignOptions, identity: Identity) {
   if (opts.batchCodesignCalls) {
     // Map iteration follows insertion order, and files were inserted in signing order
     // (`children` is sorted, `opts.app` comes last), so this signs in the same sequence
-    // as the one-file-per-call path above — just with fewer `codesign` invocations.
+    // as the one-file-per-call path above, just with fewer `codesign` invocations.
     for (const filesWithSameArgsMap of filesWithSameArgsByRank.values()) {
       for (const [stringifiedArgs, filePaths] of filesWithSameArgsMap.entries()) {
         debugLog('Signing... ' + JSON.stringify(filePaths, null, 2));

@@ -43,7 +43,7 @@ describe.runIf(process.platform === 'darwin')('sign', () => {
           // A flat helper directly under Contents/Helpers/ is nested code at the same depth
           // as Contents/MacOS/Electron. Give it different signing arguments so that, under
           // batchCodesignCalls, it lands in a different codesign batch from the main
-          // executable — signing the main executable seals the bundle, so if its batch runs
+          // executable. Signing the main executable seals the bundle, so if its batch runs
           // first codesign fails with "code object is not signed at all" for the helper.
           const helpersDir = path.join(app, 'Contents', 'Helpers');
           await fs.promises.mkdir(helpersDir, { recursive: true });
