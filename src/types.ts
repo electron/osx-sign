@@ -181,8 +181,12 @@ export type OnlySignOptions = {
   ignore?: string | string[] | ((file: string) => boolean);
   /**
    * Flag to enable/disable entitlements automation tasks necessary for code signing most Electron apps.
-   * * Adds [`com.apple.security.application-groups`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_application-groups) to the entitlements file
+   * The automation runs when the app's entitlements enable `com.apple.security.app-sandbox`, or when a
+   * {@link OnlySignOptions.provisioningProfile | provisioning profile} is supplied (a profile only grants
+   * its restricted entitlements to code carrying the matching identifier entitlements below).
    * * Fills in the `ElectronTeamID` property in `Info.plist` with the provisioning profile's Team Identifier or by parsing the identity name.
+   * * Adds `com.apple.application-identifier` and `com.apple.developer.team-identifier` to the entitlements file.
+   * * For sandboxed apps, also adds [`com.apple.security.application-groups`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_application-groups) to the entitlements file.
    *
    * @defaultValue `true`
    */
