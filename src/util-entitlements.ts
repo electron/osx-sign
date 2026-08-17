@@ -17,6 +17,27 @@ type ComputedOptions = {
 const preAuthMemo = new Map<string, string>();
 
 /**
+ * Ensures that the entitlements file used to sign a Mac App Store (`mas`) build
+ * enables the app sandbox. Apps submitted to the Mac App Store are required to
+ * declare `com.apple.security.app-sandbox`; without it, Apple silently rejects
+ * the submission after a successful signing, which is difficult to diagnose.
+ *
+ * This throws a hard error so the problem surfaces at sign time rather than as
+ * an opaque App Store rejection.
+ */
+export async function ensureAppSandboxEntitlement(entitlementsPath: string): Promise<void> {
+  const entitlementsContents = await fs.promises.readFile(entitlementsPath, 'utf8');
+  const entitlements = plist.parse(entitlementsContents) as Record<string, any>;
+  if (!entitlements['com.apple.security.app-sandbox']) {
+    throw new Error(
+      `Mac App Store builds require the \`com.apple.security.app-sandbox\` entitlement to be enabled, but it was missing from the entitlements file at "${entitlementsPath}". ` +
+        'Without this entitlement your app will be signed successfully but silently rejected by the Mac App Store. ' +
+        'Add `com.apple.security.app-sandbox` (set to `true`) to your entitlements file.',
+    );
+  }
+}
+
+/**
  * This function returns a promise completing the entitlements automation: The
  * process includes checking in `Info.plist` for `ElectronTeamID` or setting
  * parsed value from identity, and checking in entitlements file for
