@@ -202,6 +202,44 @@ flat({
 The only mandatory option for `flat` is a path to your `.app` package.
 For full configuration options, see the [API documentation].
 
+### Pure-JavaScript packaging
+
+By default `flat` shells out to Apple's `pkgbuild`/`productbuild` binaries. Passing
+`implementation: 'js'` switches to a bundled pure-JavaScript implementation of the
+flat package format that is typically **4–5× faster** on a real Electron app and works
+on any platform (Linux/Windows included) for unsigned packages:
+
+```javascript
+await flat({
+  app: 'path/to/my.app',
+  implementation: 'js',
+});
+```
+
+The JS implementation reimplements the entire flat package stack — the cpio payload
+archive, Apple's Bill-of-Materials (`Bom`) binary format, the `PackageInfo`/`Distribution`
+documents and the outer xar archive. Its output is verified against the native tools by
+an extensive parity test suite (`spec/pkg-utils/`): uncompressed payloads are
+byte-identical, `lsbom` output matches on every field, and the XML documents are
+byte-identical modulo the `generator-version` attribute. Run `yarn bench` to reproduce
+the performance comparison on your machine.
+
+Notes on intentional differences from the native tools:
+
+- The payload is gzip-compressed as a standards-compliant multi-member stream so members
+  can be compressed in parallel. Compressed output is ~3% larger than Apple's private
+  zlib flavor; decompressed content is identical.
+- Extended attributes are not preserved (no AppleDouble `._*` entries are generated).
+- The app's `Info.plist` must be XML; binary property lists are rejected with an error.
+- Hardlinked files are stored as independent copies rather than deduplicated the way
+  pkgbuild archives them (Electron apps use symlinks, not hardlinks).
+- Individual files larger than 4 GB are rejected (the flat package Bom format stores
+  32-bit sizes; `Size64` support is not implemented).
+- Files with NFC-normalized (composed) Unicode names are packaged correctly; native
+  `pkgbuild` silently omits such files from the payload.
+- When a signing `identity` is provided, the built package is signed with `productsign`,
+  which requires macOS.
+
 ## CLI
 
 `@electron/osx-sign` also exposes a legacy command-line interface (CLI) for both signing

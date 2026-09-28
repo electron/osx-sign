@@ -37,6 +37,30 @@ describe.runIf(process.platform === 'darwin')('sign', () => {
           }; // test with no other options for self discovery
           await expect(sign(opts)).resolves.not.toThrow();
         });
+
+        it('signs same-depth nested code before the main executable seals the bundle', async () => {
+          const app = path.join(dir, 'Electron.app');
+          // A flat helper directly under Contents/Helpers/ is nested code at the same depth
+          // as Contents/MacOS/Electron. Give it different signing arguments so that, under
+          // batchCodesignCalls, it lands in a different codesign batch from the main
+          // executable. Signing the main executable seals the bundle, so if its batch runs
+          // first codesign fails with "code object is not signed at all" for the helper.
+          const helpersDir = path.join(app, 'Contents', 'Helpers');
+          await fs.promises.mkdir(helpersDir, { recursive: true });
+          await fs.promises.copyFile(
+            path.join(app, 'Contents', 'MacOS', 'Electron'),
+            path.join(helpersDir, 'helper'),
+          );
+
+          const opts = {
+            app,
+            identity: 'codesign.electronjs.org (T123456)',
+            batchCodesignCalls: true,
+            optionsForFile: (filePath: string) =>
+              filePath.startsWith(helpersDir + path.sep) ? { hardenedRuntime: false } : {},
+          };
+          await expect(sign(opts)).resolves.not.toThrow();
+        });
       });
     });
   });

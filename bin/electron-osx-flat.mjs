@@ -14,6 +14,16 @@ const { values, positionals } = parseArgs({
     identity: {
       type: 'string',
     },
+    implementation: {
+      type: 'string',
+    },
+    install: {
+      type: 'string',
+    },
+    noIdentity: {
+      type: 'boolean',
+      default: false,
+    },
     identityValidation: {
       type: 'boolean',
       default: false,
@@ -40,7 +50,11 @@ const { values, positionals } = parseArgs({
 
 const app = positionals.shift();
 
-const { help, ...opts } = values;
+const { help, noIdentity, ...opts } = values;
+if (noIdentity) {
+  // identity: null skips identity discovery and signing entirely.
+  opts.identity = null;
+}
 
 if (!app || help || positionals.length > 0) {
   const usage = fs
