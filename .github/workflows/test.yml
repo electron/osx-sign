@@ -63,3 +63,23 @@ jobs:
         run: yarn vitest run spec/pkg-utils spec/flat.spec.ts
       - name: CLI smoke test
         run: node spec/ci/js-flat-smoke.mjs
+
+  required-ci:
+    needs:
+      - test
+      - test-linux
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Fail if any required job failed or was cancelled
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+          TEST_LINUX_RESULT: ${{ needs.test-linux.result }}
+        run: |
+          echo "One or more required jobs did not succeed:"
+          echo "  test: $TEST_RESULT"
+          echo "  test-linux: $TEST_LINUX_RESULT"
+          exit 1
+      - name: We are done
+        run: echo "Hello World"
