@@ -3,9 +3,9 @@ import os from 'node:os';
 import path from 'node:path';
 
 import plist from 'plist';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
-import { preAutoEntitlements } from '../src/util-entitlements.js';
+import { ensureAppSandboxEntitlement, preAutoEntitlements } from '../src/util-entitlements.js';
 import { Identity } from '../src/util-identities.js';
 import { ProvisioningProfile } from '../src/util-provisioning-profiles.js';
 import type { ValidatedSignOptions } from '../src/types.js';
@@ -135,5 +135,54 @@ describe('preAutoEntitlements', () => {
     await expect(
       preAutoEntitlements(opts, { entitlements: entitlementsPath }, { identity: IDENTITY }),
     ).resolves.toBeUndefined();
+  });
+});
+
+async function writeEntitlements(entitlements: Record<string, unknown>): Promise<string> {
+  const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'osx-sign-spec-'));
+  const entitlementsPath = path.join(dir, 'entitlements.plist');
+  await fs.promises.writeFile(entitlementsPath, plist.build(entitlements), 'utf8');
+  return entitlementsPath;
+}
+
+describe('ensureAppSandboxEntitlement', () => {
+  const created: string[] = [];
+
+  afterEach(async () => {
+    await Promise.all(
+      created
+        .splice(0)
+        .map((entitlementsPath) =>
+          fs.promises.rm(path.dirname(entitlementsPath), { recursive: true, force: true }),
+        ),
+    );
+  });
+
+  it('throws when the app-sandbox entitlement is missing', async () => {
+    const entitlementsPath = await writeEntitlements({
+      'com.apple.security.network.client': true,
+    });
+    created.push(entitlementsPath);
+    await expect(ensureAppSandboxEntitlement(entitlementsPath)).rejects.toThrow(
+      /com\.apple\.security\.app-sandbox/,
+    );
+  });
+
+  it('throws when the app-sandbox entitlement is disabled', async () => {
+    const entitlementsPath = await writeEntitlements({
+      'com.apple.security.app-sandbox': false,
+    });
+    created.push(entitlementsPath);
+    await expect(ensureAppSandboxEntitlement(entitlementsPath)).rejects.toThrow(
+      /com\.apple\.security\.app-sandbox/,
+    );
+  });
+
+  it('resolves when the app-sandbox entitlement is enabled', async () => {
+    const entitlementsPath = await writeEntitlements({
+      'com.apple.security.app-sandbox': true,
+    });
+    created.push(entitlementsPath);
+    await expect(ensureAppSandboxEntitlement(entitlementsPath)).resolves.toBeUndefined();
   });
 });
