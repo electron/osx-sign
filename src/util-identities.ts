@@ -25,10 +25,17 @@ export async function findIdentities(keychain: string | null, identity: string, 
   }
 
   const result = await execFileAsync('security', args);
+  // When running with validate=false. All valid identities will appear in results twice. Set() on unique hash is used here to prevent duplicates stacking up
+  const seen: Set<string> = new Set();
+
   const identities = result.split('\n').map(function (line) {
     if (line.indexOf(identity) >= 0) {
       const identityFound = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
       const identityHashFound = line.substring(line.indexOf(')') + 2, line.indexOf('"') - 1);
+      if (seen.has(identityHashFound)) {
+        return null; // duplicate
+      }
+      seen.add(identityHashFound);
       debugLog('Identity:', '\n', '> Name:', identityFound, '\n', '> Hash:', identityHashFound);
       return new Identity(identityFound, identityHashFound);
     }
@@ -37,7 +44,7 @@ export async function findIdentities(keychain: string | null, identity: string, 
   });
 
   if(identities.length==0 && !validate){
-    debugLog('Failed to look up full identity-hash & name pair, using input identity as-is:', identity, err);
+    debugLog('Failed to look up full identity-hash & certificate-name pair, using input identity as-is:', identity, err);
     identities.push(new Identitity(identity))
   }
 
