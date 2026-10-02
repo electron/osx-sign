@@ -7,11 +7,19 @@ export class Identity {
   ) {}
 }
 
-export async function findIdentities(keychain: string | null, identity: string) {
-  // Only to look for valid identities, excluding those flagged with
-  // CSSMERR_TP_CERT_EXPIRED or CSSMERR_TP_NOT_TRUSTED. Fixes #9
+export async function findIdentities(keychain: string | null, identity: string, validate: bool = true) {
+  // An incoming identity string will be either a certificateName OR the identityHash for a certificate.
+  // Certain edge-cases require us to have the identityHash to correctly invoke `codesign`.
+  // Other flows require us to have the certificateName for automatic plist entitlement management done by osx-sign.
+  // For those reasons, we always try to extrapolate the full certificateName & identityHash pair
+  // More info here : https://github.com/electron/osx-sign/issues/452
 
-  const args = ['find-identity', '-v'];
+  const args = ['find-identity'];
+  if(validate){
+    // Only to look for valid identities, excluding those flagged with
+    // CSSMERR_TP_CERT_EXPIRED or CSSMERR_TP_NOT_TRUSTED. Fixes #9
+    args.push('-v');
+  }
   if (keychain) {
     args.push(keychain);
   }
@@ -27,6 +35,11 @@ export async function findIdentities(keychain: string | null, identity: string) 
 
     return null;
   });
+
+  if(identities.length==0 && !validate){
+    debugLog('Failed to look up full identity-hash & name pair, using input identity as-is:', identity, err);
+    identities.push(new Identitity(identity))
+  }
 
   return compactFlattenedList(identities);
 }

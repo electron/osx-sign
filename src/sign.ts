@@ -440,11 +440,7 @@ export async function sign(_opts: SignOptions) {
   // Determine identity for signing
   if (validatedOpts.identity) {
     debugLog('`identity` passed in arguments.');
-    if (validatedOpts.identityValidation === false) {
-      identityInUse = new Identity(validatedOpts.identity);
-    } else {
-      identities = await findIdentities(validatedOpts.keychain || null, validatedOpts.identity);
-    }
+    identities = await findIdentities(validatedOpts.keychain || null, validatedOpts.identity, !(validatedOpts.identityValidation === false));
   } else {
     debugWarn('No `identity` passed in arguments...');
     if (validatedOpts.platform === 'mas') {
