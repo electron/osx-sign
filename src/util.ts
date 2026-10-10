@@ -47,6 +47,43 @@ export async function execFileAsync(
 type DeepListItem<T> = null | T | DeepListItem<T>[];
 type DeepList<T> = DeepListItem<T>[];
 
+/**
+ * A queue of promises, never running more than `limit` at the same time.
+ * @internal
+ */
+export class PromiseParallelismLimiter {
+  private numRunningPromsies = 0;
+  private readonly waitingPromises: (() => void)[] = [];
+
+  constructor(private maxRunningPromises: number) {
+    if (maxRunningPromises < 1) {
+      throw new Error('parallelism limit < 1 would never run anything.');
+    }
+  }
+
+  async run<T>(promise: () => Promise<T>): Promise<T> {
+      if(this.numRunningPromsies > this.maxRunningPromises) {
+      await new Promise<void>((resolve) => {
+        this.waitingPromises.push(resolve);
+      });
+    }
+
+    try {
+      // we have to await, lest the finally fire instantly
+      return await promise();
+    } finally {
+      this.numRunningPromsies--
+      
+      // grab the next promise in line.
+      // if we have space, run it right now.
+      const next = this.waitingPromises.shift();
+      if (next) {
+        next();
+      }
+    }
+  }
+}
+
 export function compactFlattenedList<T>(list: DeepList<T>): T[] {
   const result: T[] = [];
 
@@ -127,6 +164,14 @@ export async function validateOptsPlatform(opts: BaseSignOptions): Promise<Elect
   return await detectElectronPlatform(opts);
 }
 
+// The max number of file handles we're allowed to hold open at once
+// `walk` opens every file in we want to sign to check if it's a binary.
+// Every single open call holds a file descriptor. and we quickly hit ulimit,
+// thus throwing an EMFILE, if you have a very lakge set of files to sign.
+// 100 is a very safe number of files to hold open concurrently.
+// It's higher than basically every ulimit.
+export const MAX_OPEN_FILE_DESCRIPTORS = 100;
+
 /**
  * This function returns a promise resolving all child paths within the directory specified.
  *
@@ -137,21 +182,26 @@ export async function validateOptsPlatform(opts: BaseSignOptions): Promise<Elect
 export async function walk(dirPath: string): Promise<string[]> {
   debugLog('Walking... ' + dirPath);
 
+  // A directory waits for its children, so  we make the limiter limit by
+  // file system operations, instead of redccursive _walkAsync calls,
+  // beacuse those could deadlock on deep directory trees.
+  const limiter = new PromiseParallelismLimiter(MAX_OPEN_FILE_DESCRIPTORS);
+
   async function _walkAsync(dirPath: string): Promise<DeepList<string>> {
-    const children = await fs.promises.readdir(dirPath);
+    const children = await limiter.run(() => fs.promises.readdir(dirPath));
     return await Promise.all(
       children.map(async (child) => {
         const filePath = path.resolve(dirPath, child);
 
-        const stat = await fs.promises.lstat(filePath);
+        const stat = await limiter.run(() => fs.promises.lstat(filePath));
         if (stat.isFile()) {
           switch (path.extname(filePath)) {
             case '.cstemp': // Temporary file generated from past codesign
               debugLog('Removing... ' + filePath);
-              await fs.promises.rm(filePath, { recursive: true, force: true });
+              await limiter.run(() => fs.promises.rm(filePath, { recursive: true, force: true }));
               return null;
             default:
-              return await getFilePathIfBinary(filePath);
+              return await limiter.run(() => getFilePathIfBinary(filePath));
           }
         } else if (stat.isDirectory() && !stat.isSymbolicLink()) {
           const walkResult = await _walkAsync(filePath);
