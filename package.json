@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@electron-internal/extract-zip": "^1.0.1",
-    "@electron/get": "^4.0.0",
+    "@electron/get": "^5.0.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/debug": "^4.1.7",
     "@types/node": "~22.12.0",
