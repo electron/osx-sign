@@ -14,7 +14,7 @@ import {
   validateOptsPlatform,
   walk,
 } from './util.js';
-import { Identity, findIdentities } from './util-identities.js';
+import { Identity, findIdentities, resolveUnvalidatedIdentity } from './util-identities.js';
 import {
   preEmbedProvisioningProfile,
   getProvisioningProfile,
@@ -441,7 +441,10 @@ export async function sign(_opts: SignOptions) {
   if (validatedOpts.identity) {
     debugLog('`identity` passed in arguments.');
     if (validatedOpts.identityValidation === false) {
-      identityInUse = new Identity(validatedOpts.identity);
+      identityInUse = await resolveUnvalidatedIdentity(
+        validatedOpts.keychain || null,
+        validatedOpts.identity,
+      );
     } else {
       identities = await findIdentities(validatedOpts.keychain || null, validatedOpts.identity);
     }
